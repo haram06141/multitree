@@ -303,7 +303,8 @@ addLayer("tptc_g", {
 	branches: ["tptc_p"],
 	effect() {
 		let ret = player.tptc_g.points;
-		let base = new Decimal(2).mul(tmp.tptc_sg.getSGenPowerEff);
+		let base = new Decimal(2);
+		base = base.add(tmp.tptc_sg.getSGenPowerEff);
 		base = base.add(tmp.tptc_e.buyables[11].effect[0]);
 		ret = Decimal.pow(base,ret).mul(ret);
 		ret = ret.mul(tmp.tptc_q.quirkEff);
@@ -790,7 +791,7 @@ addLayer("tptc_sg", {
                     ["blank", "5px"],
                     ["display-text",
                         function() {
-							return 'You have ' + format(player.tptc_sg.power) + ' Super Generator Power, which multiplies the Generator base by ' + format(tmp.tptc_sg.getSGenPowerEff);
+							return 'You have ' + format(player.tptc_sg.power) + ' Super Generator Power, which adds the Generator base by ' + format(tmp.tptc_sg.getSGenPowerEff);
 						},
                         {}]
 				],
@@ -815,7 +816,7 @@ addLayer("tptc_sg", {
 		 player.tptc_sg.power = player.tptc_sg.power.add(tmp.tptc_sg.effect.times(diff)).max(0)
 	 },
 	getSGenPowerEff(){
-		return player.tptc_sg.power.add(1).pow(0.4);
+		return player.tptc_sg.power.add(1).pow(0.4).sub(1).mul(2);
 	},
 	 canBuyMax(){
 		 return player.tptc_sp.best.gte(1);
