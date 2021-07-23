@@ -2334,7 +2334,7 @@ addLayer("stardust_n", {
             },
 			12: {
 				title: "Nebulae Upgrade 12",
-                description: "Generators in The Prestige Tree Classic are cheaper based on your stars.",
+                description: "Generators in The Prestige Tree Classic are cheaper based on your nebulae.",
                 cost: new Decimal(1e5),
                 unlocked() { return player.tm.buyables[2].gte(5); }, // The upgrade is only visible when this is true
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
