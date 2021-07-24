@@ -24,6 +24,7 @@ addLayer("tm", {
     row: "side", // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
             {key: "m", description: "M: Show Tree Manager<br>Hotkeys below this line are based on the current tree.<br>", onPress(){if(hasUpgrade("tptc_p",13))document.getElementById("tm").click();}},
+			{key: "ifyoucantseethehotkeys", description: "If you can't see the hotkeys below, re-enter the info tab", onPress(){}},
 	],
     layerShown(){return hasUpgrade("tptc_p",13);},
 	tabFormat: function(){

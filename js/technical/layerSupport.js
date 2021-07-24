@@ -22,10 +22,10 @@ function updateHotkeys()
 	hotkeys[layers.tm.hotkeys[0].key].layer = 'tm';
 	hotkeys[layers.tm.hotkeys[0].key].id = 0;
 	hotkeys[layers.tm.hotkeys[0].key].unlocked = true;
-	//hotkeys[layers.tm.hotkeys[1].key] = layers.tm.hotkeys[1];
-	//hotkeys[layers.tm.hotkeys[1].key].layer = 'tm';
-	//hotkeys[layers.tm.hotkeys[1].key].id = 1;
-	//hotkeys[layers.tm.hotkeys[1].key].unlocked = true;
+	hotkeys[layers.tm.hotkeys[1].key] = layers.tm.hotkeys[1];
+	hotkeys[layers.tm.hotkeys[1].key].layer = 'tm';
+	hotkeys[layers.tm.hotkeys[1].key].id = 1;
+	hotkeys[layers.tm.hotkeys[1].key].unlocked = true;
 }
 
 var ROW_LAYERS = {}
