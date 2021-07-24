@@ -1675,7 +1675,7 @@ addLayer("tptc_l", {
 					"Effect: +"+format(data.effect)+" to Hyper Booster base";
                 },
 				effect(){
-					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.log10().add(1));
+					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return x.pow(0.1).sub(1).div(5).max(0);
 				},
                 unlocked() { return hasUpgrade("tptc_l",11) }, 
@@ -1698,7 +1698,7 @@ addLayer("tptc_l", {
 					"Effect: Gain "+format(data.effect)+"x more Hexes";
                 },
 				effect(){
-					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.log10().add(1));
+					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return Decimal.pow(50,x.pow(0.5));
 				},
                 unlocked() { return hasUpgrade("tptc_l",12) }, 
