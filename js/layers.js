@@ -22,7 +22,9 @@ addLayer("tm", {
         return new Decimal(1)
     },
     row: "side", // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [],
+    hotkeys: [
+            {key: "m", description: "M: Show Tree Manager<br>Hotkeys below this line are based on the current tree.<br>", onPress(){if(hasUpgrade("tptc_p",13))document.getElementById("tm").click();}},
+	],
     layerShown(){return hasUpgrade("tptc_p",13);},
 	tabFormat: function(){
 		let ret=["main-display"];
@@ -166,6 +168,32 @@ addLayer("tm", {
 			if(player.tm.buyables[i].lt(1))player.tm.buyables[i]=new Decimal(1);
 		}
 		player.tm.points=player.tm.buyables[0].add(1);
+		
+		if(player.tm.currentTree!=currentTreeTemp){
+			currentTreeTemp=player.tm.currentTree;
+			hotkeys = {};
+			hotkeys[layers.tm.hotkeys[0].key] = layers.tm.hotkeys[0];
+			hotkeys[layers.tm.hotkeys[0].key].layer = 'tm';
+			hotkeys[layers.tm.hotkeys[0].key].id = 0;
+			hotkeys[layers.tm.hotkeys[0].key].unlocked = true;
+			//hotkeys[layers.tm.hotkeys[1].key] = layers.tm.hotkeys[1];
+			//hotkeys[layers.tm.hotkeys[1].key].layer = 'tm';
+			//hotkeys[layers.tm.hotkeys[1].key].id = 1;
+			//hotkeys[layers.tm.hotkeys[1].key].unlocked = true;
+			for (layer in layers){
+				if(!layer.startsWith(["_","tptc_","stardust_","forest_"][currentTreeTemp]))continue;
+				hk = layers[layer].hotkeys
+				if (hk){
+					for (id in hk){
+						hotkeys[hk[id].key] = hk[id]
+						hotkeys[hk[id].key].layer = layer
+						hotkeys[hk[id].key].id = id
+						if (hk[id].unlocked === undefined)
+							hk[id].unlocked = true
+					}
+				}
+			}
+		}
 	}
 })
 
@@ -196,7 +224,6 @@ addLayer("tptc_p", {
         return new Decimal(1)
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [],
     layerShown(){return player.tm.currentTree==1},
 		upgrades: {
             rows: 2,
@@ -273,6 +300,10 @@ addLayer("tptc_p", {
 		 if(player.tptc_g.best.gte(3))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+           {key: "p", description: "P: Prestige reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -300,7 +331,6 @@ addLayer("tptc_b", {
         return mult
     },
     row: 1,
-    hotkeys: [],
     layerShown(){return player.tm.currentTree==1 && player.tm.buyables[1].gte(2)},
 	branches: ["tptc_p"],
 	effect() {
@@ -327,6 +357,10 @@ addLayer("tptc_b", {
 	 },resetsNothing(){
 		 return player.tptc_h.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "b", description: "B: Booster reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 addLayer("tptc_g", {
@@ -413,6 +447,10 @@ addLayer("tptc_g", {
 	 },resetsNothing(){
 		 return player.tptc_h.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "g", description: "G: Generator reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -529,6 +567,10 @@ addLayer("tptc_t", {
 	 },resetsNothing(){
 		 return player.tptc_m.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "t", description: "T: Time reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -682,7 +724,12 @@ addLayer("tptc_s", {
 				player.tptc_s.buyables[11]=target;
 			}
 		 }
-	 }
+	 },
+	 
+	 hotkeys: [
+           {key: "s", description: "S: Space reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -766,6 +813,10 @@ addLayer("tptc_e", {
 		 }
 	 },
 	 
+	 hotkeys: [
+           {key: "e", description: "E: Enhance reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -816,6 +867,11 @@ addLayer("tptc_sb", {
 	 },resetsNothing(){
 		 return player.tptc_m.best.gte(1);
 	 },
+	 
+	 hotkeys: [
+           {key: "B", description: "Shift+B: Super-Booster reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 addLayer("tptc_sg", {
@@ -881,6 +937,10 @@ addLayer("tptc_sg", {
 	 },resetsNothing(){
 		 return player.tptc_sp.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "G", description: "Shift+G: Super-Generator reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -977,6 +1037,10 @@ addLayer("tptc_h", {
 		 if(player.tptc_sp.best.gte(1))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+           {key: "h", description: "H: Hindrance reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -1086,6 +1150,10 @@ addLayer("tptc_q", {
 		 if(player.tptc_sp.best.gte(1))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+           {key: "q", description: "Q: Quirk reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -1162,6 +1230,10 @@ addLayer("tptc_ss", {
 	 },resetsNothing(){
 		 return player.tptc_hs.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "S", description: "Shift+S: Subspace reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -1191,7 +1263,8 @@ addLayer("tptc_hb", {
 	branches: ["tptc_sb","tptc_t"],
 	effect() {
 		let ret = player.tptc_hb.points;
-		let base = new Decimal(1.25).add(layers.tptc_l.buyables[11].effect());
+		let base = new Decimal(1.25);
+		if(hasUpgrade("tptc_l",11))base=base.add(layers.tptc_l.buyables[11].effect());
 		ret = Decimal.pow(base,ret);
 		return ret;
 	},
@@ -1224,6 +1297,10 @@ addLayer("tptc_hb", {
 	 },resetsNothing(){
 		 return player.tptc_l.best.gte(1);
 	 },
+	 hotkeys: [
+           {key: "ctrl+b", description: "Ctrl+B: Hyper-Booster reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -1341,6 +1418,10 @@ addLayer("tptc_m", {
 		 if(player.tptc_l.best.gte(1))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+           {key: "M", description: "Shift+M: Magic reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 addLayer("tptc_ba", {
@@ -1431,6 +1512,10 @@ addLayer("tptc_ba", {
 		 if(player.tptc_hs.best.gte(1))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+           {key: "a", description: "A: Balance reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -1566,6 +1651,10 @@ addLayer("tptc_ps", {
                 effectDescription: "Autocast Spells.",
             },
 	},
+	 hotkeys: [
+           {key: "P", description: "Shift+P: Phantom Soul reset",
+			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
+     ],
 });
 
 
@@ -2027,6 +2116,9 @@ addLayer("stardust_s", {
 		 if(hasUpgrade("stardust_s",32))return 1;
 		 return 0;
 	 },
+	 hotkeys: [
+		{key: "s", description: "s: Collect stardust", onPress(){if (player.tm.currentTree==2 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==2}}
+    ],
 });
 
 
@@ -2166,6 +2258,9 @@ addLayer("stardust_so", {
             },
 		},
 		   branches: [["stardust_s", 5]],
+	 hotkeys: [
+		{key: "S", description: "Shift-s: reset your stardust for stars", onPress(){if (player.tm.currentTree==2 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==2}}
+    ],
 });
 
 
@@ -2359,6 +2454,11 @@ addLayer("stardust_n", {
             },
 		},
 		   branches: [["stardust_s", 6]],
+        hotkeys: [
+            {key: "n", 
+            description: "n: reset your stardust for nebulas",
+			onPress(){if (player.tm.currentTree==2 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==2}}
+        ],
 });
 
 
@@ -2539,5 +2639,9 @@ addLayer("forest_p", {
                 "font-size": '10px'
             }
         },
-		}
+		},
+    hotkeys: [
+        {key: "p", description: "P: Reset for particles",
+			onPress(){if (player.tm.currentTree==3 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==3}}
+    ],
 });

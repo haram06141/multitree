@@ -12,11 +12,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.1.1",
+	num: "1.1.2",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.1.2</h3><br>
+	- Added Hotkeys<br>
 	<h3>v1.1.1</h3><br>
 	- Fixed a NaN issue<br>
 	<h3>v1.1</h3><br>

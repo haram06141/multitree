@@ -2,6 +2,7 @@ var player;
 var needCanvasUpdate = true;
 var gameEnded = false;
 var scrolled = false;
+var currentTreeTemp = -1;
 
 // Don't change this
 const TMT_VERSION = {
