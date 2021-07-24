@@ -20,7 +20,7 @@ let changelog = `
 	<h3>v1.1.2</h3><br>
 	- Added Hotkeys<br>
 	<h3>v1.1.1</h3><br>
-	- Fixed a NaN issue<br>
+	- Fixed an NaN issue<br>
 	<h3>v1.1</h3><br>
 	- Added a new tree<br>
 	- Endgame: e15600 points<br>
