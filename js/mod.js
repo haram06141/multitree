@@ -12,11 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.1.2",
+	num: "1.2",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.2</h3><br>
+	- Added a new tree<br>
+	- Endgame: e55000 points<br>
 	<h3>v1.1.2</h3><br>
 	- Added Hotkeys<br>
 	<h3>v1.1.1</h3><br>
@@ -61,18 +64,19 @@ function getPointGen() {
 	gain = gain.mul(tmp.tm.buyables[0].effect);
 	if(hasUpgrade("stardust_s",12))gain = gain.mul(upgradeEffect("stardust_s",12));
 	if(hasUpgrade("forest_p",21))gain = gain.mul(upgradeEffect("forest_p",21));
+	if(hasUpgrade("burning_a",14))gain = gain.mul(upgradeEffect("burning_a",14));
 	return gain;
 }
 
 // You can add non-layer related variables that should to into "player" and be saved here, along with default values
 function addedPlayerData() { return {
-	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
+	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
 }}
 
-var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest"];
-var TREEAUTHOR=["","jacorb90","okamii17","unpingabot"];
-var MODPOINTSNAME=["","","energy","energy"];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0"]];
+var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree"];
+var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake"];
+var MODPOINTSNAME=["","","energy","energy","embers"];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -89,11 +93,17 @@ var displayThings = [
 		}
 		return "";
 	},
+	function(){
+		if(player.tm.currentTree==4){
+			return "Flame Strength: "+format(player.burning_a.flameStrength)+"/"+format(tmp.burning_a.maxFlameStrength);
+		}
+		return "";
+	},
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("1e15600");
+	return player.points.gte("1e55000");
 }
 
 

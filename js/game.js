@@ -222,6 +222,7 @@ function doReset(layer, force=false) {
 	if(layer.startsWith("tptc_"))player.points = new Decimal(0)
 	if(layer.startsWith("stardust_"))player.modpoints[2] = new Decimal(0)
 	if(layer.startsWith("forest_"))player.modpoints[3] = new Decimal(0)
+	if(layer.startsWith("burning_"))player.modpoints[4] = new Decimal(0)
 
 	for (let x = row; x >= 0; x--) rowReset(x, layer)
 	rowReset("side", layer)
