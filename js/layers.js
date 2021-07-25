@@ -3064,7 +3064,7 @@ addLayer("stardust_c", {
             },
 			32: {
 				title: "Crystal Upgrade 32",
-                description: "Crystals boost Stardust Upgrade 21.",
+                description: "Crystals boost Stardust Upgrade 22.",
                 cost(){
 					return new Decimal(40).sub(player.stardust_c.points.mul(3)).max(0);
 				},
