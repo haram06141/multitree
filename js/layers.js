@@ -4566,7 +4566,7 @@ addLayer("burning_e", {
 		
     hotkeys: [
         {key: "e", description: "e: reset your embers for electricity",
-			onPress(){if (player.tm.currentTree==4 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==4}}
+			onPress(){if (player.tm.currentTree==4 && canReset(this.layer) && player.tm.buyables[4].gte(3)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==4}}
     ],
 	
     effect() {
