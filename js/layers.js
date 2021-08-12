@@ -42,7 +42,7 @@ addLayer("tm", {
             0: {
                 title: "The Modding Tree", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
+                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal("1e100000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -68,7 +68,7 @@ addLayer("tm", {
             1: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal(0),new Decimal(100),new Decimal(1e6),new Decimal(1e30),new Decimal(1e50),new Decimal(1e150),new Decimal(1e300),new Decimal("1e700"),new Decimal("1e1500"),new Decimal("1e3000"),new Decimal("1e7000"),new Decimal("1e13000"),new Decimal("1e30000"),new Decimal("1e80000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
+                    let cost = [new Decimal(0),new Decimal(100),new Decimal(1e6),new Decimal(1e30),new Decimal(1e50),new Decimal(1e150),new Decimal(1e300),new Decimal("1e700"),new Decimal("1e1500"),new Decimal("1e3000"),new Decimal("1e7000"),new Decimal("1e13000"),new Decimal("1e30000"),new Decimal("1e80000"),new Decimal("1e200000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -114,7 +114,7 @@ addLayer("tm", {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
                     if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
-					if(player[this.layer].buyables[this.id].gt(7.5))return new Decimal(Infinity);
+					if(player[this.layer].buyables[this.id].gt(8.5))return new Decimal(Infinity);
 					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(2500).add(9500).sub(player[this.layer].buyables[this.id].mul(2000)));
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -136,7 +136,30 @@ addLayer("tm", {
             4: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal(0),new Decimal("1e32000"),new Decimal("1e56000"),new Decimal("1e94000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
+                    if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
+					if(player[this.layer].buyables[this.id].gt(4.5))return new Decimal(Infinity);
+					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(7000).add(22000).add(player[this.layer].buyables[this.id].mul(3000)));
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Level: "+formatWhole(player[this.layer].buyables[this.id])+"<br>Cost: "+format(data.cost)+" points";
+                },
+                unlocked() { return player[this.layer].points.gte(this.id) }, 
+                canAfford() {
+                    return player.points.gte(tmp[this.layer].buyables[this.id].cost)
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player.points = player.points.sub(cost)
+				},
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'100px','width':'150px'},
+            },
+            5: {
+                title: "Upgrade", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = [new Decimal(0),new Decimal("1e110000"),new Decimal("1e140000"),new Decimal("1e190000"),new Decimal("1e260000"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -188,6 +211,16 @@ addLayer("tm", {
                 style: {'height':'100px','width':'150px'},
             },
             4: {
+                title: "Switch to this tree",
+                display: "",
+                unlocked() { return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)}, 
+				canClick(){return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)},
+				onClick(){
+					player[this.layer].currentTree=this.id;
+				},
+                style: {'height':'100px','width':'150px'},
+            },
+            5: {
                 title: "Switch to this tree",
                 display: "",
                 unlocked() { return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)}, 
@@ -263,7 +296,7 @@ addLayer("tptc_p", {
     layerShown(){return player.tm.currentTree==1},
 		upgrades: {
             rows: 2,
-            cols: 3,
+            cols: 4,
 			11: {
 				title: "Prestige Upgrade 11",
                 description(){
@@ -297,6 +330,12 @@ addLayer("tptc_p", {
                 cost: new Decimal(2),
                 unlocked() { return true; },
             },
+			14: {
+				title: "Prestige Upgrade 14",
+                description: "The base effect of 2nd row of Prestige Upgrades ^1.25",
+                cost: new Decimal("1e80000"),
+                unlocked() { return player.tm.buyables[1].gte(14); },
+            },
 			21: {
 				title: "Prestige Upgrade 21",
                 description(){
@@ -307,6 +346,7 @@ addLayer("tptc_p", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1.03;
                     let ret = Decimal.pow(base,Decimal.log10(player.tptc_p.points.add(1)).pow(0.5));
+					if(hasUpgrade("tptc_p",14))ret=ret.pow(1.25);
 					if(player.tptc_i.buyables[11].gte(3))ret = ret.mul(tmp.tptc_s.buyables[15].effect);
                     return ret;
                 },
@@ -322,6 +362,7 @@ addLayer("tptc_p", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1.03;
                     let ret = Decimal.pow(base,Decimal.log10(player.tptc_p.points.add(1)).pow(0.5));
+					if(hasUpgrade("tptc_p",14))ret=ret.pow(1.25);
 					if(player.tptc_i.buyables[11].gte(3))ret = ret.mul(tmp.tptc_s.buyables[15].effect);
                     return ret;
                 },
@@ -337,6 +378,23 @@ addLayer("tptc_p", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1.03;
                     let ret = Decimal.pow(base,Decimal.log10(player.tptc_p.points.add(1)).pow(0.5));
+					if(hasUpgrade("tptc_p",14))ret=ret.pow(1.25);
+					if(player.tptc_i.buyables[11].gte(3))ret = ret.mul(tmp.tptc_s.buyables[15].effect);
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+            },
+			24: {
+				title: "Prestige Upgrade 24",
+                description(){
+					return "Base incrementy gain in The Incrementreeverse is boosted by your Prestige Points.";
+				},
+                cost: new Decimal("1e24000"),
+                unlocked() { return hasUpgrade("incrementy_a",14); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=1.03;
+                    let ret = Decimal.pow(base,Decimal.log10(player.tptc_p.points.add(1)).pow(0.5));
+					if(hasUpgrade("tptc_p",14))ret=ret.pow(1.25);
 					if(player.tptc_i.buyables[11].gte(3))ret = ret.mul(tmp.tptc_s.buyables[15].effect);
                     return ret;
                 },
@@ -683,12 +741,12 @@ addLayer("tptc_s", {
 		return baseSpace.sub(tmp.tptc_s.getSpaceSpent);
 	},
 	getSpaceSpent(){
-		return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]);
+		return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]).add(player[this.layer].buyables[16]);
 	},
 	
 	buyables: {
             rows: 1,
-            cols: 5,
+            cols: 6,
             11: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
                     let cost = Decimal.pow(1e4,Decimal.pow(x,1.35))
@@ -844,6 +902,37 @@ addLayer("tptc_s", {
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'120px','width':'120px'},
             },
+            16: {
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(1e50,Decimal.pow(x,1.35))
+					if(x.eq(0))return new Decimal(0)
+                    return cost
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+					let eff = Decimal.pow(player.tptc_s.points.add(1),x.pow(0.9).mul(0.05));
+					eff=eff.pow(tmp.tptc_ss.ssEff);
+					eff=eff.pow(tmp.tptc_hs.buyables[16].effect);
+					return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Space Building 6\n\
+					Cost: " + format(data.cost) + " Generator Power\n\
+                    Level: " + format(player[this.layer].buyables[this.id]) + "\n"+
+                    "Currently: Divide Phantom Soul Requirement by "+format(data.effect)+". (Boosted by your Space Energy)";
+                },
+                unlocked() { return player.tptc_i.buyables[11].gte(4) }, 
+                canAfford() {
+                    return player.tptc_g.power.gte(tmp[this.layer].buyables[this.id].cost) && tmp.tptc_s.getSpace.gt(0)
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player.tptc_g.power = player.tptc_g.power.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'120px','width':'120px'},
+            },
 	},
 	
 	milestones: {
@@ -861,6 +950,13 @@ addLayer("tptc_s", {
 	 },update(diff){
 		 if(player.tptc_ba.best.gte(1)){
 			var pow=player.tptc_g.power;
+			if(player.tptc_i.buyables[11].gte(4)){
+				var target=pow.add(1).log(1e50).pow(1/1.35).add(1).floor();
+				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[16])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[16]);
+				if(target.gt(player.tptc_s.buyables[16])){
+					player.tptc_s.buyables[16]=target;
+				}
+			}
 			if(player.tptc_i.buyables[11].gte(3)){
 				var target=pow.add(1).log(1e100).pow(1/1.35).add(1).floor();
 				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[15])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[15]);
@@ -1278,6 +1374,7 @@ addLayer("tptc_q", {
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
 					let base=new Decimal(player.timePlayed);
+					base=base.mul(tmp.tptc_m.clickables[12].effect);
 					let eff = x.mul(Decimal.pow(base,x.sub(1)));
 					return eff;
                 },
@@ -1489,6 +1586,7 @@ addLayer("tptc_m", {
 		hexes: new Decimal(0),
 			spellTimes: {
 				11: new Decimal(0),
+				12: new Decimal(0),
 			},
 	}},
 	color: "#eb34c0",
@@ -1529,7 +1627,7 @@ addLayer("tptc_m", {
 	},
 	clickables: {
             rows: 1,
-            cols: 1,
+            cols: 2,
 			11: {
 				title: "Spell of Time",
 				unlocked(){return true},
@@ -1550,6 +1648,29 @@ addLayer("tptc_m", {
 				display(){
 					return "Multiply Time Energy gain by "+format(layers.tptc_m.clickables[11].realEffect())+"\n\
 					Time: "+formatTime(player.tptc_m.spellTimes[11].max(0));
+				},
+                style: {'height':'160px','width':'200px'},
+			},
+			12: {
+				title: "Spell of Quirks",
+				unlocked(){return player.tptc_mb.buyables[11].gte(1)},
+				canClick(){return player.tptc_m.points.gte(1) && player.tptc_m.spellTimes[11].lte(0)},
+				onClick(){
+					player.tptc_m.points=player.tptc_m.points.sub(1);
+					player.tptc_m.hexes=player.tptc_m.hexes.add(1);
+					player.tptc_m.spellTimes[12]=new Decimal(60);
+				},
+				effect(){
+					if(player.tptc_m.spellTimes[12].lte(0))return new Decimal(1);
+					return layers.tptc_m.clickables[12].realEffect();
+				},
+				realEffect(){
+					let ret=Decimal.pow(1.1,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).mul(2).pow(0.5));
+					return ret;
+				},
+				display(){
+					return "Multiply Quirk Layer base by "+format(layers.tptc_m.clickables[12].realEffect())+"\n\
+					Time: "+formatTime(player.tptc_m.spellTimes[12].max(0));
 				},
                 style: {'height':'160px','width':'200px'},
 			},
@@ -1834,6 +1955,11 @@ addLayer("tptc_ps", {
     hotkeys: [],
     layerShown(){return player.tm.currentTree==1 && player.tm.buyables[1].gte(9)},
 	branches: [["tptc_h",3],["tptc_q",3]],
+	gainMult(){
+		let ret=new Decimal(1);
+		if(player.tptc_i.buyables[11].gte(4))ret=ret.div(tmp.tptc_s.buyables[16].effect);
+		return ret;
+	},
 	effect() {
 		let ret = player.tptc_ps.points;
 		let base = new Decimal(4);
@@ -1892,6 +2018,11 @@ addLayer("tptc_l", {
     hotkeys: [],
     layerShown(){return player.tm.currentTree==1 && player.tm.buyables[1].gte(9)},
 	branches: ["tptc_hb","tptc_m"],
+	gainMult(){
+		let ret=new Decimal(1);
+		ret=ret.mul(tmp.tptc_mb.effect);
+		return ret;
+	},
 	effect() {
 		let ret = player.tptc_l.points;
 		ret=ret.mul(tmp.tptc_ps.effect);
@@ -1903,9 +2034,9 @@ addLayer("tptc_l", {
        },
 	doReset(l){
 			if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || l=="tptc_t" || l=="tptc_e" || l=="tptc_s" || l=="tptc_sb" || l=="tptc_sg" || l=="tptc_h" || l=="tptc_q" || l=="tptc_hb" || l=="tptc_ss" || l=="tptc_m" || l=="tptc_ba" || l=="tptc_ps"  || l=="tptc_sp" || l=="tptc_l" || l=="tptc_hs" || l=="tptc_i" || !l.startsWith("tptc_")){return;}
-			var b=new Decimal(player.tptc_ps.best);
-			layerDataReset("tptc_ps",["upgrades","milestones","challenges"]);
-			player.tptc_ps.best=b;
+			var b=new Decimal(player.tptc_l.best);
+			layerDataReset("tptc_l",["upgrades","milestones","challenges"]);
+			player.tptc_l.best=b;
 		},
 	milestones: {
             0: {requirementDescription: "1 Life Essence",
@@ -1953,8 +2084,8 @@ addLayer("tptc_l", {
 		return ret;
 	},
 		upgrades: {
-            rows: 2,
-            cols: 4,
+            rows: 1,
+            cols: 5,
 			11: {
 				title: "Life Upgrade 11",
                 description: "Unlock a Life Booster.",
@@ -1978,6 +2109,12 @@ addLayer("tptc_l", {
                 description: "Unlock a Life Booster.",
                 cost: new Decimal(1e13),
                 unlocked() { return player.tm.buyables[1].gte(14); }, // The upgrade is only visible when this is true
+            },
+			15: {
+				title: "Life Upgrade 15",
+                description: "Gain 100% of Life Essence gain per second.",
+                cost: new Decimal(1e30),
+                unlocked() { return player.tm.buyables[1].gte(15); }, // The upgrade is only visible when this is true
             },
 		},
 		
@@ -2080,6 +2217,10 @@ addLayer("tptc_l", {
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'222px','background-color':'#7fbf7f'},
             },
+	},
+	passiveGeneration(){
+		if(hasUpgrade("tptc_l",15))return 1;
+		return 0;
 	}
 });
 
@@ -2107,13 +2248,14 @@ addLayer("tptc_hs", {
 	gainMult(){
 		let ret=new Decimal(1);
 		if(hasUpgrade("tptc_l",13))ret=ret.mul(buyableEffect("tptc_l",13));
+		ret=ret.mul(tmp.tptc_mb.effect);
 		return ret;
 	},
 	doReset(l){
 			if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || l=="tptc_t" || l=="tptc_e" || l=="tptc_s" || l=="tptc_sb" || l=="tptc_sg" || l=="tptc_h" || l=="tptc_q" || l=="tptc_hb" || l=="tptc_ss" || l=="tptc_m" || l=="tptc_ba" || l=="tptc_ps"  || l=="tptc_sp" || l=="tptc_l" || l=="tptc_hs" || l=="tptc_i" || !l.startsWith("tptc_")){return;}
-			var b=new Decimal(player.tptc_ps.best);
-			layerDataReset("tptc_ps",["upgrades","milestones","challenges"]);
-			player.tptc_ps.best=b;
+			var b=new Decimal(player.tptc_hs.best);
+			layerDataReset("tptc_hs",["upgrades","milestones","challenges"]);
+			player.tptc_hs.best=b;
 		},
 	milestones: {
             0: {requirementDescription: "1 Hyperspace Energy",
@@ -2123,7 +2265,7 @@ addLayer("tptc_hs", {
 	},
 		
     usedHS() {
-        return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]);
+        return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]).add(player[this.layer].buyables[16]);
     },
 	realBuildLimit(){
 		let ret=new Decimal(player.tm.buyables[1]).sqrt().mul(3).sub(5.6);
@@ -2142,14 +2284,14 @@ addLayer("tptc_hs", {
 					["buyable",1],
 					["display-text",function(){return "Hyper Building Limit: "+formatWhole(tmp.tptc_hs.buildLimit)+", Progress to next limit upgrade: "+format(tmp.tptc_hs.realBuildLimit.sub(tmp.tptc_hs.buildLimit).mul(100))+"%"}],
 					["display-text",function(){return "Upgrade the tree to increase the progress."}],
-					["display-text",function(){return "You have "+format(tmp.tptc_hs.usedHS)+" used Hyperspace."}],
+					["display-text",function(){return "You have "+formatWhole(tmp.tptc_hs.usedHS)+" used Hyperspace."}],
 					["buyable",2],
 						"buyables","upgrades"
 				],
 				
 	buyables: {
-            rows: 2,
-            cols: 5,
+            rows: 1,
+            cols: 6,
             1: {
                 title: "Hyperspace", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
@@ -2190,6 +2332,7 @@ addLayer("tptc_hs", {
 						player[this.layer].buyables[13]=new Decimal(0);
 						player[this.layer].buyables[14]=new Decimal(0);
 						player[this.layer].buyables[15]=new Decimal(0);
+						player[this.layer].buyables[16]=new Decimal(0);
 						doReset(this.layer,true);
 					}
                 },
@@ -2311,11 +2454,34 @@ addLayer("tptc_hs", {
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'120px','width':'120px'},
             },
+            16: {
+                display() { 
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Hyper Building 6<br>"+
+					"Level: "+format(player.tptc_hs.buyables[16])+"/"+format(tmp.tptc_hs.buildLimit)+"<br>"+
+					"Effect: Space Building 6's effect ^"+format(data.effect)+"<br>";
+                },
+                unlocked() { return player[this.layer].unlocked && player.tptc_i.buyables[11].gte(4) }, 
+                canAfford() {
+					return layers[this.layer].usedHS().lt(player.tptc_hs.buyables[1]) && player.tptc_hs.buyables[this.id].lt(tmp.tptc_hs.buildLimit);
+				},
+				effect(){
+					let x=player[this.layer].buyables[this.id];
+					return x.mul(0.2).add(1);
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player[this.layer].points = player[this.layer].points.sub(cost)
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'120px','width':'120px'},
+            },
 	},
 	
 		upgrades: {
-            rows: 2,
-            cols: 4,
+            rows: 1,
+            cols: 5,
 			11: {
 				title: "Hyperspace Upgrade 11",
                 description: "Generators add to Hyper Building Limit Upgrade Progress.",
@@ -2356,7 +2522,27 @@ addLayer("tptc_hs", {
                 cost: new Decimal(1e18),
                 unlocked() { return player.tm.buyables[1].gte(14); }, // The upgrade is only visible when this is true
             },
+			15: {
+				title: "Hyperspace Upgrade 15",
+                description: "Gain 100% of Hyperspace Energy gain per second.",
+                cost: new Decimal(1e22),
+                unlocked() { return player.tm.buyables[1].gte(15); }, // The upgrade is only visible when this is true
+            },
 		},
+		update(diff){
+		if(player.tptc_mb.best.gte(1)){
+				var target=player.tptc_hs.points;
+				if(hasUpgrade("tptc_hs",14))target=target.pow(1/0.7);
+				target=target.add(1).log(2).pow(1/1.3).add(1).floor();
+				if(target.gt(player.tptc_hs.buyables[1])){
+					player.tptc_hs.buyables[1]=target;
+				}
+		 }
+		},
+	passiveGeneration(){
+		if(hasUpgrade("tptc_hs",15))return 1;
+		return 0;
+	}
 });
 
 addLayer("tptc_i", {
@@ -2383,9 +2569,9 @@ addLayer("tptc_i", {
 	branches: ["tptc_ss","tptc_sg"],
 	doReset(l){
 			if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || l=="tptc_t" || l=="tptc_e" || l=="tptc_s" || l=="tptc_sb" || l=="tptc_sg" || l=="tptc_h" || l=="tptc_q" || l=="tptc_hb" || l=="tptc_ss" || l=="tptc_m" || l=="tptc_ba" || l=="tptc_ps"  || l=="tptc_sp" || l=="tptc_l" || l=="tptc_hs" || l=="tptc_i" || !l.startsWith("tptc_")){return;}
-			var b=new Decimal(player.tptc_ps.best);
-			layerDataReset("tptc_ps",["upgrades","milestones","challenges"]);
-			player.tptc_ps.best=b;
+			var b=new Decimal(player.tptc_i.best);
+			layerDataReset("tptc_i",["upgrades","milestones","challenges"]);
+			player.tptc_i.best=b;
 		},
 	milestones: {
             0: {requirementDescription: "1 Imperium Brick",
@@ -2404,7 +2590,7 @@ addLayer("tptc_i", {
             11: {
                 title: "Imperium Building", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = Decimal.pow(2, x.pow(0.5)).ceil();
+                    let cost = Decimal.pow(2, x.pow(0.54)).ceil();
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -2432,9 +2618,116 @@ addLayer("tptc_i", {
 		},
 	 canBuyMax(){
 		 return player.tptc_i.best.gte(3);
+	 },autoPrestige(){
+		 return player.tptc_mb.best.gte(1);
 	 },resetsNothing(){
 		 return player.tptc_i.best.gte(3);
 	 },
+});
+
+
+addLayer("tptc_mb", {
+    name: "tptc_mb",
+    symbol: "MB",
+    position: 1,
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0)
+	}},
+	color: "#ff9f7f",
+	nodeStyle() {return {
+			"background": (player.tptc_mb.unlocked||canReset("tptc_mb"))?("radial-gradient(circle, rgba(255,100,100,1) 0%, rgba(255,159,127,1) 50%)"):"#bf8f8f" ,
+        }},
+    requires: function(){
+		return new Decimal(10);
+	},
+    resource: "mastery bricks",
+    baseResource: "phantom souls", 
+    baseAmount() {return player.tptc_ps.points},
+    type: "static",
+	base: new Decimal(1.3),
+    exponent: new Decimal(100),
+    row: 6,
+    hotkeys: [],
+    layerShown(){return player.tm.currentTree==1 && player.tm.buyables[1].gte(15)},
+	branches: ["tptc_l",["tptc_ps",2]],
+	effect() {
+		let ret = Decimal.pow(100,player.tptc_mb.points);
+		return ret;
+	},
+	effectDescription() { // Optional text to describe the effects
+           let eff = this.effect();
+           return "which multiplies life essence and hyperspace energy gain by "+format(eff);
+       },
+	doReset(l){
+	if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || l=="tptc_t" || l=="tptc_e" || l=="tptc_s" || l=="tptc_sb" || l=="tptc_sg" || l=="tptc_h" || l=="tptc_q" || l=="tptc_hb" || l=="tptc_ss" || l=="tptc_m" || l=="tptc_ba" || l=="tptc_ps"  || l=="tptc_sp" || l=="tptc_l" || l=="tptc_hs" || l=="tptc_i" || l=="tptc_mb" || l=="tptc_ge" || l=="tptc_ma" || !l.startsWith("tptc_")){return;}
+			var b=new Decimal(player.tptc_mb.best);
+			layerDataReset("tptc_mb",["upgrades","milestones","challenges"]);
+			player.tptc_mb.best=b;
+		},
+		roundUpCost:true,
+		
+	 tabFormat: ["main-display",
+                    "prestige-button", "resource-display",
+                    ["blank", "5px"],
+						"milestones",
+					["display-text",function(){return "Mastery bricks remaining: "+formatWhole(player.tptc_mb.points.sub(tmp.tptc_mb.usedMB))+"/"+formatWhole(player.tptc_mb.points)}],
+					["buyable",2],
+						"buyables","upgrades"
+				],
+	milestones: {
+            0: {requirementDescription: "1 Mastery Brick",
+                done() {return player[this.layer].best.gte(1)}, // Used to determine when to give the milestone
+                effectDescription: "Autobuy Hyperspace. Autobuy Imperium Bricks. Unlock a mastery building.",
+            },
+	},
+	buyables: {
+            rows: 1,
+            cols: 1,
+            2: {
+                title: "Respec Mastery Buildings",
+                display() { // Everything else displayed in the buyable button after the title
+                    return "";
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+					return true;
+				},
+                buy() { 
+					if(confirm("This will force a Mastery reset! Are you sure?")){
+						player[this.layer].buyables[11]=new Decimal(0);
+						doReset(this.layer,true);
+					}
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'60px'},
+            },
+            11: {
+                title: "Mastery Building 1", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = x.plus(1);
+                    return cost
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Level: "+formatWhole(player.tptc_mb.buyables[11])+"<br>"+
+					"Cost: "+formatWhole(data.cost)+" unused mastery bricks<br>"+
+					"Unlocked "+formatWhole(player.tptc_mb.buyables[11])+" new spells";
+                },
+                unlocked() { return player.tptc_mb.best.gte(1); }, 
+                canAfford() {
+					return player[this.layer].points.gte(layers[this.layer].buyables[this.id].cost().add(layers[this.layer].usedMB()));
+				},
+                buy() { 
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'222px'},
+            },
+	},
+    usedMB() {
+        return player[this.layer].buyables[11].mul(player[this.layer].buyables[11].add(1)).div(2);
+    },
 });
 
 addLayer("stardust_s", {
@@ -3352,6 +3645,9 @@ addLayer("forest_p", {
     baseAmount() {return player.modpoints[3]}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent() {
+		if(player.forest_c.best.gte(1)){
+			return 0.75;
+		}
 		if(player.forest_A.best.gte(1)){
 			return 0.7;
 		}
@@ -3481,6 +3777,9 @@ addLayer("forest_p", {
                     let ret = Decimal.pow(base,Decimal.log10(player.points.add(1)).pow(0.5));
 					if(hasUpgrade("forest_p",33))ret=ret.pow(2);
 					if(hasUpgrade("forest_p",45))ret=ret.pow(1.4);
+					if(player.forest_c.best.gte(1)){
+						ret=ret.pow(player.forest_c.best.pow(0.8).add(1));
+					}
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -3687,6 +3986,9 @@ addLayer("forest_A", {
 	base(){
 		let ret=new Decimal(1e10);
 		if(hasUpgrade("forest_A",11))ret=ret.pow(0.9);
+		if(hasUpgrade("forest_A",21))ret=ret.pow(0.9);
+		if(hasUpgrade("forest_A",22))ret=ret.pow(0.9);
+		if(hasUpgrade("forest_A",23))ret=ret.pow(0.9);
 		return ret;
 	},
     gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -3736,7 +4038,7 @@ addLayer("forest_A", {
 	},
 	
 		upgrades: {
-            rows: 1,
+            rows: 2,
             cols: 5,
 			11: {
 				title: "Atom Upgrade 11",
@@ -3788,7 +4090,87 @@ addLayer("forest_A", {
                 },
 				effectDisplay() { return "^"+format(this.effect()) }, // Add formatting to the effect
             },
-		}
+			21: {
+				title: "Atom Upgrade 21",
+                description: "Atom requirement is reduced.",
+                cost: new Decimal(17),
+                unlocked() { return player[this.layer].best.gte(3) && player.tm.buyables[3].gte(9); }, // The upgrade is only visible when this is true
+            },
+			22: {
+				title: "Atom Upgrade 22",
+                description: "Atom requirement is reduced.",
+                cost: new Decimal(20),
+                unlocked() { return player[this.layer].best.gte(3) && player.tm.buyables[3].gte(9); }, // The upgrade is only visible when this is true
+            },
+			23: {
+				title: "Atom Upgrade 23",
+                description: "Atom requirement is reduced.",
+                cost: new Decimal(28),
+                unlocked() { return player[this.layer].best.gte(3) && player.tm.buyables[3].gte(9); }, // The upgrade is only visible when this is true
+            },
+		},
+		
+		canBuyMax() {return player.forest_c.best.gte(1)},
+	 autoPrestige(){
+		 return player.forest_c.best.gte(1);
+	 },resetsNothing(){
+		 return player.forest_c.best.gte(1);
+	 },
+});
+
+
+addLayer("forest_c", {
+    name: "forest_c", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "C", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0)
+    }},
+    color: "#DC143C",
+    requires: new Decimal(11), // Can be a function that takes requirement increases into account
+    resource: "Chemical Synthesizers", // Name of prestige currency
+    baseResource: "atoms", // Name of resource prestige is based on
+    baseAmount() {return player.forest_A.points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+	getResetGain: function() {return new Decimal(1)},
+    getNextAt() {
+        return new Decimal(11).add(player.forest_c.points.times(10))
+    },
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+		return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return player.tm.currentTree==3 && player.tm.buyables[3].gte(8);},
+		
+    resetDescription: "Compress atoms together for ",
+		doReset(l){
+			if(l=="forest_p" || l=="forest_A" || l=="forest_c" || !l.startsWith("forest_")){return;}
+			var b=new Decimal(player.forest_c.best);
+			layerDataReset("forest_c",["upgrades","milestones","challenges"]);
+			player.forest_c.best=b;
+			return;
+		},
+		
+    hotkeys: [
+        {key: "c", description: "C: Reset for chemicals",
+			onPress(){if (player.tm.currentTree==3 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==3}}
+    ],
+	 branches: ["forest_A"],
+	 roundUpCost:true,
+	 
+	milestones: {
+            0: {requirementDescription: "1 Chemical Synthesizer",
+                done() {return player[this.layer].best.gte(1)}, // Used to determine when to give the milestone
+                effectDescription(){
+					return "Particle gain exponent 0.7 -> 0.75. Particle Upgrade 22's effect ^"+format(player[this.layer].best.pow(0.8).add(1))+" (based on best Chemical Synthesizers). Autobuy atoms, atom reset resets nothing, you can buy max atoms.";
+				},
+            },
+	},
 });
 
 
@@ -3837,7 +4219,7 @@ addLayer("burning_a", {
     ],
 	
 		upgrades: {
-            rows: 3,
+            rows: 4,
             cols: 4,
 			11: {
 				title: "Ash Upgrade 11",
@@ -3877,6 +4259,7 @@ addLayer("burning_a", {
                     let ret = Decimal.pow(base,Decimal.log10(player.modpoints[4].mul(10).add(1)).pow(0.9));
 					if(hasUpgrade("burning_a",23))ret=ret.pow(3);
 					if(hasUpgrade("burning_c",11))ret=ret.pow(upgradeEffect("burning_c",11));
+					if(hasUpgrade("burning_e",13))ret=ret.pow(layers.burning_e.allocatedEffects()[3]);
 					return ret;
                 },
 				effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -3889,6 +4272,7 @@ addLayer("burning_a", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1.01;
                     let ret = Decimal.pow(base,Decimal.log10(player.points.add(1)).pow(0.5));
+					if(hasUpgrade("burning_a",42))ret=ret.pow(2);
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -3901,6 +4285,7 @@ addLayer("burning_a", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=3;
                     let ret = Decimal.pow(base,Decimal.log10(player.burning_a.flameStrength.add(1)).pow(0.5));
+					if(hasUpgrade("burning_a",43))ret=ret.pow(2);
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -3927,6 +4312,8 @@ addLayer("burning_a", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=new Decimal(0.02);
 					if(hasUpgrade("burning_a",33))ret=ret.add(upgradeEffect("burning_a",33));
+					if(hasUpgrade("burning_c",15))ret=ret.add(0.2);
+					if(hasUpgrade("burning_e",15))ret=ret.add(0.2);
 					return ret;
                 },
 			},
@@ -3952,11 +4339,48 @@ addLayer("burning_a", {
                 cost: new Decimal(1e25),
                 unlocked() { return player.tm.buyables[4].gte(3); }, // The upgrade is only visible when this is true
 			},
+			41: {
+				title: "Ash Upgrade 41",
+                description: "Electricity boost flame.",
+                cost: new Decimal(1e30),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=2;
+                    let ret = Decimal.pow(base,Decimal.log10(player.burning_e.points.add(1)).pow(0.5));
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			42: {
+				title: "Ash Upgrade 42",
+                description: "Ash Upgrade 21 is squared.",
+                cost: new Decimal(1e50),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+			},
+			43: {
+				title: "Ash Upgrade 43",
+                description: "Ash Upgrade 22 is squared.",
+                cost: new Decimal(1e75),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+			},
+			44: {
+				title: "Ash Upgrade 44",
+                description: "Ashes boost Electricity gain.",
+                cost: new Decimal(1e80),
+                unlocked() { return player.tm.buyables[4].gte(5); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=2;
+                    let ret = Decimal.pow(base,Decimal.log10(player.burning_a.points.add(1)).pow(0.5));
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
 		},
 		maxFlameStrength(){
 			let ret=new Decimal(1);
 			ret=ret.mul(tmp.burning_c.effect);
 			ret=ret.mul(tmp.burning_e.allocatedEffects[0]);
+			if(hasUpgrade("burning_a",41))ret=ret.mul(upgradeEffect("burning_a",41));
 			return ret;
 		},
 		update(diff){
@@ -4035,6 +4459,7 @@ addLayer("burning_c", {
 	
     effect() {
         let effect = player[this.layer].points.add(1).pow(0.75)
+		if(hasUpgrade("burning_c",15))effect = player[this.layer].points.add(1).mul(Decimal.pow(1.05,player[this.layer].points));
         return effect
     },
 
@@ -4043,8 +4468,8 @@ addLayer("burning_c", {
     },
 	 branches: ["burning_a"],
 	 upgrades: {
-            rows: 3,
-            cols: 4,
+            rows: 1,
+            cols: 5,
 			11: {
 				title: "Coal Upgrade 11",
                 description: "Boost Ash Upgrade 14 by your best coal.",
@@ -4068,7 +4493,37 @@ addLayer("burning_c", {
 				},
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
 			},
-	 }
+			13: {
+				title: "Coal Upgrade 13",
+                description: "Coal boost electricity gain. Nice.",
+                cost: new Decimal(69),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+				effect() {
+					return player.burning_c.points.add(1);
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			14: {
+				title: "Coal Upgrade 14",
+                description: "Autobuy coal, coal reset resets nothing, you can buy max coal.",
+                cost: new Decimal(100),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+			},
+			15: {
+				title: "Coal Upgrade 15",
+                description: "Coal's effect uses a better formula, and +20% to Ash Upgrade 31.",
+                cost: new Decimal(125),
+                unlocked() { return player.tm.buyables[4].gte(5); }, // The upgrade is only visible when this is true
+			},
+	 },
+	 
+		
+		canBuyMax() {return hasUpgrade("burning_c",14);},
+	 autoPrestige(){
+		 return hasUpgrade("burning_c",14);
+	 },resetsNothing(){
+		 return hasUpgrade("burning_c",14)
+	 },
 });
 
 
@@ -4079,7 +4534,7 @@ addLayer("burning_e", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
-		allocation: [0,0,0],
+		allocation: [0,0,0,0],
     }},
     color: "#dddd00",
     requires: new Decimal(100), // Can be a function that takes requirement increases into account
@@ -4090,6 +4545,9 @@ addLayer("burning_e", {
     exponent: 0.65, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+		if(hasUpgrade("burning_c",13))mult=mult.mul(upgradeEffect("burning_c",13));
+		if(hasUpgrade("burning_e",15))mult=mult.mul(upgradeEffect("burning_e",15));
+			if(hasUpgrade("burning_a",44))mult=mult.mul(upgradeEffect("burning_a",44));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -4133,6 +4591,8 @@ addLayer("burning_e", {
         ["row", [["clickable", 21], "blank", ["bar", "ashBoost"], "blank", ["clickable", 22]]],
         "blank",
         ["row", [["clickable", 31], "blank", ["bar", "emberBoost"], "blank", ["clickable", 32]]],
+        "blank",
+        ["row", [["clickable", 41], "blank", ["bar", "a14Boost"], "blank", ["clickable", 42]]],
 					"upgrades"
 				],
 		
@@ -4196,6 +4656,29 @@ addLayer("burning_e", {
             textStyle: {
                 "color": "#000000"
             }
+        },
+        a14Boost: {
+            direction: RIGHT,
+            width: 300,
+            height: 50,
+            progress() {
+                return player[this.layer].allocation[3] / layers[this.layer].maxAllocation2()
+            },
+            display() {
+                return "Boost Ash Upgrade 14 (^" + format(layers[this.layer].allocatedEffects()[3]) + ")"
+            },
+            baseStyle: {
+                "background-color": "#FFFFFF"
+            },
+            fillStyle: {
+                "background-color": "#DDDD00"
+            },
+            textStyle: {
+                "color": "#000000"
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",13);
+			},
         }
     },
 				clickables: {
@@ -4291,9 +4774,45 @@ addLayer("burning_e", {
                 "height": "50px"
             }
         },
+        41: {
+            display() {
+                return "<h1><b>-</b></h1>"
+            },
+            canClick() {
+                return player[this.layer].allocation[3] > 0
+            },
+            onClick(){
+                player[this.layer].allocation[3] = Math.round(player[this.layer].allocation[3] - 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",13);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
+        42: {
+            display() {
+                return "<h1><b>+</b></h1>"
+            },
+            canClick() {
+                return layers[this.layer].totalAllocation() < layers[this.layer].maxAllocation() && player[this.layer].allocation[3] < layers[this.layer].maxAllocation2()
+            },
+            onClick(){
+                player[this.layer].allocation[3] = Math.round(player[this.layer].allocation[3] + 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",13);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
     },
 	totalAllocation(){
-		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2]
+		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2] + player[this.layer].allocation[3]
 	},
 	maxAllocation(){
 		let base=10;
@@ -4315,14 +4834,15 @@ addLayer("burning_e", {
 		let ret=[
 		tmp[this.layer].effect.mul(player[this.layer].allocation[0] / 100).add(1).pow(0.75),
 		tmp[this.layer].effect.mul(player[this.layer].allocation[1] / 100).add(1),
-		tmp[this.layer].effect.mul(player[this.layer].allocation[2] / 100).add(1).pow(1.25)
+		tmp[this.layer].effect.mul(player[this.layer].allocation[2] / 100).add(1).pow(1.25),
+		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[3]).sub(1)).div(1e8).add(1).log10().pow(0.5).div(10).add(1)
 		];
 		return ret;
 	},
 	
 		upgrades: {
             rows: 3,
-            cols: 4,
+            cols: 5,
 			11: {
 				title: "Electricity Upgrade 11",
                 description: "Electricity points base is reduced to 5.",
@@ -4335,9 +4855,660 @@ addLayer("burning_e", {
                 cost: new Decimal(1e10),
                 unlocked() { return true; }, // The upgrade is only visible when this is true
 				effect() {
-					return player.burning_e.upgrades.length*2;
+					return player.burning_e.upgrades.length*player.burning_e.upgrades.length;
 				},
                 effectDisplay() { return "+"+format(this.effect()) }, // Add formatting to the effect
 			},
+			13: {
+				title: "Electricity Upgrade 13",
+                description: "Unlock an electricity bar.",
+                cost: new Decimal(1e20),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+			},
+			14: {
+				title: "Electricity Upgrade 14",
+                description: "Gain 100% of electricity gain per second.",
+                cost: new Decimal(1e35),
+                unlocked() { return player.tm.buyables[4].gte(4); }, // The upgrade is only visible when this is true
+			},
+			15: {
+				title: "Electricity Upgrade 15",
+                description: "Electricity boost itself, and +20% to Ash Upgrade 31.",
+                cost: new Decimal(1e50),
+                unlocked() { return player.tm.buyables[4].gte(5); }, // The upgrade is only visible when this is true
+				effect() {
+					let base=1.1;
+                    let ret = Decimal.pow(base,Decimal.log10(player.burning_e.points.add(1)).pow(0.9));
+                    //if (ret.gte("1e20000000")) ret = ret.sqrt().times("1e10000000")
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+		},
+		passiveGeneration(){
+			if(hasUpgrade("burning_e",14))return 1;
+			return 0;
 		}
+});
+
+
+addLayer("incrementy_i", {
+    name: "incrementy_i", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "I", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+		points: new Decimal(0),
+        unlocked: true
+    }},
+    color: "#4B4C83",
+    requires: new Decimal(1), // Can be a function that takes requirement increases into account
+    resource: "", // Name of prestige currency
+    baseResource: "points", // Name of resource prestige is based on
+    baseAmount() {return player.points}, // Get the current amount of baseResource
+    type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    row: 0, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [],
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(1);},
+		
+		doReset(l){
+			if(!l.startsWith("incrementy_")){return;}
+			if(l=="incrementy_i" || !l.startsWith("incrementy_")){return;}
+			layerDataReset("incrementy_i",["upgrades","milestones","challenges"]);
+			return;
+		},
+		
+	tooltip(){
+		return format(player.modpoints[5])+" incrementy";
+	},
+	 upgrades: {
+            rows: 3,
+            cols: 5,
+			11: {
+				title: "Incrementy Upgrade 11",
+                description(){
+					return "Gain "+format(upgradeEffect("incrementy_i",11))+" Incrementy per second.";
+				},
+                cost: new Decimal(0),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = new Decimal(1);
+					if(hasUpgrade("incrementy_i",12))ret=ret.mul(upgradeEffect("incrementy_i",12));
+					if(hasUpgrade("incrementy_i",14)&&hasUpgrade("incrementy_am",21))ret=ret.mul(upgradeEffect("incrementy_i",14));
+					if(hasUpgrade("incrementy_am",13))ret=ret.mul(upgradeEffect("incrementy_am",13));
+					if(hasUpgrade("incrementy_am",14))ret=ret.mul(upgradeEffect("incrementy_am",14));
+					if(hasUpgrade("incrementy_i",35))ret=ret.mul(upgradeEffect("incrementy_i",35));
+					if(hasUpgrade("incrementy_i",33))ret=ret.mul(layers.incrementy_am.effect());
+					if(hasUpgrade("incrementy_am",22))ret=ret.mul(upgradeEffect("incrementy_am",22));
+					if(hasUpgrade("tptc_p",24))ret=ret.mul(upgradeEffect("tptc_p",24));
+					
+					if(hasUpgrade("incrementy_i",22))ret=ret.pow(buyableEffect("incrementy_i",13));
+					
+					if(hasUpgrade("incrementy_i",14)&&!hasUpgrade("incrementy_am",21))ret=ret.mul(upgradeEffect("incrementy_i",14));
+					if(hasUpgrade("incrementy_i",15))ret=ret.mul(buyableEffect("incrementy_i",11));
+					if(hasUpgrade("incrementy_i",21))ret=ret.mul(buyableEffect("incrementy_i",12));
+					if(!hasUpgrade("incrementy_i",33))ret=ret.mul(layers.incrementy_am.effect());
+					if(hasUpgrade("incrementy_am",11))ret=ret.mul(upgradeEffect("incrementy_am",11));
+					ret=ret.mul(layers.incrementy_a.effect()[0]);
+					if(hasUpgrade("incrementy_a",11))ret=ret.mul(upgradeEffect("incrementy_a",11));
+					
+					if(inChallenge("incrementy_am",11))ret=ret.pow(0.1);
+                    return ret;
+				},
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			12: {
+				title: "Incrementy Upgrade 12",
+                description: "Boost your base incrementy gain based on your points.",
+                cost: new Decimal(10),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let base=1.01;
+                    let ret = Decimal.pow(base,Decimal.log10(player.points.add(1)).pow(0.5));
+					if(hasUpgrade("incrementy_am",12))ret=ret.pow(2);
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			13: {
+				title: "Incrementy Upgrade 13",
+                description: "Boost your point gain based on your incrementy.",
+                cost: new Decimal(100),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let base=1e10;
+                    let ret = Decimal.pow(base,Decimal.log10(player.modpoints[5].add(1)).pow(0.9));
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			14: {
+				title: "Incrementy Upgrade 14",
+                description(){
+					if(hasUpgrade("incrementy_am",21))return "Boost your base Incrementy gain based on your Incrementy upgrades.";
+					return "Boost your Incrementy gain based on your Incrementy upgrades.";
+				},
+                cost: new Decimal(300),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret=Decimal.pow(1.2,player.incrementy_i.upgrades.length);
+					return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			15: {
+				title: "Incrementy Upgrade 15",
+                description: "Unlock an Incrementy buyable.",
+                cost: new Decimal(500),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			21: {
+				title: "Incrementy Upgrade 21",
+                description: "Unlock an Incrementy buyable, and the first Incrementy buyable's effect base +0.1.",
+                cost: new Decimal(4e4),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			22: {
+				title: "Incrementy Upgrade 22",
+                description: "Unlock an Incrementy buyable, and the effect base of first 2 Incrementy buyables +0.1.",
+                cost: new Decimal(1e8),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			23: {
+				title: "Incrementy Upgrade 23",
+                description: "Remove the linear cost scaling of Incrementy Speed",
+                cost: new Decimal(1e11),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			24: {
+				title: "Incrementy Upgrade 24",
+                description: "Remove the linear cost scaling of Incrementy Strength",
+                cost: new Decimal(1e25),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			25: {
+				title: "Incrementy Upgrade 25",
+                description: "Remove the linear cost scaling of Incrementy Stamina",
+                cost: new Decimal(5e27),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			31: {
+				title: "Incrementy Upgrade 31",
+                description: "Each Incrementy Strength adds .02 to the Incrementy Strength base (capped at 10)",
+                cost: new Decimal(1e60),
+                unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = Decimal.mul(player.incrementy_i.buyables[12],0.02).min(10);
+                    return ret;
+				},
+                effectDisplay() { return "+"+format(this.effect()) }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			32: {
+				title: "Incrementy Upgrade 32",
+                description: "Each Incrementy Speed adds .01 to the Incrementy Speed base (capped at 10)",
+                cost: new Decimal(1e79),
+                unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = Decimal.mul(player.incrementy_i.buyables[11],0.01).min(10);
+                    return ret;
+				},
+                effectDisplay() { return "+"+format(this.effect()) }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			33: {
+				title: "Incrementy Upgrade 33",
+                description: "Antimatter effect is applied before Incrementy Stamina",
+                cost: new Decimal(1e260),
+                unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			34: {
+				title: "Incrementy Upgrade 34",
+                description: "Remove the quadratic cost scaling of Incrementy Stamina",
+                cost: new Decimal("1e560"),
+                unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+			35: {
+				title: "Incrementy Upgrade 35",
+                description: "Multiply your base incrementy gain based on your Incrementy Stamina levels.",
+                cost: new Decimal("1e590"),
+                unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
+				effect() {
+                    return player.incrementy_i.buyables[13].add(1);
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+				currencyLayer: "modpoints",
+				currencyInternalName: "5",
+				currencyDisplayName: "incrementy",
+			},
+	 },
+	 buyables:{
+		 rows: 1,
+		 cols: 3,
+		 11: {
+                title: "Incrementy Speed",
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(2, x).mul(Decimal.pow(1.01, x.pow(2))).mul(10);
+					if(hasUpgrade("incrementy_i",23))cost = Decimal.pow(1.01, x.pow(2)).mul(10);
+					if(hasUpgrade("incrementy_a",12))cost = Decimal.pow(1.01, x.pow(2));
+                    return cost
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Amount: "+formatWhole(player.incrementy_i.buyables[11])+"<br>"+
+					"Cost: "+format(data.cost)+" Incrementy<br>"+
+					"Effect: Incrementy gain x"+format(data.effect);
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+					return player.modpoints[5].gte(tmp[this.layer].buyables[this.id].cost);
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player.modpoints[5] = player.modpoints[5].sub(cost)
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+				effect(){
+					let base=new Decimal(1.5);
+					if(hasUpgrade("incrementy_i",21))base=base.add(0.1);
+					if(hasUpgrade("incrementy_i",22))base=base.add(0.1);
+					if(hasUpgrade("incrementy_i",32))base=base.add(upgradeEffect("incrementy_i",32));
+					return Decimal.pow(base,player[this.layer].buyables[this.id]);
+				},
+				unlocked(){ return hasUpgrade("incrementy_i",15)},
+        },
+		 12: {
+                title: "Incrementy Strength",
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(4, x).mul(Decimal.pow(1.25, x.pow(2))).mul(1e4);
+					if(hasUpgrade("incrementy_i",24))cost = Decimal.pow(1.25, x.pow(2)).mul(1e4);
+					if(hasUpgrade("incrementy_a",13))cost = Decimal.pow(1.25, x.pow(2));
+                    return cost
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Amount: "+formatWhole(player.incrementy_i.buyables[12])+"<br>"+
+					"Cost: "+format(data.cost)+" Incrementy<br>"+
+					"Effect: Incrementy gain x"+format(data.effect);
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+					return player.modpoints[5].gte(tmp[this.layer].buyables[this.id].cost);
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player.modpoints[5] = player.modpoints[5].sub(cost)
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+				effect(){
+					let base=new Decimal(2);
+					if(hasUpgrade("incrementy_i",22))base=base.add(0.1);
+					if(hasUpgrade("incrementy_i",31))base=base.add(upgradeEffect("incrementy_i",31));
+					return Decimal.pow(base,player[this.layer].buyables[this.id]);
+				},
+				unlocked(){ return hasUpgrade("incrementy_i",21)},
+        },
+		 13: {
+                title: "Incrementy Stamina",
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(2, x).mul(Decimal.pow(1.25, x.pow(2))).mul(Decimal.pow(1.1, Decimal.pow(1.2, x))).mul(1e6);
+					if(hasUpgrade("incrementy_i",25))cost = Decimal.pow(1.25, x.pow(2)).mul(Decimal.pow(1.1, Decimal.pow(1.2, x))).mul(1e6);
+					if(hasUpgrade("incrementy_i",34))cost = Decimal.pow(1.1, Decimal.pow(1.2, x)).mul(1e6);
+                    return cost
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Amount: "+formatWhole(player.incrementy_i.buyables[13])+"<br>"+
+					"Cost: "+format(data.cost)+" Incrementy<br>"+
+					"Effect: Base incrementy gain ^"+format(data.effect)+(player.incrementy_i.buyables[13].gte(data.softcap)?" (softcapped)<br>Softcap starts at "+formatWhole(data.softcap):"");
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+					return player.modpoints[5].gte(tmp[this.layer].buyables[this.id].cost);
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player.modpoints[5] = player.modpoints[5].sub(cost)
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+				effect(){
+					let base=new Decimal(1.04);
+					let power=player[this.layer].buyables[this.id];
+					let softcap=layers[this.layer].buyables[this.id].softcap();
+					if(power.gte(softcap))power=power.div(softcap).sqrt().mul(softcap);
+					return Decimal.pow(base,power);
+				},
+				softcap(){
+					let ret=new Decimal(40);
+					if(player.incrementy_am.challenges[11])ret=ret.add(5);
+					return ret;
+				},
+				unlocked(){ return hasUpgrade("incrementy_i",22)},
+        },
+	 },
+	 tabFormat: ["upgrades","buyables"],
+		update(diff){
+			if(hasUpgrade("incrementy_i",11))player.modpoints[5]=player.modpoints[5].add(upgradeEffect("incrementy_i",11).mul(diff));
+			
+					if(hasUpgrade("incrementy_a",12)){
+						var target=player.modpoints[5].add(1).log(1.01).pow(1/2).add(1).floor();
+						if(target.gt(player.incrementy_i.buyables[11])){
+							player.incrementy_i.buyables[11]=target;
+						}
+					}
+					if(hasUpgrade("incrementy_a",13)){
+						var target=player.modpoints[5].add(1).log(1.25).pow(1/2).add(1).floor();
+						if(target.gt(player.incrementy_i.buyables[12])){
+							player.incrementy_i.buyables[12]=target;
+						}
+					}
+		},
+});
+
+
+addLayer("incrementy_am", {
+    name: "incrementy_am", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "AM", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    color: "#DB4C83",
+    requires: new Decimal(110), // Can be a function that takes requirement increases into account
+    resource: "antimatter", // Name of prestige currency
+    baseResource: "total incrementy buyable levels", // Name of resource prestige is based on
+    baseAmount() {return player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13])}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.5, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(15)
+		mult=mult.mul(layers.incrementy_a.effect()[1]);
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    branches: ["incrementy_i"],
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(2)},
+		doReset(l){
+			if(l=="incrementy_i" || l=="incrementy_am" || !l.startsWith("incrementy_")){return;}
+			layerDataReset("incrementy_am",["upgrades","milestones","challenges"]);
+			return;
+		},
+        effect(){
+                let ret = player.incrementy_am.points.plus(1).pow(1.5)
+                return ret
+        },
+        effectDescription(){
+			if(hasUpgrade("incrementy_i",33))return "which multiplies base incrementy gain by " + format(layers.incrementy_am.effect())
+                return "which multiplies incrementy gain by " + format(layers.incrementy_am.effect())
+        },
+	getResetGain() {
+		let ret=player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13]);
+		if(ret.lt(110))return new Decimal(0);
+		ret=Decimal.pow(1.1,ret.sub(110)).mul(layers.incrementy_am.gainMult()).floor();
+		return ret;
+	},
+	getNextAt() {
+		let ret=player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13]).add(1).max(110);
+		return ret;
+	},
+	 upgrades: {
+            rows: 3,
+            cols: 5,
+			11: {
+				title: "Antimatter Upgrade 11",
+                description: "Incrementy boosts Incrementy gain.",
+                cost: new Decimal(2),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let base=1.5;
+                    let ret = Decimal.pow(base,Decimal.log10(player.modpoints[5].add(1)).pow(0.9));
+					if(hasUpgrade("incrementy_am",21))ret=ret.pow(1.5);
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			12: {
+				title: "Antimatter Upgrade 12",
+                description: "Incrementy Upgrade 12 is squared.",
+                cost: new Decimal(200),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+			13: {
+				title: "Antimatter Upgrade 13",
+                description: "Multiply your base incrementy gain based on your Incrementy Speed levels.",
+                cost: new Decimal(1000),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret=player.incrementy_i.buyables[11].add(1);
+					if(hasUpgrade("incrementy_am",24))ret=ret.pow(2);
+					return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			14: {
+				title: "Antimatter Upgrade 14",
+                description: "Multiply your base incrementy gain based on your Incrementy Strength levels.",
+                cost: new Decimal(20000),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    return player.incrementy_i.buyables[12].add(1);
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			15: {
+				title: "Antimatter Upgrade 15",
+                description: "Gain 100% of antimatter gain per second.",
+                cost: new Decimal(1e10),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+			21: {
+				title: "Antimatter Upgrade 21",
+                description: "Antimatter Upgrade 11's effect ^1.5, and Incrementy Upgrade 14 boost base incrementy gain instead.",
+                cost: new Decimal(1e40),
+                unlocked() { return player.tm.buyables[5].gte(4); }, // The upgrade is only visible when this is true
+			},
+			22: {
+				title: "Antimatter Upgrade 22",
+                description: "Each Antimatter Upgrade multiplies base incrementy gain by 10.",
+                cost: new Decimal(1e43),
+                unlocked() { return player.tm.buyables[5].gte(4); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret=Decimal.pow(10,player.incrementy_am.upgrades.length);
+					return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			23: {
+				title: "Antimatter Upgrade 23",
+                description: "Unlock an antimatter challenge.",
+                cost: new Decimal(1e46),
+                unlocked() { return player.tm.buyables[5].gte(4); }, // The upgrade is only visible when this is true
+			},
+			24: {
+				title: "Antimatter Upgrade 24",
+                description: "Antimatter Upgrade 13 is squared.",
+                cost: new Decimal(1e50),
+                unlocked() { return player.tm.buyables[5].gte(5); }, // The upgrade is only visible when this is true
+			},
+			25: {
+				title: "Antimatter Upgrade 25",
+                description: "Unlock an antimatter challenge.",
+                cost: new Decimal(1e55),
+                unlocked() { return player.tm.buyables[5].gte(5); }, // The upgrade is only visible when this is true
+			},
+	 },
+	passiveGeneration(){
+		if(hasUpgrade("incrementy_am",15))return 1;
+		return 0;
+	},
+	
+        challenges:{
+                rows: 1,
+                cols: 2,
+                11: {
+                        name: "Know?", 
+                        challengeDescription: "Get ^.1 of your normal Incrementy gain",
+                        rewardDescription: "Incrementy Stamina softcap starts 5 later (40 -> 45)",
+                        unlocked(){
+                                return hasUpgrade("incrementy_am",23);
+                        },
+                        goal: new Decimal(1e68),
+                        currencyLayer: "modpoints",
+                        currencyInternalName: "5",
+		                currencyDisplayName: "incrementy",
+                },
+                12: {
+                        name: "No!", 
+                        challengeDescription: "Your points are reset, Get ^.1 of your normal point gain",
+                        rewardDescription: /*"Unlock Matter and the ability to Matter Prestige"*/ "This is the current endgame",
+                        unlocked(){
+                                return hasUpgrade("incrementy_am",25);
+                        },
+                        goal: new Decimal("1e30000"),
+                        currencyInternalName: "points",
+						resetPoints: true,
+                },
+		},
+});
+
+
+addLayer("incrementy_a", {
+    name: "incrementy_a", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    color: "#1B4C23",
+    requires: new Decimal("1e600"), // Can be a function that takes requirement increases into account
+    resource: "amoebas", // Name of prestige currency
+    baseResource: "incrementy", // Name of resource prestige is based on
+    baseAmount() {return player.modpoints[5]}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.5, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    branches: ["incrementy_am"],
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3)},
+		doReset(l){
+			if(l=="incrementy_i" || l=="incrementy_am" || l=="incrementy_a" || !l.startsWith("incrementy_")){return;}
+			layerDataReset("incrementy_a",["upgrades","milestones","challenges"]);
+			return;
+		},
+	getResetGain() {
+		let ret=player.modpoints[5];
+		if(ret.lt("1e600"))return new Decimal(0);
+		ret=ret.log10().div(6).sqrt().sub(10);
+		ret=Decimal.pow(10,ret).mul(layers.incrementy_a.gainMult()).floor();
+		return ret;
+	},
+	getNextAt() {
+		let ret=tmp.incrementy_a.getResetGain.plus(1);
+		ret=ret.div(layers.incrementy_a.gainMult()).max(1).log10();
+		ret=ret.add(10).pow(2).mul(6);
+		ret=Decimal.pow(10,ret);
+		return ret;
+	},
+        effect(){
+                let eff1 = player.incrementy_a.points.add(1).pow(6)
+                let eff2 = player.incrementy_a.points.add(1).pow(2)
+                return [eff1, eff2]
+        },
+        effectDescription(){
+                let eff = layers.incrementy_a.effect()
+                return "which multiplies incrementy gain by " + format(eff[0]) + " and antimatter gain by " + format(eff[1])
+        },
+		
+	 upgrades: {
+            rows: 3,
+            cols: 5,
+			11: {
+				title: "Amoeba Upgrade 11",
+                description: "Each Amoeba Upgrade multiplies Incrementy gain by 1e10.",
+                cost: new Decimal(1),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret=Decimal.pow(1e10,player.incrementy_a.upgrades.length);
+					return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			12: {
+				title: "Amoeba Upgrade 12",
+                description: "Autobuy Incrementy Speed, and divide Incrementy Speed costs by 10.",
+                cost: new Decimal(3),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+			13: {
+				title: "Amoeba Upgrade 13",
+                description: "Autobuy Incrementy Strength, and divide Incrementy Strength costs by 1e4.",
+                cost: new Decimal(5),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+			14: {
+				title: "Amoeba Upgrade 14",
+                description: "Unlock a Prestige upgrade in The Prestige Tree Classic.",
+                cost: new Decimal(100),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+			15: {
+				title: "Amoeba Upgrade 15",
+                description: "Gain 100% of amoeba gain per second.",
+                cost: new Decimal(2000),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+			},
+	 },
+	passiveGeneration(){
+		if(hasUpgrade("incrementy_a",15))return 1;
+		return 0;
+	}
 });

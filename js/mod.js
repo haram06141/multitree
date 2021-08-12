@@ -12,23 +12,26 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.2",
+	num: "1.3",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.3</h3><br>
+	- Added a new tree (The Incrementreeverse)<br>
+	- Endgame: Antimatter challenge 2 in The Incrementreeverse completed, e3e5 points<br>
 	<h3>v1.2</h3><br>
-	- Added a new tree<br>
+	- Added a new tree (The Burning Tree)<br>
 	- Endgame: e55000 points<br>
 	<h3>v1.1.2</h3><br>
 	- Added Hotkeys<br>
 	<h3>v1.1.1</h3><br>
 	- Fixed an NaN issue<br>
 	<h3>v1.1</h3><br>
-	- Added a new tree<br>
+	- Added a new tree (The Prestige Forest)<br>
 	- Endgame: e15600 points<br>
 	<h3>v1.0</h3><br>
-	- Added 2 trees<br>
+	- Added 2 trees (The Prestige Tree Classic, The Stardust Tree)<br>
 	- Endgame: e6000 points<br>
 `
 
@@ -65,18 +68,23 @@ function getPointGen() {
 	if(hasUpgrade("stardust_s",12))gain = gain.mul(upgradeEffect("stardust_s",12));
 	if(hasUpgrade("forest_p",21))gain = gain.mul(upgradeEffect("forest_p",21));
 	if(hasUpgrade("burning_a",14))gain = gain.mul(upgradeEffect("burning_a",14));
+	if(hasUpgrade("incrementy_i",13))gain = gain.mul(upgradeEffect("incrementy_i",13));
+	
+	
+	if(inChallenge("incrementy_am",12))gain=gain.pow(0.1);
+	
 	return gain;
 }
 
 // You can add non-layer related variables that should to into "player" and be saved here, along with default values
 function addedPlayerData() { return {
-	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
+	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
 }}
 
-var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree"];
-var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake"];
-var MODPOINTSNAME=["","","energy","energy","embers"];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0"]];
+var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse"];
+var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132"];
+var MODPOINTSNAME=["","","energy","energy","embers","incrementy"];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -103,7 +111,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("1e55000");
+	return player.incrementy_am.challenges[12]>=1;
 }
 
 
