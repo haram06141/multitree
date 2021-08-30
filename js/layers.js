@@ -6386,7 +6386,7 @@ addLayer("gd_c", {
 			},
 			13: {
 				title: "Cash Upgrade 13",
-                description: "Experience gain is boosted by your cash.",
+                description: "Purchase an online programming lesson. Experience gain is boosted by your cash.",
                 cost: new Decimal(20000),
 				effect() {
 					let ret = player.gd_c.points.add(1).pow(0.1);
@@ -6396,8 +6396,13 @@ addLayer("gd_c", {
 			},
 			14: {
 				title: "Cash Upgrade 14",
-                description: "Purchase an expensive hardware. Delay productivity slowdown by 10x",
+                description: "Purchase an expensive hardware. Delay productivity slowdown by 10x.",
                 cost: new Decimal(1e6),
+			},
+			15: {
+				title: "Cash Upgrade 15",
+                description: "Purchase a hardware upgrader. Unlock a cash buyable.",
+                cost: new Decimal(1e9),
 			},
 	 },
 	passiveGeneration(){
