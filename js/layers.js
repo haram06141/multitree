@@ -6401,7 +6401,7 @@ addLayer("gd_c", {
 			},
 			15: {
 				title: "Cash Upgrade 15",
-                description: "Purchase a hardware upgrader. Unlock a cash buyable.",
+                description: "Purchase a hardware upgrader. Unlock a cash buyable (not yet).",
                 cost: new Decimal(1e9),
 			},
 	 },
