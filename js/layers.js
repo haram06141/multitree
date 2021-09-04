@@ -620,7 +620,7 @@ addLayer("tptc_g", {
 	
 	getGenPowerEffExp() {
 		let exp = new Decimal(0.4)
-		if(hasUpgrade("tptc_b",11))exp = exp.mul(2);
+		if(hasUpgrade("tptc_g",11))exp = exp.mul(2);
 		return exp;
 	},
 	getGenPowerEff() {
@@ -6178,7 +6178,7 @@ addLayer("gd_u", {
 			},
 			23: {
 				title: "Update Upgrade 23",
-                description: "Release a special update. Gain 1% of cash gain per second.",
+                description: "Add Donate link to your mod. Gain 1% of cash gain per second.",
                 cost: new Decimal(300),
                 unlocked() { return player.tm.buyables[6].gte(2); },
 			},
@@ -6396,7 +6396,7 @@ addLayer("gd_c", {
 			},
 			14: {
 				title: "Cash Upgrade 14",
-                description: "Purchase an expensive hardware. Delay productivity slowdown by 10x.",
+                description: "Purchase an expensive IDE. Delay productivity slowdown by 10x.",
                 cost: new Decimal(1e6),
 			},
 			15: {
