@@ -12,11 +12,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.4",
+	num: "1.4.1",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.4.1</h3><br>
+	- Endgame: e1.1e6 points<br>
 	<h3>v1.4</h3><br>
 	- Added a new tree (The Game Dev Tree)<br>
 	- Endgame: 6 mastery bricks in The Prestige Tree Classic, e6.7e5 points<br>
@@ -118,7 +120,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.tptc_mb.points.gte(6);
+	return player.points.gte("e11e5");
 }
 
 

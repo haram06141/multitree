@@ -12,6 +12,20 @@ function exponentialFormat(num, precision, mantissa = true) {
     else return "e" + e
 }
 
+function exponentialFormat1(num, precision, mantissa = true) {
+    let e = num.log10().floor().sub(1)
+    let m = num.div(Decimal.pow(10, e))
+    if (m.toStringWithDecimalPlaces(precision) == 10) {
+        m = new Decimal(1)
+        e = e.add(1)
+    }
+    e = (e.gte(10000) ? commaFormat(e, 0) : e.toStringWithDecimalPlaces(0))
+    if (mantissa)
+        return m.toStringWithDecimalPlaces(precision) + "e" + e
+    else return "e" + e
+}
+
+
 function commaFormat(num, precision) {
     if (num === null || num === undefined) return "NaN"
     if (num.mag < 0.001) return (0).toFixed(precision)
