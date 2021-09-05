@@ -6426,7 +6426,7 @@ addLayer("incrementy_p", {
     },
 	getResetGain() {
 		let ret=layers.incrementy_p.getResetGainReal();
-		return Decimal.min(ret.floor(),ret.mul(60).sub(player.incrementy_p.points)).max(0);
+		return Decimal.min(ret,ret.mul(60).sub(player.incrementy_p.points)).max(0);
 	},
 	getResetGainReal() {
 		let ret=player.modpoints[5];
