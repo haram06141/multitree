@@ -6327,13 +6327,13 @@ addLayer("incrementy_m", {
 				title: "Matter Upgrade 23",
                 description: "Unlock a matter challenge.",
                 cost: new Decimal(1e62),
-                unlocked() { return player.tm.buyables[5].gte(5); }, // The upgrade is only visible when this is true
+                unlocked() { return player.tm.buyables[5].gte(6); }, // The upgrade is only visible when this is true
 			},
 			24: {
 				title: "Matter Upgrade 24",
                 description: "Matter gain is boosted by your antimatter.",
                 cost: new Decimal(1e70),
-                unlocked() { return player.tm.buyables[5].gte(5); }, // The upgrade is only visible when this is true
+                unlocked() { return player.tm.buyables[5].gte(6); }, // The upgrade is only visible when this is true
 				effect() {
                     let base=3;
                     let ret = Decimal.pow(base,Decimal.log10(player.incrementy_a.points.add(1)).pow(0.9));
@@ -6345,7 +6345,7 @@ addLayer("incrementy_m", {
 				title: "Matter Upgrade 25",
                 description: "Unlock a matter challenge.",
                 cost: new Decimal(1e110),
-                unlocked() { return player.tm.buyables[5].gte(5); }, // The upgrade is only visible when this is true
+                unlocked() { return player.tm.buyables[5].gte(6); }, // The upgrade is only visible when this is true
 			},
 	 },
 	passiveGeneration(){
