@@ -7632,6 +7632,11 @@ addLayer("gd_f", {
                         {}],
                     ["display-text",
                         function() {
+							return 'Fans are capped by your points.';
+						},
+                        {}],
+                    ["display-text",
+                        function() {
 							return 'Your best fame are multiplying your fans by ' + format(tmp.gd_f.fansGain) + ' per second';
 						},
                         {}],
@@ -7768,7 +7773,7 @@ addLayer("gd_f", {
             },
 	},
 	 update(diff){
-		player.gd_f.fans=player.gd_f.fans.mul(tmp.gd_f.fansGain.pow(diff));
+		player.gd_f.fans=player.gd_f.fans.mul(tmp.gd_f.fansGain.pow(diff)).min(player.points).max(player.gd_f.fans);
 	},
 	 
 	 upgrades: {
