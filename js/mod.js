@@ -12,11 +12,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.4.2",
+	num: "1.4.3",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.4.3</h3><br>
+	- Endgame: e2e6 points<br>
 	<h3>v1.4.2</h3><br>
 	- Endgame: e1.5e6 points<br>
 	<h3>v1.4.1</h3><br>
@@ -72,11 +74,11 @@ function getPointGen() {
 	gain = gain.mul(tmp.tptc_q.quirkEff);
 	if(hasUpgrade("tptc_sp",12))gain = gain.mul(upgradeEffect("tptc_sp",12));
 	gain = gain.mul(tmp.tm.buyables[0].effect);
-	if(hasUpgrade("stardust_s",12))gain = gain.mul(upgradeEffect("stardust_s",12));
-	if(hasUpgrade("forest_p",21))gain = gain.mul(upgradeEffect("forest_p",21));
-	if(hasUpgrade("burning_a",14))gain = gain.mul(upgradeEffect("burning_a",14));
-	if(hasUpgrade("incrementy_i",13))gain = gain.mul(upgradeEffect("incrementy_i",13));
-	if(hasUpgrade("gd_u",21))gain = gain.mul(upgradeEffect("gd_u",21));
+	if(!inChallenge("tptc_ge",11))if(hasUpgrade("stardust_s",12))gain = gain.mul(upgradeEffect("stardust_s",12));
+	if(!inChallenge("tptc_ge",11))if(hasUpgrade("forest_p",21))gain = gain.mul(upgradeEffect("forest_p",21));
+	if(!inChallenge("tptc_ge",11))if(hasUpgrade("burning_a",14))gain = gain.mul(upgradeEffect("burning_a",14));
+	if(!inChallenge("tptc_ge",11))if(hasUpgrade("incrementy_i",13))gain = gain.mul(upgradeEffect("incrementy_i",13));
+	if(!inChallenge("tptc_ge",11))if(hasUpgrade("gd_u",21))gain = gain.mul(upgradeEffect("gd_u",21));
 	
 	
 	if(inChallenge("incrementy_am",12))gain=gain.pow(0.1);
@@ -92,7 +94,7 @@ function addedPlayerData() { return {
 var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse","The Game Dev Tree"];
 var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132","thepaperpilot"];
 var MODPOINTSNAME=["","","energy","energy","embers","incrementy","hours of work"];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85"],["","0.0","0.1","0.2","0.2","0.2"]];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85"],["","0.0","0.1","0.2","0.2","0.2","1.0"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -114,6 +116,12 @@ var displayThings = [
 			return "Flame Strength: "+format(player.burning_a.flameStrength)+"/"+format(tmp.burning_a.maxFlameStrength);
 		}
 		if(player.tm.currentTree==6){
+			return "Base productivity is "+format(tmp.gd_u.upgrades[11].realEffect);
+		}
+		return "";
+	},
+	function(){
+		if(player.tm.currentTree==6){
 			return "Productivity slowdown starts at "+format(tmp.gd_u.scstart);
 		}
 		return "";
@@ -122,7 +130,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e15e5");
+	return player.points.gte("e2e6");
 }
 
 

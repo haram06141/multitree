@@ -1536,6 +1536,7 @@
     Decimal.prototype.recip = function () {
       if (this.mag === 0)
       {
+		if(!window.decimalError){alert((new Error("recip failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer === 0)
@@ -1716,6 +1717,7 @@
     Decimal.prototype.absLog10 = function () {
       if (this.sign === 0)
       {
+		if(!window.decimalError){alert((new Error("absLog10 failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer > 0)
@@ -1731,6 +1733,7 @@
     Decimal.prototype.log10 = function () {
       if (this.sign <= 0)
       {
+		if(!window.decimalError){alert((new Error("log10 failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer > 0)
@@ -1747,14 +1750,17 @@
       base = D(base);
       if (this.sign <= 0)
       {
+		if(!window.decimalError){alert((new Error("log failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       if (base.sign <= 0)
       {
+		if(!window.decimalError){alert((new Error("log failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       if (base.sign === 1 && base.layer === 0 && base.mag === 1)
       {
+		if(!window.decimalError){alert((new Error("log failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer === 0 && base.layer === 0)
@@ -1768,6 +1774,7 @@
     Decimal.prototype.log2 = function () {
       if (this.sign <= 0)
       {
+		if(!window.decimalError){alert((new Error("log2 failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer === 0)
@@ -1791,6 +1798,7 @@
     Decimal.prototype.ln = function () {
       if (this.sign <= 0)
       {
+		if(!window.decimalError){alert((new Error("ln failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (this.layer === 0)
