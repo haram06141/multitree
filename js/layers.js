@@ -2504,7 +2504,7 @@ addLayer("tptc_l", {
 					"Effect: +"+format(data.effect)+" to Hyper Booster base";
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(0);
+					if(inChallenge("tptc_ge",31) || !hasUpgrade("tptc_l",11))return new Decimal(0);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return x.pow(0.1).sub(1).div(5).max(0);
 				},
@@ -2529,7 +2529,7 @@ addLayer("tptc_l", {
 					"Effect: Gain "+format(data.effect)+"x more Hexes";
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || !hasUpgrade("tptc_l",12))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return Decimal.pow(50,x.pow(0.5));
 				},
@@ -2554,7 +2554,7 @@ addLayer("tptc_l", {
 					"Effect: Gain "+format(data.effect)+"x more Hyperspace Energy";
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || !hasUpgrade("tptc_l",13))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return x.add(1).pow(1.5);
 				},
@@ -2579,7 +2579,7 @@ addLayer("tptc_l", {
 					"Effect: Multiply the reward of H challenge 'Real Prestige Tree' by "+format(data.effect)+"x";
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || !hasUpgrade("tptc_l",14))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return x.add(1).pow(0.5);
 				},
@@ -2604,7 +2604,7 @@ addLayer("tptc_l", {
 					"Effect: Positivity & Negativity effects ^"+format(data.effect);
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || player.tptc_mb.buyables[12].lt(1))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					let ret=x.add(1).pow(0.7);
 					if(ret.gte(new Decimal(2,15))){
@@ -2634,7 +2634,7 @@ addLayer("tptc_l", {
 					"Effect: Phantom Souls are "+format(data.effect)+"x cheaper";
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || player.tptc_mb.buyables[12].lt(2))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					return Decimal.pow(1e5,x.pow(0.75));
 				},
@@ -2659,7 +2659,7 @@ addLayer("tptc_l", {
 					"Effect: Multiply 2nd row of Prestige Upgrades by "+format(data.effect);
                 },
 				effect(){
-					if(inChallenge("tptc_ge",31))return new Decimal(1);
+					if(inChallenge("tptc_ge",31) || player.tptc_mb.buyables[12].lt(3))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					let ret=Decimal.pow(1.25,x.pow(0.4));
 					if(player.tptc_ge.challenges[11])ret=ret.pow(tmp.tptc_ge.challenges[11].rewardEffect);
@@ -3738,6 +3738,7 @@ addLayer("tptc_ma", {
                     return "Imperium Building is "+format(data.effect)+"x cheaper";
                 },
 				effect(){
+					if(player.tptc_mb.buyables[13].lt(1))return new Decimal(1);
 					let x=player.tptc_ma.points.add(1).log10().add(1);
 					return x.pow(0.2);
 				},
