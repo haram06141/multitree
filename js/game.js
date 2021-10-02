@@ -225,6 +225,7 @@ function doReset(layer, force=false) {
 	if(layer.startsWith("burning_"))player.modpoints[4] = new Decimal(0)
 	if(layer.startsWith("incrementy_"))player.modpoints[5] = new Decimal(0)
 	if(layer.startsWith("gd_"))player.modpoints[6] = new Decimal(0)
+	if(layer.startsWith("tptr_"))player.modpoints[7] = new Decimal(0)
 
 	for (let x = row; x >= 0; x--) rowReset(x, layer)
 	rowReset("side", layer)
@@ -263,6 +264,7 @@ function startChallenge(layer, x) {
 	}	
 	doReset(layer, true)
 	if(layers[layer].challenges[x].resetPoints)player.points = new Decimal(0);
+	if(layer == "incrementy_q")doReset("incrementy_am",true);
 	if(enter) player[layer].activeChallenge = x
 
 	updateChallengeTemp(layer)
