@@ -1,0 +1,19 @@
+TPTC L18
+
+BC
+CD
+CF
+BD
+DE
+CE
+BE
+DF
+BF
+EF
+
+TPTC L19
+
+AC
+AD
+AB
+
