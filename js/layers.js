@@ -433,12 +433,11 @@ addLayer("tm", {
 		18: {
 				title: "Rewrite Generators",
 				fullDisplay(){
-					return "<h2>Rewrite Generators</h2><br>Unlock Generators in The Prestige Tree Rewritten. (Can't buy)<br>\
+					return "<h2>Rewrite Generators</h2><br>Unlock Generators in The Prestige Tree Rewritten.<br>\
 					Costs: "+format(new Decimal("e218e5"))+" points<br>\
 					"+format(new Decimal(82700))+" generators in The Prestige Tree Classic<br>\
 					"+format(Decimal.pow(10,2224))+" hours of work in The Game Dev Tree"
 				},canAfford(){
-					return false;
 					return player.points.gte(new Decimal("e218e5")) && 
 					player.tptc_g.points.gte(82700) && 
 					player.modpoints[6].gte(Decimal.pow(10,2224));
@@ -774,6 +773,7 @@ addLayer("tptc_g", {
 		let base = new Decimal(2);
 		base = base.add(tmp.tptc_sg.getSGenPowerEff);
 		base = base.add(tmp.tptc_e.buyables[11].effect[0]);
+		base = base.mul(tmp.tptr_g.effect[1]);
 		ret = Decimal.pow(base,ret).mul(ret);
 		ret = ret.mul(tmp.tptc_q.quirkEff);
 		return ret;
@@ -9963,6 +9963,7 @@ addLayer("tptr_p", {
 		if(hasUpgrade("tptr_p",21))ret=ret.mul(upgradeEffect("tptr_p",21));
 		if(hasUpgrade("tptr_p",23))ret=ret.mul(upgradeEffect("tptr_p",23));
 		if(hasUpgrade("tptr_b",11))ret=ret.mul(upgradeEffect("tptr_b",11));
+		if(hasUpgrade("tptr_g",11))ret=ret.mul(upgradeEffect("tptr_g",11));
         return ret
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -9985,6 +9986,7 @@ addLayer("tptr_p", {
 					if(hasUpgrade("tptr_p",13))ret=ret.mul(upgradeEffect("tptr_p",13));
 					if(hasUpgrade("tptr_p",22))ret=ret.mul(upgradeEffect("tptr_p",22));
 					ret=ret.mul(tmp.tptr_b.effect[0]);
+					ret=ret.mul(tmp.tptr_g.powerEff);
                     return ret;
 				},
 			},
@@ -10050,7 +10052,7 @@ addLayer("tptr_p", {
 			return;
 		},
 	effect() {
-		let ret = player.tptr_p.points.add(1).pow(10).mul("e1e3").min(Decimal.pow(2,player.tptr_p.points));
+		let ret = player.tptr_p.points.add(1).pow(1000).mul("e1e5").min(Decimal.pow(2,player.tptr_p.points));
 		return ret;
 	},
 	effectDescription() { // Optional text to describe the effects
@@ -10125,7 +10127,6 @@ addLayer("tptr_b", {
            return "which are boosting Rewritten Point generation by "+format(eff[0])+"x and are boosting your booster base in TPTC by "+format(eff[1])+"x"
        },
 		update(diff){
-			if(hasUpgrade("tptr_p",11))player.modpoints[7]=player.modpoints[7].add(upgradeEffect("tptr_p",11).mul(diff));
 		},
 		
 		upgrades: {
@@ -10141,6 +10142,100 @@ addLayer("tptr_b", {
 				},
 				unlocked() { return player.tptr_b.best.gte(1) },
 				effectDisplay() { return format(this.effect())+"x" },
+			},
+		}
+});
+
+
+addLayer("tptr_g", {
+    name: "tptr_g", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "G", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+			power: new Decimal(0),
+    }},
+    color: "#a3d9a5",
+    requires: new Decimal(200), // Can be a function that takes requirement increases into account
+    resource: "generators", // Name of prestige currency
+    baseResource: "rewritten points", // Name of resource prestige is based on
+    baseAmount() {return player.modpoints[7]}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+	branches: ["tptr_p"],
+    exponent: 1.25, // Prestige currency exponent
+    base: 5, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",18)},
+		upgrades: {
+		},
+		doReset(l){
+			if(l=="tptr_p" || l=="tptr_b" || l=="tptr_g" || !l.startsWith("tptr_")){return;}
+			var b=new Decimal(player.tptr_g.best);
+			layerDataReset("tptr_g",["upgrades","milestones","challenges"]);
+			player.tptr_g.best=g;
+			return;
+		},
+		addToBase() {
+			let base = new Decimal(0);
+			return base;
+		},
+		effBase() {
+			let base = new Decimal(2);
+			
+			// ADD
+			
+			// MULTIPLY
+			
+			return base;
+		},
+		effect() {
+			let eff = [Decimal.pow(this.effBase(), player.tptr_g.points).sub(1).max(0), player.tptr_g.points.add(1)];
+			return eff;
+		},
+		effectDescription() {
+			return "which are generating "+format(tmp.tptr_g.effect[0])+" Generator Power/sec\n ("+format(tmp.tptr_g.effBase)+"x each) and are boosting your generator base in TPTC by "+format(tmp.tptr_g.effect[1])+"x"
+		},
+		update(diff){
+			
+			if (player.tptr_g.unlocked) player.tptr_g.power = player.tptr_g.power.plus(tmp.tptr_g.effect[0].times(diff));
+		},
+		powerExp() {
+			let exp = new Decimal(1/3);
+			return exp;
+		},
+		powerEff() {
+			return player.tptr_g.power.plus(1).pow(this.powerExp());
+		},
+		tabFormat: ["main-display",
+			"prestige-button",
+			"blank",
+			["display-text",
+				function() {return 'You have ' + format(player.tptr_g.power) + ' Generator Power, which boosts Rewritten Point generation by '+format(tmp.tptr_g.powerEff)+'x'},
+					{}],
+			"blank",
+			["display-text",
+				function() {return 'Your best Generators is ' + formatWhole(player.tptr_g.best) + '<br>You have made a total of '+formatWhole(player.tptr_g.total)+" Generators."},
+					{}],
+			"blank",
+			"milestones", "blank", "blank", "upgrades"],
+		upgrades: {
+			rows: 3,
+			cols: 5,
+			11: {
+				title: "GP Combo",
+				description: "Best Generators boost Prestige Point gain.",
+				cost() { return new Decimal(3) },
+				effect() { return player.tptr_g.best.sqrt().plus(1) },
+				unlocked() { return player.tptr_g.best.gte(1) },
+				effectDisplay() { return format(tmp.tptr_g.upgrades[11].effect)+"x" },
 			},
 		}
 });

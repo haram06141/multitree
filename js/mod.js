@@ -12,11 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.5",
+	num: "1.5.1",
 	name: "Rewritten Update",
 }
 
 let changelog = `
+	<h3>v1.5.1</h3><br>
+	- Added Generators in TPTR<br>
+	- Endgame: e2.23e7 points<br>
 	<h3>v1.5</h3><br>
 	- Added a new tree (The Prestige Tree Rewritten)<br>
 	- Added Rewrite TPT<br>
@@ -109,7 +112,7 @@ var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Be
 
 // Display extra things at the top of the page
 var displayThings = [
-	"Mod Author: qq1010903229 (loader3229)",
+	"Mod Author: qq1010903229 (loader3229#3966 in discord)",
 	function(){
 		if(hasUpgrade("tptc_p",13)){
 			return "Current Tree: "+TREES[player.tm.currentTree]+" Version "+TREEVERS[player.tm.currentTree][player.tm.buyables[player.tm.currentTree].toNumber()];
@@ -141,7 +144,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e218e5");
+	return player.points.gte("e223e5");
 }
 
 
