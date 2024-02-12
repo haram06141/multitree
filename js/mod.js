@@ -1,7 +1,7 @@
 let modInfo = {
 	name: "The Multitree",
 	id: "multitree",
-	author: "qq1010903229 (loader3229)",
+	author: "loader3229",
 	pointsName: "points",
 	discordName: "",
 	discordLink: "",
@@ -12,11 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.5.2",
+	num: "1.5.2.1",
 	name: "Rewritten Update",
 }
 
 let changelog = `
+	<h3>v1.5.2.1</h3><br>
+	- Added Time Capsules in TPTR<br>
+	- Endgame: e2.75e7 points<br>
 	<h3>v1.5.2</h3><br>
 	- Endgame: e2.57e7 points<br>
 	<h3>v1.5.1</h3><br>
@@ -114,7 +117,7 @@ var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Be
 
 // Display extra things at the top of the page
 var displayThings = [
-	"Mod Author: qq1010903229 (loader3229#3966 in discord)",
+	"Mod Author: loader3229",
 	function(){
 		if(hasUpgrade("tptc_p",13)){
 			return "Current Tree: "+TREES[player.tm.currentTree]+" Version "+TREEVERS[player.tm.currentTree][player.tm.buyables[player.tm.currentTree].toNumber()];
@@ -146,7 +149,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e257e5");
+	return player.points.gte("e275e5");
 }
 
 
