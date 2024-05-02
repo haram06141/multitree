@@ -314,6 +314,7 @@ addLayer("gd_e", {
                 cost: new Decimal(3),
 				effect() {
 					let ret = player.gd_e.points.add(1).pow(0.5);
+					if(hasUpgrade("gd_e",21))ret = ret.pow(2);
 					return ret
 				},
                 effectDisplay() { return "/"+format(this.effect()) }, // Add formatting to the effect
@@ -357,6 +358,18 @@ addLayer("gd_e", {
                 description: "Experience exponent is multiplied by 1.1.",
                 cost: new Decimal(2e7),
 			},
+			21: {
+				title: "Experience Upgrade 21",
+                description: "Experience Upgrade 11 is squared.",
+                cost: new Decimal(1e300),
+                unlocked() { return hasUpgrade("tm",25); },
+			},
+			22: {
+				title: "Experience Upgrade 22",
+                description: "Endpoints are cheaper.",
+                cost: new Decimal("1e386"),
+                unlocked() { return hasUpgrade("tm",25); },
+			},
 	 },
 	passiveGeneration(){
 		let ret=0;
@@ -383,6 +396,7 @@ addLayer("gd_c", {
 		ret = new Decimal(1.5)
 		if(hasUpgrade("gd_u",24))ret = ret.mul(1.5)
 		if(hasUpgrade("gd_g",11) && hasUpgrade("gd_f",11))ret = ret.mul(upgradeEffect("gd_f",11));
+		if(hasUpgrade("gd_c",22))ret = ret.mul(1.1)
 		return ret
 	}, // Prestige currency exponent
     resetDescription: "Sell mod to publisher for ",
@@ -423,6 +437,7 @@ addLayer("gd_c", {
                 cost: new Decimal(50),
 				effect() {
 					let ret = player.gd_c.points.add(1).pow(0.5);
+					if(hasUpgrade("gd_c",21))ret = ret.pow(2);
 					return ret
 				},
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -454,6 +469,18 @@ addLayer("gd_c", {
 				title: "Cash Upgrade 15",
                 description: "Purchase a hardware upgrader. Unlock a cash buyable.",
                 cost: new Decimal(1e8),
+			},
+			21: {
+				title: "Cash Upgrade 21",
+                description: "Cash Upgrade 11 is squared.",
+                cost: new Decimal(1e216),
+                unlocked() { return hasUpgrade("tm",25); },
+			},
+			22: {
+				title: "Cash Upgrade 22",
+                description: "Cash Exponent is multiplied by 1.1",
+                cost: new Decimal(5e217),
+                unlocked() { return hasUpgrade("tm",25); },
 			},
 	 },
 	passiveGeneration(){
@@ -999,6 +1026,12 @@ addLayer("gd_f", {
                 cost: new Decimal(80),
 				unlocked(){return hasUpgrade("gd_g",15);}
 			},
+			/*25: {
+				title: "Fame Upgrade 25",
+                description: "Unlock a new layer.",
+                cost: new Decimal(110),
+				unlocked(){return hasUpgrade("gd_g",15);}
+			},*/
 	 },
 	milestones: {
             0: {requirementDescription: "4 Fame",
@@ -1451,9 +1484,10 @@ addLayer("gd_a", {
     baseAmount() {return player.gd_r.points}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
 	base(){
-		ret = new Decimal(1.5)
-		if(hasUpgrade("gd_a",12) && hasUpgrade("gd_r",24))ret = new Decimal(1.2)
-		return ret
+		var l = 0;
+		if(hasUpgrade("gd_a",12) && hasUpgrade("gd_r",24))l++;
+		if(hasUpgrade("gd_e",22))l++;
+		return new Decimal([1.5,1.2,1.15][l]);
 	},
     exponent(){
 		ret = new Decimal(1.1)

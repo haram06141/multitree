@@ -413,6 +413,14 @@ addLayer("tm", {
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
+		25: {
+				title: "Multitree Upgrade 25",
+                description: "Unlock some Row 2 upgrades in The Game Dev Tree.",
+                cost: new Decimal("e376e5"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
 		16: {
 				title: "Rewrite Prestige",
 				fullDisplay(){

@@ -2330,8 +2330,8 @@ addLayer("tptc_l", {
 				effect(){
 					if(inChallenge("tptc_ge",31) || player.tptc_mb.buyables[12].lt(1))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
-					let ret=x.add(1).pow(0.7);
-					if(ret.gte(new Decimal(2,15))){
+					ret=x.add(1).pow(0.7);
+					if(ret.gte(Decimal.pow(2,15))){
 						ret=ret.log2().div(15).pow(0.8).mul(5).add(10);
 						ret=Decimal.pow(2,ret);
 					}

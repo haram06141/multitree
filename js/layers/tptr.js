@@ -699,7 +699,7 @@ addLayer("tptr_t", {
 });
 
 addLayer("tptr_e", {
-        name: "enhance", // This is optional, only used in a few places, If absent it just uses the layer id.
+        name: "tptr_e", // This is optional, only used in a few places, If absent it just uses the layer id.
         symbol: "E", // This appears on the layer's node. Default is the id with the first letter capitalized
         position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
         startData() { return {
@@ -733,7 +733,7 @@ addLayer("tptr_e", {
 			return player.tptr_e.points.add(1).log10().div(100).add(1);
 		},
     row: 2, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",28)},
+    layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",27)},
 		doReset(l){
 			if(l=="tptr_p" || l=="tptr_b" || l=="tptr_g" || l=="tptr_t" || l=="tptr_e" || l=="tptr_s" || l=="tptr_sb" || l=="tptr_sg" || !l.startsWith("tptr_")){return;}
 			var b=new Decimal(player.tptr_s.best);
