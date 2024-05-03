@@ -214,7 +214,7 @@ addLayer("tm", {
             7: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal(0),new Decimal("e215e5"),new Decimal("e25e6"),new Decimal("e305e5"),/*new Decimal("e38e6"),Infinity*/][player[this.layer].buyables[this.id].toNumber()];
+                    let cost = [new Decimal(0),new Decimal("e215e5"),new Decimal("e25e6"),new Decimal("e305e5"),Infinity/*new Decimal("e38e6"),Infinity*/][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
