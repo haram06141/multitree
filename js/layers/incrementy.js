@@ -1360,7 +1360,7 @@ addLayer("incrementy_p", {
 							"Cost: "+format(data.cost)+" Particles<br>"+
 							"Effect: Neutrino and Quark gain x"+format(data.effect);
 						},
-                        unlocked(){ return hasUpgrade("incrementy_p", 31) },
+                        unlocked(){ return hasUpgrade("incrementy_p", 32) },
 						canAfford() {
 							return player.incrementy_p.points.gte(tmp[this.layer].buyables[this.id].cost);
 						},

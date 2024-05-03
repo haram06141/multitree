@@ -126,6 +126,7 @@ addLayer("gd_u", {
                     let ret = Decimal.pow(base,Decimal.log10(player.modpoints[6].mul(10).add(1)).pow(0.9));
 					if(hasUpgrade("gd_u",25))ret=ret.pow(2);
 					if(hasUpgrade("gd_u",33))ret=ret.pow(2);
+					if(hasUpgrade("gd_c",23))ret=ret.pow(1.25);
                     return ret;
 				},
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -407,6 +408,7 @@ addLayer("gd_c", {
 		if(hasUpgrade("gd_g",14))mult = mult.mul(upgradeEffect("gd_g",14));
 		if(hasUpgrade("gd_g",11) && hasUpgrade("gd_f",14))mult = mult.mul(upgradeEffect("gd_f",14));
 		if(hasUpgrade("gd_r",25))mult=mult.mul(tmp.gd_t.effect);
+		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11))mult = mult.mul(upgradeEffect("gd_l",11));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -480,6 +482,12 @@ addLayer("gd_c", {
 				title: "Cash Upgrade 22",
                 description: "Cash Exponent is multiplied by 1.1",
                 cost: new Decimal(5e217),
+                unlocked() { return hasUpgrade("tm",25); },
+			},
+			23: {
+				title: "Cash Upgrade 23",
+                description: "Update Upgrade 21 ^1.25",
+                cost: new Decimal(2.22e222),
                 unlocked() { return hasUpgrade("tm",25); },
 			},
 	 },
@@ -741,6 +749,7 @@ addLayer("gd_f", {
     resetDescription: "Elevate your social status by ",
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",12))mult = mult.div(upgradeEffect("gd_l",12));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -1026,12 +1035,12 @@ addLayer("gd_f", {
                 cost: new Decimal(80),
 				unlocked(){return hasUpgrade("gd_g",15);}
 			},
-			/*25: {
+			25: {
 				title: "Fame Upgrade 25",
                 description: "Unlock a new layer.",
                 cost: new Decimal(110),
 				unlocked(){return hasUpgrade("gd_g",15);}
-			},*/
+			},
 	 },
 	milestones: {
             0: {requirementDescription: "4 Fame",
@@ -1337,9 +1346,9 @@ addLayer("gd_g", {
 		
 		doReset(l){
 			if(l=="gd_u" || l=="gd_c" || l=="gd_e" || l=="gd_r" || l=="gd_s" || l=="gd_f" || l=="gd_a" || l=="gd_t" || l=="gd_d" || l=="gd_l" || l=="gd_g" || !l.startsWith("gd_")){return;}
-			var b=new Decimal(player.gd_g.best);
-			layerDataReset("gd_g",["upgrades","milestones","challenges"]);
-			player.gd_g.best=b;
+			var b=new Decimal(player[this.layer].best);
+			layerDataReset(this.layer,["upgrades","milestones","challenges"]);
+			player[this.layer].best=b;
 			return;
 		},
 		
@@ -1509,9 +1518,9 @@ addLayer("gd_a", {
 		
 		doReset(l){
 			if(l=="gd_u" || l=="gd_c" || l=="gd_e" || l=="gd_r" || l=="gd_s" || l=="gd_f" || l=="gd_a" || l=="gd_t" || l=="gd_d" || l=="gd_l" || l=="gd_g" || !l.startsWith("gd_")){return;}
-			var b=new Decimal(player.gd_g.best);
-			layerDataReset("gd_g",["upgrades","milestones","challenges"]);
-			player.gd_g.best=b;
+			var b=new Decimal(player[this.layer].best);
+			layerDataReset(this.layer,["upgrades","milestones","challenges"]);
+			player[this.layer].best=b;
 			return;
 		},
 		
@@ -1695,9 +1704,9 @@ addLayer("gd_d", {
 		
 		doReset(l){
 			if(l=="gd_u" || l=="gd_c" || l=="gd_e" || l=="gd_r" || l=="gd_s" || l=="gd_f" || l=="gd_a" || l=="gd_t" || l=="gd_d" || l=="gd_l" || l=="gd_g" || !l.startsWith("gd_")){return;}
-			var b=new Decimal(player.gd_g.best);
-			layerDataReset("gd_g",["upgrades","milestones","challenges"]);
-			player.gd_g.best=b;
+			var b=new Decimal(player[this.layer].best);
+			layerDataReset(this.layer,["upgrades","milestones","challenges"]);
+			player[this.layer].best=b;
 			return;
 		},
 		
@@ -1789,9 +1798,9 @@ addLayer("gd_t", {
 		
 		doReset(l){
 			if(l=="gd_u" || l=="gd_c" || l=="gd_e" || l=="gd_r" || l=="gd_s" || l=="gd_f" || l=="gd_a" || l=="gd_t" || l=="gd_d" || l=="gd_l" || l=="gd_g" || !l.startsWith("gd_")){return;}
-			var b=new Decimal(player.gd_g.best);
-			layerDataReset("gd_g",["upgrades","milestones","challenges"]);
-			player.gd_g.best=b;
+			var b=new Decimal(player[this.layer].best);
+			layerDataReset(this.layer,["upgrades","milestones","challenges"]);
+			player[this.layer].best=b;
 			return;
 		},
 		
@@ -2023,3 +2032,239 @@ addLayer("gd_t", {
         }
 	}
 });
+
+
+addLayer("gd_l", {
+    name: "gd_l",
+    symbol: "L",
+    color: "#09DE89",
+    branches: [ 'gd_s', 'gd_f' ],
+    row: 3,
+    position: 4,
+    resource: "lectures",
+    baseResource: "fame",
+    resetDescription: "Teach ",
+    startData() { return {
+        unlocked: false,
+        points: new Decimal(0),
+        gabenExp: new Decimal(0),
+        gabenLevel: new Decimal(0),
+        lExp: new Decimal(0),
+        lLevel: new Decimal(0),
+        carmackExp: new Decimal(0),
+        carmackLevel: new Decimal(0),
+        thompsonExp: new Decimal(0),
+        thompsonLevel: new Decimal(0),
+        meierExp: new Decimal(0),
+        meierLevel: new Decimal(0)
+    }},
+    layerShown(){return player.tm.currentTree==6 && hasUpgrade("gd_f",25);},
+    type: "normal",
+    requires: new Decimal(110),
+    baseAmount() { return player.gd_f.points },
+    exponent: 10,
+    gainMult() {
+        mult = new Decimal(2)
+        return mult
+    },
+    gainExp() {
+        return new Decimal(1)
+    },
+    effect() {
+        return player[this.layer].points.sqrt()
+    },
+    effectDescription() {
+        return `which generate ${format(this.effect())} experience for your TAs every second`
+    },
+	
+	
+		doReset(l){
+			if(l=="gd_u" || l=="gd_c" || l=="gd_e" || l=="gd_r" || l=="gd_s" || l=="gd_f" || l=="gd_a" || l=="gd_t" || l=="gd_d" || l=="gd_l" || l=="gd_g" || !l.startsWith("gd_")){return;}
+			var b=new Decimal(player[this.layer].best);
+			layerDataReset(this.layer,["upgrades","milestones","challenges"]);
+			player[this.layer].best=b;
+			return;
+		},
+		
+		
+    update(diff) {
+        const effect = this.effect().mul(diff)
+        if (hasUpgrade(this.layer, 11)) player[this.layer].gabenExp = player[this.layer].gabenExp.add(effect)
+        if (player[this.layer].gabenExp.gte(this.bars.gaben.cost())) {
+            player[this.layer].gabenLevel = player[this.layer].gabenLevel.add(1)
+            player[this.layer].gabenExp = new Decimal(0)
+        }
+        if (hasUpgrade(this.layer, 12)) player[this.layer].lExp = player[this.layer].lExp.add(effect)
+        if (player[this.layer].lExp.gte(this.bars.l.cost())) {
+            player[this.layer].lLevel = player[this.layer].lLevel.add(1)
+            player[this.layer].lExp = new Decimal(0)
+        }
+        if (hasUpgrade(this.layer, 13)) player[this.layer].carmackExp = player[this.layer].carmackExp.add(effect)
+        if (player[this.layer].carmackExp.gte(this.bars.carmack.cost())) {
+            player[this.layer].carmackLevel = player[this.layer].carmackLevel.add(1)
+            player[this.layer].carmackExp = new Decimal(0)
+        }
+        if (hasUpgrade(this.layer, 14)) player[this.layer].thompsonExp = player[this.layer].thompsonExp.add(effect)
+        if (player[this.layer].thompsonExp.gte(this.bars.thompson.cost())) {
+            player[this.layer].thompsonLevel = player[this.layer].thompsonLevel.add(1)
+            player[this.layer].thompsonExp = new Decimal(0)
+        }
+        if (hasUpgrade(this.layer, 15)) player[this.layer].meierExp = player[this.layer].meierExp.add(effect)
+        if (player[this.layer].meierExp.gte(this.bars.meier.cost())) {
+            player[this.layer].meierLevel = player[this.layer].meierLevel.add(1)
+            player[this.layer].meierExp = new Decimal(0)
+        }
+    },
+    roundUpCost: true,
+    tabFormat: [
+        ["infobox", "lore"],
+        ["display-text", () => inChallenge("gd_d", 21) ? `<h2 style="color: red;">Disabled during ${layers.d.challenges[player.d.activeChallenge].name} degree plan</h2>` : ""],
+        "main-display",
+        "prestige-button", "resource-display",
+        "blank",
+        ["display-text", "<h2>Gabriel Newell</h2>"],
+        ["row", [["upgrade", 11], "blank", ["bar", "gaben"]]],
+        "blank",
+        ["display-text", () => hasUpgrade("gd_l", 11) ? "<h2>L</h2>" : ""],
+        ["row", [["upgrade", 12], "blank", ["bar", "l"]]],
+        "blank",
+        ["display-text", () => hasUpgrade("gd_l", 12) ? "<h2>Jean Carmack</h2>" : ""],
+        ["row", [["upgrade", 13], "blank", ["bar", "carmack"]]],
+        "blank",
+        ["display-text", () => hasUpgrade("gd_l", 13) ? "<h2>Jen Thompson</h2>" : ""],
+        ["row", [["upgrade", 14], "blank", ["bar", "thompson"]]],
+        "blank",
+        ["display-text", () => challengeCompletions("gd_d", 22) > 0 ? "<h2>Sidney Meier</h2>" : ""],
+        ["row", [["upgrade", 15], "blank", ["bar", "meier"]]]
+    ],
+    bars: {
+        gaben: {
+            fillStyle: {'background-color' : "#1b2838"},
+            baseStyle: {'background-color' : "#171a21"},
+            textStyle: {'color': '#04e050'},
+            borderStyle() {return {}},
+            direction: RIGHT,
+            width: 400,
+            height: 140,
+            progress() {
+                return (player[this.layer].gabenExp.div(this.cost())).toNumber()
+            },
+            display() {
+                return `Current TA Level: ${formatWhole(player[this.layer].gabenLevel)}<br/><br/>${format(player[this.layer].gabenExp)} / ${formatWhole(this.cost())} to next level`
+            },
+            cost() { return new Decimal(4).pow(player[this.layer].gabenLevel).mul(1) },
+            unlocked: true
+        },
+        l: {
+            fillStyle: {'background-color' : "#2B5293"},
+            baseStyle: {'background-color' : "#2b772b"},
+            textStyle: {'color': '#04e050'},
+            borderStyle() {return {}},
+            direction: RIGHT,
+            width: 400,
+            height: 140,
+            progress() {
+                return (player[this.layer].lExp.div(this.cost())).toNumber()
+            },
+            display() {
+                return `Current TA Level: ${formatWhole(player[this.layer].lLevel)}<br/><br/>${format(player[this.layer].lExp)} / ${formatWhole(this.cost())} to next level`
+            },
+            cost() { return new Decimal(4).pow(player[this.layer].lLevel).mul(10) },
+            unlocked() { return hasUpgrade("gd_l", 11) }
+        },
+        carmack: {
+            fillStyle: {'background-color' : "#cb5e29"},
+            baseStyle: {'background-color' : "#692f17"},
+            textStyle: {'color': '#04e050'},
+            borderStyle() {return {}},
+            direction: RIGHT,
+            width: 400,
+            height: 140,
+            progress() {
+                return (player[this.layer].carmackExp.div(this.cost())).toNumber()
+            },
+            display() {
+                return `Current TA Level: ${formatWhole(player[this.layer].carmackLevel)}<br/><br/>${format(player[this.layer].carmackExp)} / ${formatWhole(this.cost())} to next level`
+            },
+            cost() { return new Decimal(6).pow(player[this.layer].carmackLevel).mul(10000) },
+            unlocked() { return hasUpgrade("gd_l", 13) }
+        },
+        thompson: {
+            fillStyle: {'background-color' : "#ffffff"},
+            baseStyle: {'background-color' : "#000000"},
+            textStyle: {'color': '#04e050'},
+            borderStyle() {return {}},
+            direction: RIGHT,
+            width: 400,
+            height: 140,
+            progress() {
+                return (player[this.layer].thompsonExp.div(this.cost())).toNumber()
+            },
+            display() {
+                return `Current TA Level: ${formatWhole(player[this.layer].thompsonLevel)}<br/><br/>${format(player[this.layer].thompsonExp)} / ${formatWhole(this.cost())} to next level`
+            },
+            cost() { return new Decimal(12).pow(player[this.layer].thompsonLevel).mul(50000) },
+            unlocked() { return hasUpgrade("gd_l", 13) }
+        },
+        meier: {
+            fillStyle: {'background-color' : "#947728"},
+            baseStyle: {'background-color' : "#04467a"},
+            textStyle: {'color': '#04e050'},
+            borderStyle() {return {}},
+            direction: RIGHT,
+            width: 400,
+            height: 140,
+            progress() {
+                return (player[this.layer].meierExp.div(this.cost())).toNumber()
+            },
+            display() {
+                return `Current TA Level: ${formatWhole(player[this.layer].meierLevel)}<br/><br/>${format(player[this.layer].meierExp)} / ${formatWhole(this.cost())} to next level`
+            },
+            cost() { return new Decimal(12).pow(player[this.layer].meierLevel).mul(50000) },
+            unlocked() { return challengeCompletions("gd_d", 22) > 0 }
+        }
+    },
+    upgrades: {
+        rows: 1,
+        cols: 5,
+        11: {
+            title: "Hire Gabriel",
+            cost: new Decimal(1),
+            description() { return "<br/>Gabriel will increase cash gain based on level<br/>" },
+            effect() { return inChallenge("gd_d", 21) ? new Decimal(1) : new Decimal(2).pow(player[this.layer].gabenLevel) },
+            effectDisplay() { return `${format(this.effect())}x cash gain` }
+        },
+        12: {
+            title: "Hire L",
+            cost: new Decimal(10),
+            description() { return "<br/>L will reduce fame requirement based on level<br/>" },
+            effect() { return inChallenge("gd_d", 21) ? new Decimal(1) : new Decimal(2).pow(player[this.layer].lLevel) },
+            effectDisplay() { return `fame requirement /${format(this.effect())}` },
+            unlocked() { return hasUpgrade("gd_l", 11) }
+        },/*
+        13: {
+            title: "Hire Jean",
+            cost: new Decimal(2000),
+            description() { return "<br/>Jean will square updates gain, and increase updates gain based on level<br/>" },
+            effect() { return inChallenge("gd_d", 21) ? new Decimal(1) : new Decimal(1.75).pow(player[this.layer].carmackLevel) },
+            effectDisplay() { return `${format(this.effect())}x update gain` },
+            unlocked() { return hasUpgrade("gd_l", 12) }
+        },
+        14: {
+            title: "Hire Jen",
+            cost: new Decimal(60000),
+            description() { return "<br/>Jen will make taking classes not spend any cash, and increase enrollments gain based on level<br/>" },
+            effect() { return inChallenge("gd_d", 21) ? new Decimal(1) : new Decimal(1.5).pow(player[this.layer].thompsonLevel) },
+            effectDisplay() { return `${format(this.effect())}x enrollments gain` },
+            unlocked() { return hasUpgrade("gd_l", 13) }
+        },
+        15: {
+            title: "Hire Sidney",
+            cost: new Decimal(1200000),
+            description() { return "<br/>Sidney will square good will affect, and increase good will gain based on level<br/>" },
+            effect() { return inChallenge("gd_d", 21) ? new Decimal(1) : new Decimal(1.05).pow(player[this.layer].meierLevel) },
+            effectDisplay() { return `${format(this.effect())}x good will gain` },
+            unlocked() { return challengeCompletions("gd_d", 22) > 0 }
+        }*/
+    }
+})
