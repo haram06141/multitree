@@ -12,11 +12,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.5.3",
+	num: "1.5.3.1",
 	name: "Rewritten Update",
 }
 
 let changelog = `
+	<h3>v1.5.3.1</h3><br>
+	- Fixed some bugs<br>
+	- Endgame: e3.78e7 points<br>
 	<h3>v1.5.3</h3><br>
 	- Added Space Energy in TPTR<br>
 	- Added Enhance in TPTR<br>
@@ -153,7 +156,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e375e5");
+	return player.points.gte("e378e5");
 }
 
 
