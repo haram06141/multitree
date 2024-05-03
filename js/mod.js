@@ -3,11 +3,10 @@ let modInfo = {
 	id: "multitree",
 	author: "loader3229",
 	pointsName: "points",
-	discordName: "",
-	discordLink: "",
+	discordName: "loader3229's Discord Server",
+	discordLink: "https://discord.gg/jztUReQ2vT",
 	initialStartPoints: new Decimal (0), // Used for hard resets and new players
-	
-	offlineLimit: 10000000,  // In hours
+	offlineLimit: 24,  // In hours
 }
 
 // Set your version in num and name
