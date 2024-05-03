@@ -3178,6 +3178,7 @@ var getMechanicalChallenges=function() {
 					if(player.tm.buyables[1].gte(19)){
 						return "Effects of point gain multiplier upgrades and buyables from other trees ^"+format(tmp.tptc_ge.c11pow,3);
 					}
+					return "Effects of point gain multiplier upgrades and buyables from other trees ^0.001";
 				},
                 unlocked() { return player.tptc_ge.unlocked },
                 goal: new Decimal("1e200000"),
