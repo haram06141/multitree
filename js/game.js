@@ -265,6 +265,8 @@ function startChallenge(layer, x) {
 	doReset(layer, true)
 	if(layers[layer].challenges[x].resetPoints)player.points = new Decimal(0);
 	if(layer == "incrementy_q")doReset("incrementy_am",true);
+	if(layer == "incrementy_b")doReset("incrementy_am",true);
+	if(layer == "tptr_h")doReset("tptc_ge",true);
 	if(enter) player[layer].activeChallenge = x
 
 	updateChallengeTemp(layer)

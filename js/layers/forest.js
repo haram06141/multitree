@@ -279,6 +279,30 @@ addLayer("forest_p", {
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
             },
+			54: {
+				title: "Particle Upgrade 54",
+                description: "Energy cheapens Boosters in The Prestige Tree Classic.",
+                cost: new Decimal("1e6900"),
+                unlocked() { return hasUpgrade("tm",14); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=1e30;
+                    let ret = Decimal.pow(base,Decimal.log10(player.modpoints[3].mul(10).add(1)).pow(0.9));
+					return ret;
+                },
+                effectDisplay() { return "/"+format(this.effect()) }, // Add formatting to the effect
+            },
+			55: {
+				title: "Particle Upgrade 55",
+                description: "Particles cheapens Generators in The Prestige Tree Classic.",
+                cost: new Decimal("1e6900"),
+                unlocked() { return hasUpgrade("tm",14); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=1e30;
+                    let ret = Decimal.pow(base,Decimal.log10(player.forest_p.points.mul(10).add(1)).pow(0.9));
+					return ret;
+                },
+                effectDisplay() { return "/"+format(this.effect()) }, // Add formatting to the effect
+            },
 		},
 		update(diff){
 			if(hasUpgrade("forest_p",11))player.modpoints[3]=player.modpoints[3].add(upgradeEffect("forest_p",11).mul(diff));
@@ -582,5 +606,13 @@ addLayer("forest_c", {
 					return "Particle gain exponent 0.7 -> 0.75. Particle Upgrade 22's effect ^"+format(player[this.layer].best.pow(0.8).add(1))+" (based on best Chemical Synthesizers). Autobuy atoms, atom reset resets nothing, you can buy max atoms.";
 				},
             },
-	},
+            1: {requirementDescription: "15 Chemical Synthesizers",
+                done() {return player[this.layer].best.gte(15)}, // Used to determine when to give the milestone
+                effectDescription(){
+					return "Chemical Synthesizer resets nothing.";
+				},
+            },
+	},resetsNothing(){
+		 return player.forest_c.best.gte(15);
+	 },
 });

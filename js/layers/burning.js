@@ -287,6 +287,7 @@ addLayer("burning_c", {
     effect() {
         let effect = player[this.layer].points.add(1).pow(0.75)
 		if(hasUpgrade("burning_c",15))effect = player[this.layer].points.add(1).mul(Decimal.pow(1.05,player[this.layer].points));
+		if(hasUpgrade("burning_e",24))effect = effect.pow(layers.burning_e.allocatedEffects()[4]);
         return effect
     },
 
@@ -352,6 +353,7 @@ addLayer("burning_c", {
 					if(hasUpgrade("burning_c",22))base+=0.3;
 					if(hasUpgrade("burning_c",23))base+=0.3;
 					if(hasUpgrade("burning_c",24))base+=0.2;
+					if(hasUpgrade("burning_c",25))base+=0.1;
                     let ret = Decimal.pow(base,Decimal.log10(player.burning_c.best.add(3)).pow(0.9));
                     //if (ret.gte("1e20000000")) ret = ret.sqrt().times("1e10000000")
                     return ret;
@@ -376,6 +378,12 @@ addLayer("burning_c", {
                 cost: new Decimal(2000),
                 unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
 			},
+			25: {
+				title: "Coal Upgrade 25",
+                description: "Coal Upgrade 21's effect is better.",
+                cost: new Decimal(4000),
+                unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
+			},
 	 },
 	 
 		
@@ -395,7 +403,7 @@ addLayer("burning_e", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
-		allocation: [0,0,0,0],
+		allocation: [0,0,0,0,0],
     }},
     color: "#dddd00",
     requires: new Decimal(100), // Can be a function that takes requirement increases into account
@@ -454,6 +462,8 @@ addLayer("burning_e", {
         ["row", [["clickable", 31], "blank", ["bar", "emberBoost"], "blank", ["clickable", 32]]],
         "blank",
         ["row", [["clickable", 41], "blank", ["bar", "a14Boost"], "blank", ["clickable", 42]]],
+        "blank",
+        ["row", [["clickable", 51], "blank", ["bar", "coalBoost"], "blank", ["clickable", 52]]],
 					"upgrades"
 				],
 		
@@ -539,6 +549,29 @@ addLayer("burning_e", {
             },
 			unlocked(){
 				return hasUpgrade("burning_e",13);
+			},
+        },
+        coalBoost: {
+            direction: RIGHT,
+            width: 300,
+            height: 50,
+            progress() {
+                return player[this.layer].allocation[4] / layers[this.layer].maxAllocation2()
+            },
+            display() {
+                return "Boost Coal Effect (^" + format(layers[this.layer].allocatedEffects()[4]) + ")"
+            },
+            baseStyle: {
+                "background-color": "#FFFFFF"
+            },
+            fillStyle: {
+                "background-color": "#DDDD00"
+            },
+            textStyle: {
+                "color": "#000000"
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",24);
 			},
         }
     },
@@ -671,9 +704,45 @@ addLayer("burning_e", {
                 "height": "50px"
             }
         },
+        51: {
+            display() {
+                return "<h1><b>-</b></h1>"
+            },
+            canClick() {
+                return player[this.layer].allocation[4] > 0
+            },
+            onClick(){
+                player[this.layer].allocation[4] = Math.round(player[this.layer].allocation[4] - 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",24);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
+        52: {
+            display() {
+                return "<h1><b>+</b></h1>"
+            },
+            canClick() {
+                return layers[this.layer].totalAllocation() < layers[this.layer].maxAllocation() && player[this.layer].allocation[4] < layers[this.layer].maxAllocation2()
+            },
+            onClick(){
+                player[this.layer].allocation[4] = Math.round(player[this.layer].allocation[4] + 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",24);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
     },
 	totalAllocation(){
-		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2] + player[this.layer].allocation[3]
+		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2] + player[this.layer].allocation[3] + player[this.layer].allocation[4]
 	},
 	maxAllocation(){
 		let base=10;
@@ -696,7 +765,8 @@ addLayer("burning_e", {
 		tmp[this.layer].effect.mul(player[this.layer].allocation[0]**layers[this.layer].allocationPower() / 100).add(1).pow(0.75),
 		tmp[this.layer].effect.mul(player[this.layer].allocation[1]**layers[this.layer].allocationPower() / 100).add(1),
 		tmp[this.layer].effect.mul(player[this.layer].allocation[2]**layers[this.layer].allocationPower() / 100).add(1).pow(1.25),
-		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[3]**layers[this.layer].allocationPower()).sub(1)).div(1e8).add(1).log10().pow(0.5).div(10).add(1)
+		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[3]**layers[this.layer].allocationPower()).sub(1)).div(1e8).add(1).log10().pow(0.5).div(10).add(1),
+		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[4]**layers[this.layer].allocationPower()).sub(1)).div("1e1000").add(1).log10().pow(0.5).div(100).add(1)
 		];
 		return ret;
 	},
@@ -768,6 +838,12 @@ addLayer("burning_e", {
 				title: "Electricity Upgrade 23",
                 description: "Effects of allocated electricity points are better.",
                 cost: new Decimal("1e1000"),
+                unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
+			},
+			24: {
+				title: "Electricity Upgrade 24",
+                description: "Unlock an electricity bar.",
+                cost: new Decimal("1e3000"),
                 unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
 			},
 		},

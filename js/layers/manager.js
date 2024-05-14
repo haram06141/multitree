@@ -44,6 +44,10 @@ addLayer("tm", {
 		,["upgrade",16]
 		,["row",[["upgrade",17],["upgrade",18]]]
 		,["row",[["upgrade",26],["upgrade",27],["upgrade",28]]]
+		,["row",[["upgrade",36],["upgrade",37]]]
+		,["row",[["upgrade",46],["upgrade",47]]]
+		,["row",[["upgrade",38],["upgrade",39]]]
+		,["row",[["upgrade",56],["upgrade",57],["upgrade",58]]]
 		],unlocked(){return player.tm.buyables[0].gte(6) && player.tm.buyables[1].gte(20)}}
 	},
 	
@@ -51,7 +55,7 @@ addLayer("tm", {
             0: {
                 title: "The Modding Tree", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal("1e100000"),new Decimal("1e500000"),new Decimal("e2e7"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
+                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal("1e100000"),new Decimal("1e500000"),new Decimal("e2e7"),new Decimal("e2e8"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -99,9 +103,10 @@ addLayer("tm", {
             2: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-					if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
-					if(player[this.layer].buyables[this.id].gt(11.5))return new Decimal(Infinity);
-					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(500).add(1500).sub(player[this.layer].buyables[this.id].mul(750)));
+					x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(11.5))return Decimal.pow(10,x.pow(2).mul(500).add(1500).sub(x.mul(750)));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -122,9 +127,10 @@ addLayer("tm", {
             3: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
-					if(player[this.layer].buyables[this.id].gt(8.5))return new Decimal(Infinity);
-					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(2500).add(9500).sub(player[this.layer].buyables[this.id].mul(2000)));
+					x=new Decimal(x);
+                    if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(8.5))return Decimal.pow(10,x.pow(2).mul(2500).add(9500).sub(x.mul(2000)));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -145,9 +151,10 @@ addLayer("tm", {
             4: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
-					if(player[this.layer].buyables[this.id].gt(4.5))return new Decimal(Infinity);
-					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(7000).add(22000).add(player[this.layer].buyables[this.id].mul(3000)));
+					x=new Decimal(x);
+                    if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(4.5))return Decimal.pow(10,x.pow(2).mul(7000).add(22000).add(x.mul(3000)));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -168,10 +175,11 @@ addLayer("tm", {
             5: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-					if(player[this.layer].buyables[this.id].lt(0.5))return new Decimal(0);
-					if(player[this.layer].buyables[this.id].lt(10.5))return Decimal.pow(10,player[this.layer].buyables[this.id].pow(2).mul(10000).add(100000));
-					if(player[this.layer].buyables[this.id].gt(18.5))return new Decimal(Infinity);
-					return Decimal.pow(10,player[this.layer].buyables[this.id].pow(6));
+					x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
+					if(x.lt(26.5))return Decimal.pow(10,x.pow(6));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -192,8 +200,10 @@ addLayer("tm", {
             6: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal(0),new Decimal("1e525000"),new Decimal("1e650000"),new Decimal("1e875000"),new Decimal("e12e5"),new Decimal("e1625e3"),new Decimal("e215e4"),new Decimal("e2775e3"),new Decimal("e35e5"),new Decimal("e4325e3"),new Decimal("e525e4"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
-                    return cost
+                    x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(5e4).sub(x.mul(25e3)).add(5e5));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -214,8 +224,35 @@ addLayer("tm", {
             7: {
                 title: "Upgrade", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal(0),new Decimal("e215e5"),new Decimal("e25e6"),new Decimal("e305e5"),Infinity/*new Decimal("e38e6"),Infinity*/][player[this.layer].buyables[this.id].toNumber()];
-                    return cost
+					x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
+					if(x.lt(15.5))return Decimal.pow(10,x.pow(3).mul(1e5));
+					return Decimal.dInf
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Level: "+formatWhole(player[this.layer].buyables[this.id])+"<br>Cost: "+format(data.cost)+" points";
+                },
+                unlocked() { return player[this.layer].points.gte(this.id) }, 
+                canAfford() {
+                    return player.points.gte(tmp[this.layer].buyables[this.id].cost)
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player.points = player.points.sub(cost)
+				},
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'100px','width':'150px'},
+            },
+            8: {
+                title: "Upgrade", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+					x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(1.5))return Decimal.pow(10,x.mul(5).pow(3).mul(1e7).add(2e8));
+					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
@@ -305,6 +342,16 @@ addLayer("tm", {
 				},
                 style: {'height':'100px','width':'150px'},
             },
+            8: {
+                title: "Switch to this tree",
+                display: "",
+                unlocked() { return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)}, 
+				canClick(){return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)},
+				onClick(){
+					player[this.layer].currentTree=this.id;
+				},
+                style: {'height':'100px','width':'150px'},
+            },
 	},
 	update(){
 		for(i=1;player.tm.points.gte(i);i++){
@@ -339,7 +386,7 @@ addLayer("tm", {
 		}
 	},
 	upgrades:{
-		rows: 2,
+		rows: 3,
 		cols: 5,
 		11: {
 				title: "Multitree Upgrade 11",
@@ -417,6 +464,46 @@ addLayer("tm", {
 				title: "Multitree Upgrade 25",
                 description: "Unlock some Row 2 upgrades in The Game Dev Tree.",
                 cost: new Decimal("e376e5"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		31: {
+				title: "Multitree Upgrade 31",
+                description: "Unlock some Row 3 upgrades in The Prestige Tree Classic.",
+                cost: new Decimal("e448e5"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		32: {
+				title: "Multitree Upgrade 32",
+                description: "Unlock some Stardust upgrades in The Stardust Tree.",
+                cost: new Decimal("e548e5"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		33: {
+				title: "Multitree Upgrade 33",
+                description: "Unlock some Prestige upgrades in The Prestige Tree Classic.",
+                cost: new Decimal("e57777777"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		34: {
+				title: "Multitree Upgrade 34",
+                description: "Unlock some Row 3 upgrades in The Prestige Tree Rewritten.",
+                cost: new Decimal("e775e5"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		35: {
+				title: "Multitree Upgrade 35",
+                description: "Unlock some Row 3 upgrades in The Prestige Tree Classic.",
+                cost: new Decimal("e22e7"),
                 unlocked() { return true; }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
@@ -547,5 +634,132 @@ addLayer("tm", {
 					return ret;
 				}
             },
+		36: {
+				title: "Rewrite Super Boosters",
+				fullDisplay(){
+					return "<h2>Rewrite Super Boosters</h2><br>Unlock Super Boosters in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e475e5"))+" points<br>\
+					"+format(new Decimal(25))+" Super Boosters in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,3000))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e475e5")) && 
+					player.tptc_sb.points.gte(25) && 
+					player.modpoints[6].gte(Decimal.pow(10,3000));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(6); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#504899";
+					return ret;
+				}
+            },
+		37: {
+				title: "Rewrite Super Generators",
+				fullDisplay(){
+					return "<h2>Rewrite Super Generators</h2><br>Unlock Super Generators in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e9.8e7"))+" points<br>\
+					"+format(new Decimal(41))+" Super Generators in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,4000))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e9.8e7")) && 
+					player.tptc_sg.points.gte(41) && 
+					player.modpoints[6].gte(Decimal.pow(10,4000));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(9); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#248239";
+					return ret;
+				}
+            },
+		46: {
+				title: "Rewrite Hindrance",
+				fullDisplay(){
+					return "<h2>Rewrite Hindrance</h2><br>Unlock Hindrance Spirit in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e605e5"))+" points<br>\
+					"+format(new Decimal("e435e3"))+" Hindrance Spirit in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,3770))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e605e5")) && 
+					player.tptc_q.points.gte("e435e3") && 
+					player.modpoints[6].gte(Decimal.pow(10,3770));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(7); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#a14040";
+					return ret;
+				}
+            },
+		47: {
+				title: "Rewrite Quirks",
+				fullDisplay(){
+					return "<h2>Rewrite Quirks</h2><br>Unlock Quirks in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e6e7"))+" points<br>\
+					"+format(new Decimal("e1e6"))+" Quirks in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,3750))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e6e7")) && 
+					player.tptc_q.points.gte("e1e6") && 
+					player.modpoints[6].gte(Decimal.pow(10,3750));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(7); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#c20282";
+					return ret;
+				}
+            },
+		38: {
+				title: "Add Solarity",
+				fullDisplay(){
+					return "<h2>Add Solarity</h2><br>Unlock Solarity in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e360000000"))+" points<br>\
+					"+format(new Decimal(10))+" Hyper Boosters in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,4500))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e360000000")) && 
+					player.tptc_hb.points.gte(10) && 
+					player.modpoints[6].gte(Decimal.pow(10,4500));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(16); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#ffcd00";
+					return ret;
+				}
+            },
+		39: {
+				title: "Rewrite Subspace",
+				fullDisplay(){
+					return "<h2>Rewrite Subspace</h2><br>Unlock Subspace in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e111111111"))+" points<br>\
+					"+format(new Decimal(27))+" Subspace Energy in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,4050))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e111111111")) && 
+					player.tptc_ss.points.gte(27) && 
+					player.modpoints[6].gte(Decimal.pow(10,4050));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(10); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#e8ffff";
+					return ret;
+				}
+            },
 	}
 });
+

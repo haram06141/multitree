@@ -50,7 +50,7 @@ addLayer("stardust_s", {
 			player.modpoints[2]=player.modpoints[2].add(gain.mul(diff));
 		},
 		upgrades: {
-            rows: 3,
+            rows: 4,
             cols: 5,
 			11: {
 				title: "Stardust Upgrade 11",
@@ -66,13 +66,15 @@ addLayer("stardust_s", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=20;
                     let ret = Decimal.pow(base,Decimal.log10(player.modpoints[2].mul(10).add(1)).pow(0.9));
-                    //if (ret.gte("1e20000000")) ret = ret.sqrt().times("1e10000000")
+					if(player.stardust_c.points.gte(31))ret = Decimal.pow(base,Decimal.log10(player.modpoints[2].mul(10).add(1)).pow(0.95));
+					if(player.stardust_c.points.gte(33))ret = player.modpoints[2].pow(1.3);
 					if(hasUpgrade("stardust_so",11))ret=ret.pow(2);
 					if(hasUpgrade("stardust_n",11))ret=ret.pow(2);
 					if(hasUpgrade("stardust_s",31))ret=ret.pow(2);
 					if(hasUpgrade("stardust_c",14))ret=ret.pow(2);
 					if(hasUpgrade("stardust_c",31))ret=ret.pow(upgradeEffect("stardust_c",31));
 					if(hasUpgrade("stardust_s",14))ret=ret.pow(2);
+					if(hasUpgrade("stardust_s",43))ret=ret.pow(2);
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -175,6 +177,36 @@ addLayer("stardust_s", {
                 cost: new Decimal("1e2550"),
                 unlocked() { return hasUpgrade("tm",21); }, // The upgrade is only visible when this is true
             },
+			41: {
+				title: "Stardust Upgrade 41",
+                description: "Star Upgrade 12 is better, and applied to Generators in TPTC.",
+                cost: new Decimal("1e9450"),
+                unlocked() { return hasUpgrade("tm",32); }, // The upgrade is only visible when this is true
+            },
+			42: {
+				title: "Stardust Upgrade 42",
+                description: "Nebulae Upgrade 12 is better, and applied to Boosters in TPTC.",
+                cost: new Decimal("1e9480"),
+                unlocked() { return hasUpgrade("tm",32); }, // The upgrade is only visible when this is true
+            },
+			43: {
+				title: "Stardust Upgrade 43",
+                description: "Stardust Upgrade 12 is squared.",
+                cost: new Decimal("1e9510"),
+                unlocked() { return hasUpgrade("tm",32); }, // The upgrade is only visible when this is true
+            },
+			44: {
+				title: "Stardust Upgrade 44",
+                description: "Base effect of Constellation 3 is cubed.",
+                cost: new Decimal("1e9600"),
+                unlocked() { return hasUpgrade("tm",32); }, // The upgrade is only visible when this is true
+            },
+			45: {
+				title: "Stardust Upgrade 45",
+                description: "Unlock a Constellation.",
+                cost: new Decimal("1e9610"),
+                unlocked() { return hasUpgrade("tm",32); }, // The upgrade is only visible when this is true
+            },
 		},
 	 passiveGeneration(){
 		 if(hasUpgrade("stardust_s",32))return 1;
@@ -232,7 +264,7 @@ addLayer("stardust_so", {
 		
 		buyables: {
             rows: 1,
-            cols: 3,
+            cols: 4,
 			11: {
                 title : "Constellation 1", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
@@ -300,6 +332,7 @@ addLayer("stardust_so", {
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
                     let eff = Decimal.pow(1.5, x.pow(0.7)).mul(x).add(1)
 					if(hasUpgrade("stardust_s",34))eff=eff.pow(3);
+					if(hasUpgrade("stardust_s",44))eff=eff.pow(3);
 					eff = eff.mul(buyableEffect("stardust_n",14));
                     return eff;
                 },
@@ -310,6 +343,33 @@ addLayer("stardust_so", {
                     Multiplying subspace gain in The Prestige Tree Classic by " + format(data.effect) + "x"
                 },
                 unlocked() { return hasUpgrade("stardust_c",33); }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+            },
+			14: {
+                title : "Constellation 4", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(4, x.pow(1.5))
+					return cost
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    let eff = Decimal.pow(10, x).mul(x.pow(2))
+					eff = eff.mul(buyableEffect("stardust_n",14));
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " stars\n\
+                    Amount: " + player[this.layer].buyables[this.id] + "\n\
+                    Divide Crystal requirement by " + format(data.effect)
+                },
+                unlocked() { return hasUpgrade("stardust_s",45); }, 
                 canAfford() {
                     return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
                 buy() { 
@@ -337,6 +397,7 @@ addLayer("stardust_so", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1e12;
                     let ret = Decimal.pow(base,Decimal.log10(player.stardust_so.points.add(1)).pow(0.9));
+					if(hasUpgrade("stardust_s",41))ret=player.stardust_so.points.pow(50);
 					if(hasUpgrade("stardust_so",13))ret=ret.pow(2);
                     return ret;
                 },
@@ -562,6 +623,7 @@ addLayer("stardust_n", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1e12;
                     let ret = Decimal.pow(base,Decimal.log10(player.stardust_n.points.add(1)).pow(0.9));
+					if(hasUpgrade("stardust_s",42))ret=player.stardust_n.points.pow(50);
 					if(hasUpgrade("stardust_n",13))ret=ret.pow(2);
                     return ret;
                 },
@@ -620,6 +682,7 @@ addLayer("stardust_c", {
         mult = new Decimal(1)
 		if(hasUpgrade("stardust_so",15))mult = mult.div(upgradeEffect("stardust_so",15));
 		if(hasUpgrade("stardust_c",34))mult = mult.div(upgradeEffect("stardust_c",34));
+		if(hasUpgrade("stardust_s",45))mult = mult.div(buyableEffect("stardust_so",14));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -698,6 +761,7 @@ addLayer("stardust_c", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=player.stardust_c.points.add(1).pow(4);
 					if(player.stardust_c.points.gte(3))ret=ret.pow(2.5);
+					if(player.stardust_c.points.gte(28))ret=Decimal.pow(10,player.stardust_c.points);
 					return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -726,6 +790,7 @@ addLayer("stardust_c", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=player.stardust_c.points.add(1).pow(5);
 					if(player.stardust_c.points.gte(3))ret=ret.pow(2.5);
+					if(player.stardust_c.points.gte(28))ret=Decimal.pow(1e10,player.stardust_c.points);
 					return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -786,6 +851,7 @@ addLayer("stardust_c", {
                 unlocked() { return player.tm.buyables[2].gte(10); }, // The upgrade is only visible when this is true
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=player.stardust_c.points.add(1).pow(6);
+					if(player.stardust_c.points.gte(30))ret=Decimal.pow(2,player.stardust_c.points);
 					return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -802,6 +868,7 @@ addLayer("stardust_c", {
                 unlocked() { return player.tm.buyables[2].gte(11); }, // The upgrade is only visible when this is true
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=player.stardust_c.points.pow(0.5).div(5).add(1);
+					if(player.stardust_c.points.gte(28))ret=player.stardust_c.points.pow(0.5).div(2);
 					if(hasUpgrade("stardust_s",15))ret=ret.pow(2);
 					return ret;
                 },
@@ -908,6 +975,12 @@ addLayer("stardust_c", {
 				var target=player.stardust_so.points.add(1).log(3).pow(1/1.5).add(1).floor();
 				if(target.gt(player.stardust_so.buyables[13])){
 					player.stardust_so.buyables[13]=target;
+				}
+			}
+			if(hasUpgrade("stardust_c",23) && hasUpgrade("stardust_s",45)){
+				var target=player.stardust_so.points.add(1).log(4).pow(1/1.5).add(1).floor();
+				if(target.gt(player.stardust_so.buyables[14])){
+					player.stardust_so.buyables[14]=target;
 				}
 			}
 			if(hasUpgrade("stardust_c",24)){

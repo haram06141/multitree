@@ -11,11 +11,20 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.5.3.2",
+	num: "1.6",
 	name: "Rewritten Update",
 }
 
 let changelog = `
+	<h3>v1.6</h3><br>
+	- Added a new tree (The Milestone Tree)<br>
+	<h3>v1.5.4.1</h3><br>
+	- Added Super-Generators in TPTR<br>
+	- Endgame: e1.07e8 points<br>
+	<h3>v1.5.4</h3><br>
+	- Added Hindrance in TPTR<br>
+	- Added Quirks in TPTR<br>
+	- Endgame: e9.8e7 points<br>
 	<h3>v1.5.3.2</h3><br>
 	- Fixed some bugs<br>
 	- Endgame: e3.9e7 points<br>
@@ -106,8 +115,10 @@ function getPointGen() {
 	if(hasUpgrade("incrementy_i",13))mfot = mfot.mul(upgradeEffect("incrementy_i",13));
 	if(hasUpgrade("gd_u",21))mfot = mfot.mul(upgradeEffect("gd_u",21));
 	mfot = mfot.mul(buyableEffect("gd_f",15));
-	if(!inChallenge("tptc_ge",11))gain=gain.mul(mfot);
-	else gain=gain.mul(mfot.pow(layers.tptc_ge.c11pow()));
+	if(inChallenge("tptc_ge",11))mfot = mfot.pow(layers.tptc_ge.c11pow());
+	if(inChallenge("tptr_h",22)&&inChallenge("incrementy_am",12))return mfot.pow(0.1);
+	if(inChallenge("tptr_h",22))return mfot;
+	gain=gain.mul(mfot);
 	
 	if(inChallenge("incrementy_am",12))gain=gain.pow(0.1);
 	
@@ -116,13 +127,13 @@ function getPointGen() {
 
 // You can add non-layer related variables that should to into "player" and be saved here, along with default values
 function addedPlayerData() { return {
-	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
+	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
 }}
 
-var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse","The Game Dev Tree","The Prestige Tree Rewritten"];
-var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132","thepaperpilot","jacorb90"];
-var MODPOINTSNAME=["","","energy","energy","embers","incrementy","hours of work","rewritten points"];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3"]];
+var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse","The Game Dev Tree","The Prestige Tree Rewritten","The Milestone Tree"];
+var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132","thepaperpilot","jacorb90","loader3229"];
+var MODPOINTSNAME=["","","energy","energy","embers","incrementy","hours of work","rewritten points","milestone power"];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9","0.9","0.9","0.9","0.9","0.91","0.91","0.92"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3","0.3","0.4","0.4","0.4","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5"],["","1.005","1.005"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -146,6 +157,9 @@ var displayThings = [
 		if(player.tm.currentTree==6){
 			return "Base productivity is "+format(tmp.gd_u.upgrades[11].realEffect);
 		}
+		if(player.tm.currentTree==8){
+			return "Milestone Power Effects: <br>"+format(tmp.milestone_m.powerEffect[0])+"x Prestige point gain in TPTR";
+		}
 		return "";
 	},
 	function(){
@@ -158,7 +172,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e39e6");
+	return player.points.gte("e5e8");
 }
 
 
