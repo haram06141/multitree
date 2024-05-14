@@ -18,6 +18,7 @@ let VERSION = {
 let changelog = `
 	<h3>v1.6</h3><br>
 	- Added a new tree (The Milestone Tree)<br>
+	- Endgame: e3.9e8 points<br>
 	<h3>v1.5.4.1</h3><br>
 	- Added Super-Generators in TPTR<br>
 	- Endgame: e1.07e8 points<br>
@@ -172,7 +173,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e5e8");
+	return player.points.gte("e3.9e8");
 }
 
 

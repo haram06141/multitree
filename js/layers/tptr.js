@@ -696,6 +696,7 @@ addLayer("tptr_t", {
 			if(!hasUpgrade("tm",26))return new Decimal(1);
 			let eff = player.tptr_t.energy.add(1).pow(1.2);
 			if (hasUpgrade("tptr_t", 14)) eff = eff.pow(1.3);
+			if (hasUpgrade("tptr_q", 24)) eff = eff.pow(7.5);
 			return eff;
 		},
 		enEff2() {
@@ -941,7 +942,7 @@ addLayer("tptr_e", {
                     let eff = {}
                     if (x.gte(0)) eff.first = Decimal.pow(25, x.pow(power.times(1.1)))
                     else eff.first = Decimal.pow(1/25, x.times(-1).pow(power.times(1.1)))
-					//if (hasUpgrade("tptr_q", 24)) eff.first = eff.first.pow(7.5);
+					if (hasUpgrade("tptr_q", 24)) eff.first = eff.first.pow(7.5);
 					//eff.first = softcap("enh1", eff.first)
                 
                     if (x.gte(0)) eff.second = x.pow(power.times(0.8))
@@ -1731,26 +1732,17 @@ addLayer("tptr_h", {
 			player.tptr_h.best=b;
 			return;
 		},
-		update(diff) {
-			//if (hasAchievement("a", 111)) {
-			//	let cd = tmp[this.layer].challenges;
-			//	let auto = hasMilestone("h", 0) && player.h.auto;
-			//	if (cd[31].unlocked && (player.h.activeChallenge==31 || auto)) cd[31].completeInBulk()
-			//	if (cd[32].unlocked && (player.h.activeChallenge==32 || auto)) cd[32].completeInBulk()
-			//}
-		},
         layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",46)},
         branches: ["tptr_t"],
 		effect() { 
-			//if (!unl(this.layer)) return new Decimal(1);
+			if (!player[this.layer].unlocked) return new Decimal(1);
 			let h = player.tptr_h.points.times(player.modpoints[7].plus(1).log("1e1000").plus(1));
 			
 			if(h.gte(15e4)){
 				h=Decimal.pow(10, h.log10().root(4).times(new Decimal(15e4).log10().pow(3/4)));
 			}
 			
-			let eff = h.plus(1).pow(3).pow(hasChallenge("tptr_h", 11)?1.2:1);//.pow(hasUpgrade("ba", 21)?8:1);
-			//if (hasUpgrade("q", 45) && player.i.buyables[12].gte(6)) eff = eff.pow(100);
+			let eff = h.plus(1).pow(3).pow(hasChallenge("tptr_h", 11)?1.2:1);
 			return [eff];
 		},
 		effectDescription() {
@@ -1762,24 +1754,7 @@ addLayer("tptr_h", {
 				done() { return player.tptr_h.best.gte(1) },
 				effectDescription: "Autobuy Time Capsules, Time Capsules resets nothing. Autobuy Extra Time Capsules.",
 			},
-		},/*
-		pointRoot31(x=challengeCompletions("h", 31)) {
-			if (hasAchievement("a", 111)) x = 1;
-			else if (player.h.activeChallenge==32) x = challengeCompletions("h", 32)*2
-			if (x>=20) x = Math.pow(x-19, 1.5)+19
-			let root = Decimal.add(2, Decimal.pow(x, 1.5).div(16))
-			return root;
 		},
-		passiveGeneration() { return (hasMilestone("m", 2)&&player.ma.current!="h")?1:0 },
-		milestones: {
-			0: {
-				unlocked() { return ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes("h"):false) },
-				requirementDescription: "e300,000,000 Hindrance Spirit",
-				done() { return player.h.points.gte("e3e8") },
-				effectDescription: "Unlock the Repeatable Hindrance Automator.",
-				toggles: [["h", "auto"]],
-			},
-		},*/
 		challenges: {
 			rows: 4,
 			cols: 2,
@@ -1824,147 +1799,7 @@ addLayer("tptr_h", {
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
 				rewardDescription: "<b>Prestige Boost</b>'s hardcap is now a softcap.",
-			},/*
-			31: {
-				name: "Timeless",
-				scalePower() {
-					let power = new Decimal(1);
-					if (tmp.m.buyables[15].unlocked) power = power.times(Decimal.sub(1, buyableEffect("m", 15)));
-					return power;
-				},
-				completionLimit() { 
-					let lim = 10
-					if (hasAchievement("a", 71)) lim += 10;
-					if (hasAchievement("a", 74)) lim += 10;
-					if ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes("h"):false) lim = Infinity;
-					return lim
-				},
-				challengeDescription() {
-					let lim = this.completionLimit();
-					let infLim = !isFinite(lim);
-					return "You can only buy 10 Enhancers & Extra Time Capsules (total), Enhancer/Extra Time Capsule automation is disabled, and Point generation is brought to the "+format(tmp.h.pointRoot31)+"th root<br>Completions: "+formatWhole(challengeCompletions("h", 31))+(infLim?"":("/"+lim));
-				},
-				unlocked() { return hasChallenge("h", 22) },
-				goal() { 
-					let comps = Decimal.mul(challengeCompletions("h", 31), tmp.h.challenges[this.id].scalePower);
-					if (comps.gte(20)) comps = Decimal.pow(comps.sub(19), 1.95).plus(19);
-					return Decimal.pow("1e50", Decimal.pow(comps, 2.5)).times("1e5325") 
-				},
-				completeInBulk() {
-					if (challengeCompletions("h", 31)>=tmp[this.layer].challenges[this.id].completionLimit) return;
-					let target = player.points.div("1e5325").max(1).log("1e50").root(2.5)
-					if (target.gte(20)) target = target.sub(19).root(1.95).plus(19);
-					target = target.div(tmp.h.challenges[this.id].scalePower).plus(1).floor();
-					player.h.challenges[this.id] = Math.min(Math.max(player.h.challenges[this.id], target.toNumber()), tmp[this.layer].challenges[this.id].completionLimit);
-					if (isNaN(player.h.challenges[this.id])) player.h.challenges[this.id] = 0;
-				},
-				currencyDisplayName: "points",
-				currencyInternalName: "points",
-				rewardDescription() { return "<b>Timeless</b> completions boost Super Generator Power gain based on your time "+(hasUpgrade("ss", 33)?"playing this game.":"in this Row 4 reset.") },
-				rewardEffect() { 
-					let eff = Decimal.div(9, Decimal.add((hasUpgrade("ss", 33)?(player.timePlayed||0):player.q.time), 1).cbrt().pow(hasUpgrade("ss", 23)?(-1):1)).plus(1).pow(challengeCompletions("h", 31)).times(tmp.n.realDustEffs2?tmp.n.realDustEffs2.blueOrange:new Decimal(1)).pow(((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes(this.layer):false)?5:1);
-					if (!eff.eq(eff)) eff = new Decimal(1);
-					return eff;
-				},
-				rewardDisplay() { return format(this.rewardEffect())+"x" },
-				formula() { return "(9"+(hasUpgrade("ss", 23)?"*":"/")+"cbrt(time+1)+1)^completions" },
 			},
-			32: {
-				name: "Option D",
-				scalePower() {
-					let power = new Decimal(1);
-					if (tmp.m.buyables[15].unlocked) power = power.times(Decimal.sub(1, buyableEffect("m", 15)));
-					return power;
-				},
-				completionLimit() { 
-					let lim = 10;
-					if ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes("h"):false) lim = Infinity;
-					return lim;
-				},
-				challengeDescription() { 
-					let lim = this.completionLimit();
-					let infLim = !isFinite(lim);
-					return 'All previous challenges are applied at once ("Timeless" is applied at difficulty level '+formatWhole(challengeCompletions("h", 32)*2+1)+')<br>Completions: '+formatWhole(challengeCompletions("h", 32))+(infLim?"":('/'+lim))
-				},
-				goal() {
-					let comps = Decimal.mul(challengeCompletions("h", 32), tmp.h.challenges[this.id].scalePower);
-					if (comps.gte(3)) comps = comps.sub(0.96);
-					if (comps.gte(3.04)) comps = comps.times(1.425);
-					return Decimal.pow("1e1000", Decimal.pow(comps, 3)).times("1e9000");
-				},
-				completeInBulk() {
-					if (challengeCompletions("h", 32)>=tmp[this.layer].challenges[this.id].completionLimit) return;
-					let target = player.points.div("1e9000").max(1).log("1e1000").cbrt();
-					if (target.gte(3.04)) target = target.div(1.425);
-					if (target.gte(3)) target = target.plus(.96);
-					target = target.div(tmp.h.challenges[this.id].scalePower).plus(1).floor();
-					player.h.challenges[this.id] = Math.min(Math.max(player.h.challenges[this.id], target.toNumber()), tmp[this.layer].challenges[this.id].completionLimit);
-					if (isNaN(player.h.challenges[this.id])) player.h.challenges[this.id] = 0;
-				},
-				currencyDisplayName: "points",
-				currencyInternalName: "points",
-				rewardDescription: "<b>Option D</b> completions multiply the Time Energy gain base.",
-				rewardEffect() { 
-					let eff = softcap("option_d", Decimal.pow(100, Decimal.pow(challengeCompletions("h", 32), 2))).times(tmp.n.realDustEffs2?tmp.n.realDustEffs2.blueOrange:new Decimal(1));
-					if (!eff.eq(eff)) eff = new Decimal(1);
-					return eff;
-				},
-				rewardDisplay() { return format(tmp.h.challenges[32].rewardEffect)+"x" },
-				formula: "100^(completions^2)",
-				unlocked() { return tmp.ps.buyables[11].effects.hindr },
-				countsAs: [11,12,21,22,31],
-				onStart(testInput=false) { 
-					if (testInput) {
-						if (!hasAchievement("a", 81)) {
-							player.p.upgrades = []; 
-							player.b.upgrades = [];
-						}
-						resetBuyables("s");
-						player.s.spent = new Decimal(0);
-					}
-				},
-			},
-			41: {
-				name: "Central Madness",
-				completionLimit: 1,
-				challengeDescription: "Perform a Row 5 reset, Positivity & Negativity are reset, and Positivity & Negativity nerfs are extremely stronger.",
-				goal: new Decimal("1e765000"),
-				currencyDisplayName: "points",
-				currencyInternalName: "points",
-				rewardDescription: "Unlock 3 new Balance Upgrades.",
-				unlocked() { return (tmp.ps.buyables[11].effects.hindr||0)>=2 },
-				onStart(testInput=false) {
-					if (testInput) {
-						doReset("m", true);
-						player.h.activeChallenge = 41;
-						player.ba.pos = new Decimal(0);
-						player.ba.neg = new Decimal(0);
-						updateTemp();
-						updateTemp();
-						updateTemp();
-					}
-				},
-			},
-			42: {
-				name: "Productionless",
-				completionLimit: 1,
-				challengeDescription: "Perform a Row 5 reset, you are trapped in <b>Descension</b>, and all row 2-4 static layers have much harsher cost scalings.",
-				goal: new Decimal("1e19000"),
-				currencyDisplayName: "points",
-				currencyInternalName: "points",
-				rewardDescription() { return "The Quirk Layer cost base is decreased by 0."+(((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes("h"):false)?"2":"15")+", and unlock 2 new Subspace Upgrades." },
-				unlocked() { return (tmp.ps.buyables[11].effects.hindr||0)>=3 },
-				countsAs: [22],
-				onStart(testInput=false) {
-					if (testInput) {
-						doReset("m", true);
-						player.h.activeChallenge = 42;
-						updateTemp();
-						updateTemp();
-						updateTemp();
-					}
-				},
-			},*/
 		},
 })
 
@@ -2028,12 +1863,10 @@ addLayer("tptr_q", {
 			if (hasUpgrade("tptr_q", 23)) eff = eff.pow(3);
 			if(eff.gte(new Decimal("e1800000")))eff = Decimal.pow(10,eff.log10().mul(1800000).sqrt());
 			return eff;
-			//return softcap("qe", eff.times(improvementEffect("tptr_q", 23)));
 		},
 		update(diff) {
 			player.tptr_q.time = player.tptr_q.time.plus(diff);
 			if (tmp.tptr_q.enGainExp.gte(0)) player.tptr_q.energy = player.tptr_q.energy.plus(new Decimal(player.timePlayed).times(tmp.tptr_q.enGainMult).pow(tmp.tptr_q.enGainExp).times(diff));
-			//if (hasMilestone("ba", 1) && player.q.auto && player.ma.current!="q") layers.q.buyables[11].buyMax();
 		},
 	effect() {
 		let ret = player.tptr_q.points.add(1);
@@ -2207,286 +2040,10 @@ addLayer("tptr_q", {
 			24: {
 				title: "Exponential Madness",
 				description: "The first Time Energy effect & the first Enhancer effect are raised ^7.5.",
-				cost() { return player.q.time.plus(1).pow(6.8).times(1e24).pow(player.ma.current=="q"?(this.id*1.95):1) },
-				costFormula: "1e24*(time+1)^6.8",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 14)&&hasUpgrade("q", 22) },
-			},
-			25: {
-				title: "Advanced Onion",
-				description: "Nebulaic Bricks reduce the Quirk Layer cost base.",
-				cost() { return Decimal.pow("e3e6", player.q.time.times(4).plus(1).log10().pow(2)).times("e2e7") },
-				costFormula: "(e3,000,000^(log(time*4+1)^2))*e20,000,000",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				pseudoUnl() { return player.i.buyables[12].gte(6) },
-				pseudoReq: "Req: 1e200 Honour.",
-				pseudoCan() { return player.hn.points.gte(1e200) },
-				unlocked() { return player[this.layer].pseudoUpgs.includes(Number(this.id)) },
-				effect() { return player.i.nb.plus(1).log10().plus(1).pow(3) },
-				effectDisplay() { return "brought to the "+format(upgradeEffect("q", 25))+"th root" },
-				formula: "(log(x+1)+1)^3",
-			},
-			31: {
-				title: "Scale Softening",
-				description: "Post-12 scaling for static layers in rows 2-3 starts later based on your Quirk Layers.",
-				cost() { return player.q.time.plus(1).pow(8.4).times(1e48).pow(player.ma.current=="q"?(this.id/1.25):1) },
-				costFormula: "1e48*(time+1)^8.4",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 21)&&hasUpgrade("q", 23) },
-				effect() { return player.q.buyables[11].sqrt().times(0.4).times(improvementEffect("q", 31)) },
-				effectDisplay() { return "+"+format(tmp.q.upgrades[31].effect) },
-				formula: "sqrt(x)*0.4",
-			},
-			32: {
-				title: "Quinary Superspace",
-				description: "The Quinary Space Building's effect is twice as strong.",
-				cost() { return player.q.time.plus(1).pow(10).times(1e58).pow(player.ma.current=="q"?(this.id/1.6):1) },
-				costFormula: "1e58*(time+1)^10",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 22)&&hasUpgrade("q", 24) },
-			},
-			33: {
-				title: "Generated Progression",
-				description: "Unlock Super Generators.",
-				cost() { return player.q.time.plus(1).pow(12).times(1e81).pow(player.ma.current=="q"?(this.id/1.85):1) },
-				costFormula: "1e81*(time+1)^12",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 23)&&hasUpgrade("q", 31) },
-			},
-			34: {
-				title: "Booster Madness",
-				description: "Anything that adds to the Booster base also multiplies it at a reduced rate.",
-				cost() { return player.q.time.plus(1).pow(15).times(2.5e94).pow(player.ma.current=="q"?(this.id/1.85):1) },
-				costFormula: "2.5e94*(time+1)^15",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 24)&&hasUpgrade("q", 32) },
-				effect() { return tmp.b.addToBase.plus(1).root(2.5).times(improvementEffect("q", 32)) },
-				effectDisplay() { return format(tmp.q.upgrades[34].effect)+"x" },
-				formula: "(x+1)^0.4",
-			},
-			35: {
-				title: "Millennial Abilities",
-				description: "Hyperspatial Bricks make Quirk Improvements scale slower.",
-				cost() { return Decimal.pow("e2e6", player.q.time.times(4).plus(1).log10().pow(3)).times("e3.5e7") },
-				costFormula: "(e2,000,000^(log(time*4+1)^3))*e35,000,000",
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				pseudoUnl() { return player.i.buyables[12].gte(6) },
-				pseudoReq: "Req: e5,000,000 Quirk Energy without any bought Quirk Layers (After a Row 5 reset).",
-				pseudoCan() { return player.q.energy.gte("e5e6") && player.q.buyables[11].eq(0) },
-				unlocked() { return player[this.layer].pseudoUpgs.includes(Number(this.id)) },
-				effect() { return player.i.hb.sqrt().div(25).times(((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes(this.layer):false)?1.5:1).plus(1) },
-				effectDisplay() { return format(upgradeEffect("q", 35).sub(1).times(100))+"% slower" },
-				formula: "sqrt(x)*4%",
-			},
-			41: {
-				title: "Quirkier",
-				description: "Unlock Quirk Improvements.",
-				cost() { return new Decimal((player.ma.current=="q")?"1e2325":1e125) },
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 33) && hasUpgrade("q", 34) },
-			},
-			42: {
-				title: "Improvement Boost",
-				description: "Unlock 3 more Quirk Improvements.",
-				cost() { return new Decimal((player.ma.current=="q")?"1e3675":1e150) },
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 41) },
-			},
-			43: {
-				title: "More Layers",
-				description: "Quirk Layers cost scale 25% slower.",
-				cost() { return new Decimal((player.ma.current=="q")?"1e5340":1e175) },
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 42) },
-			},
-			44: {
-				title: "Improvements Galore",
-				description: "Unlock another 3 Quirk Improvements.",
-				cost() { return new Decimal((player.ma.current=="q")?"1e8725":1e290) },
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				unlocked() { return hasUpgrade("q", 43) },
-			},
-			45: {
-				title: "Anti-Hindrance",
-				description: "The Hindrance Spirit effect is raised to the power of 100 (after softcaps), and gain 200x more Nebula Energy.",
-				cost: new Decimal("e55555555"),
-				currencyDisplayName: "quirk energy",
-				currencyInternalName: "energy",
-				currencyLayer: "q",
-				pseudoUnl() { return player.i.buyables[12].gte(6) },
-				pseudoReq: "Req: e1.7e10 Prestige Points.",
-				pseudoCan() { return player.p.points.gte("e1.7e10") },
-				unlocked() { return player[this.layer].pseudoUpgs.includes(Number(this.id)) },
+				cost() { return new Decimal(1e125) },
+				unlocked() { return player.tm.buyables[7].gte(14) },
 			},*/
-		}, /*
-		impr: {
-			scaleSlow() {
-				let slow = new Decimal(1);
-				if (tmp.ps.impr[22].unlocked) slow = slow.times(tmp.ps.impr[22].effect);
-				if (hasUpgrade("q", 35) && player.i.buyables[12].gte(6)) slow = slow.times(upgradeEffect("q", 35));
-				return slow;
-			},
-			baseReq() { 
-				let req = new Decimal(1e128);
-				if (player.ps.unlocked) req = req.div(tmp.ps.soulEff);
-				return req;
-			},
-			amount() { 
-				let amt = player.q.energy.div(this.baseReq()).plus(1).log10().div(2).root(layers.q.impr.scaleSlow().pow(-1).plus(1)).max(0);
-				if (amt.gte(270)) amt = amt.log10().times(270/Math.log10(270));
-				return amt.floor();
-			},
-			overallNextImpr() { 
-				let impr = tmp.q.impr.amount.plus(1);
-				if (impr.gte(270)) impr = Decimal.pow(10, impr.div(270/Math.log10(270)));
-				return Decimal.pow(10, impr.pow(layers.q.impr.scaleSlow().pow(-1).plus(1)).times(2)).sub(1).times(this.baseReq()) 
-			},
-			nextAt(id=11) { 
-				let impr = getImprovements("q", id).times(tmp.q.impr.activeRows*tmp.q.impr.activeCols).add(tmp.q.impr[id].num);
-				if (impr.gte(270)) impr = Decimal.pow(10, impr.div(270/Math.log10(270)));
-				return Decimal.pow(10, impr.pow(layers.q.impr.scaleSlow().pow(-1).plus(1)).times(2)).sub(1).times(this.baseReq());
-			},
-			free() {
-				let free = new Decimal(0);
-				if ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes('q'):false) free = free.plus(Decimal.div(player.s.buyables[20]||0, 4));
-				return free.floor();
-			},
-			resName: "quirk energy",
-			rows: 4,
-			cols: 3,
-			activeRows: 3,
-			activeCols: 3,
-			11: {
-				num: 1,
-				title: "Central Improvement",
-				description: "<b>Quirk Central</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 41) },
-				effect() { return Decimal.mul(0.1, getImprovements("q", 11).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return "^"+format(tmp.q.impr[11].effect) },
-				formula: "1+0.1*x",
-			},
-			12: {
-				num: 2,
-				title: "Secondary Improvement",
-				description: "<b>Back to Row 2</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 41) },
-				effect() { return Decimal.mul(0.05, getImprovements("q", 12).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return format(tmp.q.impr[12].effect)+"x" },
-				formula: "1+0.05*x",
-			},
-			13: {
-				num: 3,
-				title: "Level 4 Improvement",
-				description: "<b>Row 4 Synergy</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 41) },
-				effect() { return Decimal.mul(0.25, getImprovements("q", 13).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return "^"+format(tmp.q.impr[13].effect) },
-				formula: "1+0.25*x",
-			},
-			21: {
-				num: 4,
-				title: "Developmental Improvement",
-				description: "<b>Quirk City</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 42) },
-				effect() { return Decimal.mul(1.5, getImprovements("q", 21).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return "^"+format(tmp.q.impr[21].effect) },
-				formula: "1+1.5*x",
-			},
-			22: {
-				num: 5,
-				title: "Transfinite Improvement",
-				description: "<b>Infinite Possibilities</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 42) },
-				effect() { return Decimal.mul(0.2, getImprovements("q", 22).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return format(tmp.q.impr[22].effect)+"x" },
-				formula: "1+0.2*x",
-			},
-			23: {
-				num: 6,
-				title: "Energy Improvement",
-				description: "The Quirk Energy effect is stronger.",
-				unlocked() { return hasUpgrade("q", 42) },
-				effect() { return Decimal.pow(1e25, Decimal.pow(getImprovements("q", 23).plus(tmp.q.impr.free), 1.5)) },
-				effectDisplay() { return format(tmp.q.impr[23].effect)+"x" },
-				formula: "1e25^(x^1.5)",
-			},
-			31: {
-				num: 7,
-				title: "Scale Improvement",
-				description: "<b>Scale Softening</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 44) },
-				effect() { return Decimal.mul(0.5, getImprovements("q", 31).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return format(tmp.q.impr[31].effect)+"x" },
-				formula: "1+0.5*x",
-			},
-			32: {
-				num: 8,
-				title: "Booster Improvement",
-				description: "<b>Booster Madness</b> is stronger.",
-				unlocked() { return hasUpgrade("q", 44) },
-				effect() { return Decimal.mul(0.2, getImprovements("q", 32).plus(tmp.q.impr.free)).plus(1) },
-				effectDisplay() { return format(tmp.q.impr[32].effect)+"x" },
-				formula: "1+0.2*x",
-			},
-			33: {
-				num: 9,
-				title: "Quirk Improvement",
-				description: "Quirk gain is stronger.",
-				unlocked() { return hasUpgrade("q", 44) },
-				effect() { return Decimal.pow(1e8, Decimal.pow(getImprovements("q", 33).plus(tmp.q.impr.free), 1.2)) },
-				effectDisplay() { return format(tmp.q.impr[33].effect)+"x" },
-				formula: "1e8^(x^1.2)",
-			},
-			41: {
-				num: 271,
-				title: "Solar Improvement",
-				description: "Solar Energy gain is stronger.",
-				unlocked() { return (tmp.ps.buyables[11].effects.quirkImpr||0)>=1 },
-				effect() { return Decimal.pow("1e400", Decimal.pow(getImprovements("q", 41).plus(tmp.q.impr.free), 0.9)) },
-				effectDisplay() { return format(tmp.q.impr[41].effect)+"x" },
-				formula: "1e400^(x^0.9)",
-			},
-			42: {
-				num: 281,
-				title: "Subspatial Improvement",
-				description: "The Subspace base is stronger.",
-				unlocked() { return (tmp.ps.buyables[11].effects.quirkImpr||0)>=2 },
-				effect() { return Decimal.pow(10, Decimal.pow(getImprovements("q", 42).plus(tmp.q.impr.free), 0.75)) },
-				effectDisplay() { return format(tmp.q.impr[42].effect)+"x" },
-				formula: "10^(x^0.75)",
-			},
-			43: {
-				num: 301,
-				title: "Layer Improvement",
-				description: "Add free Quirk Layers.",
-				unlocked() { return (tmp.ps.buyables[11].effects.quirkImpr||0)>=3 },
-				effect() { return Decimal.mul(Decimal.pow(getImprovements("q", 43).plus(tmp.q.impr.free), 0.8), 1.25) },
-				effectDisplay() { return "+"+format(tmp.q.impr[43].effect) },
-				formula: "1.25*(x^0.8)",
-			},
-		}, */
+		},
 })
 
 
@@ -2739,32 +2296,7 @@ addLayer("tptr_o", {
 					player.tptr_o.buyables[this.id] = player.tptr_o.buyables[this.id].plus(tmp[this.layer].buyables[this.id].gain);
                 },
                 style: {'height':'140px', 'width':'140px'},
-			},/*
-			12: {
-				title: "Tachoclinal Plasma",
-				gain() { return player.o.points.div(100).times(player.o.energy.div(2500)).root(3.5).pow(tmp.o.buyableGainExp).floor() },
-				effect() { return Decimal.pow(hasUpgrade("p", 24)?Decimal.pow(10, player[this.layer].buyables[this.id].times(tmp.o.multiplyBuyables).plus(1).log10().cbrt()):(player[this.layer].buyables[this.id].times(tmp.o.multiplyBuyables).plus(1).pow(tmp.o.solPow).log10().plus(1).log10().times(10).plus(1)), ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes(this.layer):false)?1.1:1) },
-				display() { // Everything else displayed in the buyable button after the title
-                    let data = tmp[this.layer].buyables[this.id]
-                    let display = ("Sacrifice all of your Solarity & Solar Energy for "+formatWhole(tmp[this.layer].buyables[this.id].gain)+" Tachoclinal Plasma\n"+
-					"Req: 100 Solarity & 2,500 Solar Energy\n"+
-					"Amount: " + formatWhole(player[this.layer].buyables[this.id])+((tmp.o.multiplyBuyables||new Decimal(1)).eq(1)?"":(" x "+format(tmp.o.multiplyBuyables))))+"\n"+
-					(tmp.nerdMode?("Formula: "+(hasUpgrade("p", 24)?"10^cbrt(log(x+1))":"log(log(x+1)+1)*10+1")):("Effect: Multiplies the Super Booster base and each Quirk Layer by "+format(tmp[this.layer].buyables[this.id].effect)))
-					return display;
-                },
-                unlocked() { return player[this.layer].unlocked }, 
-                canAfford() { return player.o.points.gte(100)&&player.o.energy.gte(2500) },
-                buy() { 
-                    player.o.points = new Decimal(0);
-					player.o.energy = new Decimal(0);
-					player.o.buyables[this.id] = player.o.buyables[this.id].plus(tmp[this.layer].buyables[this.id].gain);
-                },
-                buyMax() {
-					// I'll do this later ehehe
-				},
-                style: {'height':'140px', 'width':'140px', 'font-size':'9px'},
-				autoed() { return hasMilestone("m", 0) },
-			},*/
+			},
 		},
 		milestones: {
 			0: {
