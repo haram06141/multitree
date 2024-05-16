@@ -1757,6 +1757,11 @@ addLayer("gd_d", {
 			2: {requirementDescription: "3 diplomas",
                 done() {return player[this.layer].best.gte(3)}, // Used to determine when to give the milestone
                 effectDescription: "Refactors are 1e8x cheaper.",
+            },
+			3: {requirementDescription: "9 diplomas",
+                unlocked() {return hasUpgrade("gd_r",25) && hasUpgrade("gd_f",25);}, // Used to determine when to give the milestone
+                done() {return player[this.layer].best.gte(9)}, // Used to determine when to give the milestone
+                effectDescription: "Greatly Boost Time Flux and Lectures gain. Gain 100% of Time Flux and Lectures gain per second. Buying Time Flux buyables costs nothing.",
             }
 	},
         effect(){
@@ -1811,6 +1816,7 @@ addLayer("gd_t", {
     requires() {
         ret = new Decimal(200)
 		if(hasUpgrade("gd_e", 23))ret = ret.sub(10);
+		if(player.gd_d.best.gte(9))ret = ret.sub(20);
 		return ret
     },
     resource: "time flux", // Name of prestige currency
@@ -1883,7 +1889,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(1).pow(1.5)).pow(x || getBuyableAmount(this.layer, this.id)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -1904,7 +1910,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(2).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -1926,7 +1932,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(3).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -1948,7 +1954,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(4).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -1970,7 +1976,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(5).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -1992,7 +1998,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(6).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -2014,7 +2020,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(7).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -2036,7 +2042,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(8).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -2058,7 +2064,7 @@ addLayer("gd_t", {
             cost(x) { return new Decimal(2).pow(new Decimal(9).pow(1.5)).pow(Decimal.add(x || getBuyableAmount(this.layer, this.id), 1)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                if(player.gd_d.best.lt(9))player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, new Decimal(1).add(getBuyableAmount(this.layer, this.id)))
             },
             effect() {
@@ -2070,7 +2076,12 @@ addLayer("gd_t", {
             style: { width: "600px", height: "120px" },
             unlocked() { return false }
         }
-	}
+	},
+	passiveGeneration(){
+		let ret=0;
+		if(player.gd_d.best.gte(9))ret=ret+1;
+		return ret;
+	},
 });
 
 
@@ -2103,6 +2114,7 @@ addLayer("gd_l", {
     requires() {
         ret = new Decimal(110)
 		if(hasUpgrade("gd_c", 24))ret = ret.sub(10);
+		if(player.gd_d.best.gte(9))ret = ret.sub(20);
 		return ret
     },
     baseAmount() { return player.gd_f.points },
@@ -2311,5 +2323,10 @@ addLayer("gd_l", {
             effectDisplay() { return `${format(this.effect())}x good will gain` },
             unlocked() { return challengeCompletions("gd_d", 22) > 0 }
         }*/
-    }
+    },
+	passiveGeneration(){
+		let ret=0;
+		if(player.gd_d.best.gte(9))ret=ret+1;
+		return ret;
+	},
 })

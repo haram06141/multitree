@@ -55,6 +55,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_g",21))ret=ret.mul(upgradeEffect("incrementy_g",21));
 					if(hasUpgrade("incrementy_s",32))ret=ret.mul(layers.incrementy_s.effect());
 					if(hasUpgrade("incrementy_i",21)&&hasUpgrade("incrementy_b",22))ret=ret.mul(buyableEffect("incrementy_i",12));
+					if(hasUpgrade("incrementy_sp",42))ret=ret.mul(layers.incrementy_a.effect()[0]);
 					
 					if(hasUpgrade("incrementy_i",22))ret=ret.pow(buyableEffect("incrementy_i",13));
 					
@@ -63,7 +64,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_i",21)&&!hasUpgrade("incrementy_b",22))ret=ret.mul(buyableEffect("incrementy_i",12));
 					if(!hasUpgrade("incrementy_i",33))ret=ret.mul(layers.incrementy_am.effect());
 					if(hasUpgrade("incrementy_am",11))ret=ret.mul(upgradeEffect("incrementy_am",11));
-					ret=ret.mul(layers.incrementy_a.effect()[0]);
+					if(!hasUpgrade("incrementy_sp",42))ret=ret.mul(layers.incrementy_a.effect()[0]);
 					if(hasUpgrade("incrementy_a",11)&&!hasUpgrade("incrementy_a",24))ret=ret.mul(upgradeEffect("incrementy_a",11));
 					ret=ret.mul(layers.incrementy_m.effect()[0]);
 					if(hasUpgrade("incrementy_e",14))ret=ret.mul(upgradeEffect("incrementy_e",14));
@@ -79,6 +80,7 @@ addLayer("incrementy_i", {
 					if(inChallenge("incrementy_q",12))ret=ret.root(3);
 					if(inChallenge("incrementy_q",21))ret=ret.root(5);
 					if(inChallenge("incrementy_q",22))ret=ret.root(4);
+					if(inChallenge("incrementy_sp", 22))ret=ret.root(100);
                     return ret;
 				},
 				currencyLayer: "modpoints",
@@ -195,12 +197,14 @@ addLayer("incrementy_i", {
 			31: {
 				title: "Incrementy Upgrade 31",
                 description(){
+					if(hasUpgrade("incrementy_m",33))return "Each bought Incrementy Strength adds 1 to the Incrementy Strength base";
 					if(hasUpgrade("incrementy_b",13))return "Each bought Incrementy Strength adds .02 to the Incrementy Strength base";
 					return "Each bought Incrementy Strength adds .02 to the Incrementy Strength base (capped at 10)";
 				},
                 cost: new Decimal(1e60),
                 unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
 				effect() {
+					if(hasUpgrade("incrementy_m",33))return player.incrementy_i.buyables[12];
                     let ret = Decimal.mul(player.incrementy_i.buyables[12],0.02);
 					if(!hasUpgrade("incrementy_b",13))ret=ret.min(10);
                     return ret;
@@ -213,12 +217,14 @@ addLayer("incrementy_i", {
 			32: {
 				title: "Incrementy Upgrade 32",
                 description(){
+					if(hasUpgrade("incrementy_m",32))return "Each bought Incrementy Speed adds 1 to the Incrementy Speed base";
 					if(hasUpgrade("incrementy_a",25))return "Each bought Incrementy Speed adds .01 to the Incrementy Speed base";
 					return "Each bought Incrementy Speed adds .01 to the Incrementy Speed base (capped at 10)";
 				},
                 cost: new Decimal(1e79),
                 unlocked() { return player.tm.buyables[5].gte(2); }, // The upgrade is only visible when this is true
 				effect() {
+					if(hasUpgrade("incrementy_m",32))return player.incrementy_i.buyables[11];
                     let ret = Decimal.mul(player.incrementy_i.buyables[11],0.01);
 					if(!hasUpgrade("incrementy_a",25))ret=ret.min(10);
                     return ret;
@@ -356,6 +362,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_i",42))ret=ret.add(player.incrementy_n.buyables[11]);
 					if(hasUpgrade("incrementy_i",42))ret=ret.add(layers.incrementy_n.buyables[11].free());
 					if(hasUpgrade("incrementy_b",15))ret=ret.add(player.incrementy_i.buyables[13].mul(layers.incrementy_b.challenges[12].rewardEffect()));
+					if(hasUpgrade("incrementy_m",34))ret=ret.add(player.incrementy_i.buyables[12]);
 					return ret;
 				},
         },
@@ -423,7 +430,8 @@ addLayer("incrementy_i", {
 					return Decimal.pow(base,power);
 				},
 				softcap(){
-					let ret=new Decimal(40);
+					if(inChallenge("incrementy_sp", 21))return new Decimal(1);
+					let ret=new Decimal(40).add(layers.incrementy_sp.effect());
 					if(player.incrementy_am.challenges[11])ret=ret.add(5);
 					if(player.incrementy_m.challenges[11])ret=ret.add(5);
 					if(hasUpgrade("incrementy_e",22))ret=ret.add(1);
@@ -434,6 +442,8 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_b",21))ret=ret.add(2);
 					if(hasUpgrade("incrementy_b",25))ret=ret.add(2);
 					if(hasUpgrade("incrementy_b",35))ret=ret.add(5);
+					if(hasUpgrade("incrementy_a",33))ret=ret.add(5);
+					if(hasUpgrade("incrementy_sp",34))ret=ret.add((player.incrementy_sp.upgrades||[]).length/10);
 					return ret;
 				},
 				unlocked(){ return hasUpgrade("incrementy_i",22)},
@@ -490,6 +500,7 @@ addLayer("incrementy_am", {
 		mult=mult.mul(layers.incrementy_m.effect()[1]);
 		if(hasUpgrade("incrementy_n",25))mult = mult.mul(buyableEffect("incrementy_n",32));
 		if(hasUpgrade("incrementy_am",31))mult = mult.mul(upgradeEffect("incrementy_am",31));
+          mult=mult.mul(player.incrementy_e.points.max(1).pow(layers.incrementy_sp.challenges[21].rewardEffect().sub(1)))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -505,7 +516,7 @@ addLayer("incrementy_am", {
 		},
         effect(){
 			if (inChallenge("incrementy_m", 12)) return new Decimal(1)
-                let ret = player.incrementy_am.points.plus(1).pow(1.5)
+                let ret = player.incrementy_am.points.plus(1).pow(1.5);
                 return ret
         },
         effectDescription(){
@@ -514,17 +525,13 @@ addLayer("incrementy_am", {
         },
 	getResetGain() {
 		let ret=player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13]);
-		if(ret.lt(110))return new Decimal(0);
-		if(hasUpgrade("incrementy_s",43)){
-			ret=Decimal.pow(1.25,ret).mul(layers.incrementy_am.gainMult()).floor();
-			return ret;
-		}
-		if(hasUpgrade("incrementy_b",24)){
-			ret=Decimal.pow(1.181,ret).mul(layers.incrementy_am.gainMult()).floor();
-			return ret;
-		}
-		ret=Decimal.pow(1.1,ret.sub(110)).mul(layers.incrementy_am.gainMult()).floor();
-		return ret;
+		if(ret.lt(110) && !(player.incrementy_sp.best.gte(2)))return new Decimal(0);
+		if(hasUpgrade("incrementy_sp",45))return Decimal.pow(3,ret).mul(layers.incrementy_am.gainMult()).floor();
+		if(hasUpgrade("incrementy_sp",25))return Decimal.pow(2,ret).mul(layers.incrementy_am.gainMult()).floor();
+		if(hasUpgrade("incrementy_sp",21))return Decimal.pow(1.5,ret).mul(layers.incrementy_am.gainMult()).floor();
+		if(hasUpgrade("incrementy_s",43))return Decimal.pow(1.25,ret).mul(layers.incrementy_am.gainMult()).floor();
+		if(hasUpgrade("incrementy_b",24))return Decimal.pow(1.181,ret).mul(layers.incrementy_am.gainMult()).floor();
+		return Decimal.pow(1.1,ret.sub(110)).mul(layers.incrementy_am.gainMult()).floor();
 	},
 	getNextAt() {
 		let ret=player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13]).add(1).max(110);
@@ -730,14 +737,14 @@ addLayer("incrementy_a", {
 		let ret=player.modpoints[5];
 		if(player.incrementy_sp.best.gte(2))ret=ret.add(1).mul("1e600");
 		if(ret.lt("1e600"))return new Decimal(0);
-		ret=ret.log10().div(6).pow(hasUpgrade("incrementy_am",35)?0.52:0.5).sub(10);
+		ret=ret.log10().div(6).pow(hasUpgrade("incrementy_a",31)?0.56:hasUpgrade("incrementy_sp",33)?0.55:hasUpgrade("incrementy_am",35)?0.52:0.5).sub(10);
 		ret=Decimal.pow(10,ret).mul(layers.incrementy_a.gainMult()).floor();
 		return ret;
 	},
 	getNextAt() {
 		let ret=tmp.incrementy_a.getResetGain.plus(1);
 		ret=ret.div(layers.incrementy_a.gainMult()).max(1).log10();
-		ret=ret.add(10).pow(hasUpgrade("incrementy_am",35)?(1/0.52):2).mul(6);
+		ret=ret.add(10).pow(hasUpgrade("incrementy_a",31)?(1/0.56):hasUpgrade("incrementy_sp",33)?(1/0.55):hasUpgrade("incrementy_am",35)?(1/0.52):2).mul(6);
 		ret=Decimal.pow(10,ret);
 		if(player.incrementy_sp.best.gte(2))ret=ret.div("1e600").sub(1);
 		return ret;
@@ -745,11 +752,14 @@ addLayer("incrementy_a", {
         effect(){
 			if (inChallenge("incrementy_m", 11) || inChallenge("incrementy_m", 12)) return [new Decimal(1), new Decimal(1)]
                 let eff1 = player.incrementy_a.points.add(1).pow(6)
-                let eff2 = player.incrementy_a.points.add(1).pow(2)
+				if(hasUpgrade("incrementy_a",32))return [eff1, eff1];
+                let eff2 = player.incrementy_a.points.add(1).pow(hasUpgrade("incrementy_sp",44)?4:hasUpgrade("incrementy_sp",32)?3:2)
                 return [eff1, eff2]
         },
         effectDescription(){
                 let eff = layers.incrementy_a.effect()
+				if(hasUpgrade("incrementy_a",32) && hasUpgrade("incrementy_sp",42))return "which multiplies base incrementy gain and antimatter gain by " + format(eff[0])
+			if(hasUpgrade("incrementy_sp",42))return "which multiplies base incrementy gain by " + format(eff[0]) + " and antimatter gain by " + format(eff[1])
                 return "which multiplies incrementy gain by " + format(eff[0]) + " and antimatter gain by " + format(eff[1])
         },
 		
@@ -841,6 +851,41 @@ addLayer("incrementy_a", {
                 cost: new Decimal(1e37),
                 unlocked() { return player.tm.buyables[5].gte(7); }, // The upgrade is only visible when this is true
 			},
+			31: {
+				title: "Amoeba Upgrade 31",
+                description: "Amoeba gain is better.",
+                cost: new Decimal("1e50000"),
+                unlocked() { return hasUpgrade("incrementy_sp",52); }, // The upgrade is only visible when this is true
+			},
+			32: {
+				title: "Amoeba Upgrade 32",
+                description: "Amoeba effect to Antimatter is better.",
+                cost: new Decimal("1e67300"),
+                unlocked() { return hasUpgrade("incrementy_sp",52); }, // The upgrade is only visible when this is true
+			},
+			33: {
+				title: "Amoeba Upgrade 33",
+                description: "Incrementy Stamina softcap starts 5 later (70 -> 75)",
+                cost: new Decimal("1e69600"),
+                unlocked() { return hasUpgrade("incrementy_sp",52); }, // The upgrade is only visible when this is true
+			},
+			34: {
+				title: "Amoeba Upgrade 34",
+                description: "Unlock more Matter upgrades.",
+                cost: new Decimal("1e74600"),
+                unlocked() { return hasUpgrade("incrementy_sp",52); }, // The upgrade is only visible when this is true
+			},
+			35: {
+				title: "Amoeba Upgrade 35",
+                description: "Amoeba boost Super Prestige point gain.",
+                cost: new Decimal("1e75000"),
+                unlocked() { return hasUpgrade("incrementy_sp",52); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = player.incrementy_a.points.add(100).log10().sqrt();
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
 	 },
 	passiveGeneration(){
 		if(hasUpgrade("incrementy_a",15)&&player.incrementy_sp.best.gte(2))return 1e4;
@@ -887,6 +932,12 @@ addLayer("incrementy_m", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
+	getResetGain() {
+		let ret = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent);
+		if(ret.gte("e15e5"))ret = Decimal.pow(10, ret.log10().div(15).log10().mul(3e5));
+		ret = ret.times(tmp[this.layer].gainMult);
+		return ret;
+	},
     branches: ["incrementy_i"],
     row: 1, // Row the layer is in on the tree (0 is the first row)
     layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && player.incrementy_am.challenges[12]>=1;},
@@ -975,10 +1026,11 @@ addLayer("incrementy_m", {
 			},
 			24: {
 				title: "Matter Upgrade 24",
-                description: "Matter gain is boosted by your antimatter.",
+                description: "Matter gain is boosted by your amoebas.",
                 cost: new Decimal(1e70),
                 unlocked() { return player.tm.buyables[5].gte(6); }, // The upgrade is only visible when this is true
 				effect() {
+					if(hasUpgrade("incrementy_m", 31))return player.incrementy_a.points.add(1);
                     let base=3;
                     let ret = Decimal.pow(base,Decimal.log10(player.incrementy_a.points.add(1)).pow(0.9));
                     return ret;
@@ -990,6 +1042,30 @@ addLayer("incrementy_m", {
                 description: "Unlock a matter challenge.",
                 cost: new Decimal(1e110),
                 unlocked() { return player.tm.buyables[5].gte(6); }, // The upgrade is only visible when this is true
+			},
+			31: {
+				title: "Matter Upgrade 31",
+                description: "Matter Upgrade 24 is better.",
+                cost: new Decimal("e225e4"),
+                unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
+			},
+			32: {
+				title: "Matter Upgrade 32",
+                description: "Incrementy Upgrade 32 is better.",
+                cost: new Decimal("e238e4"),
+                unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
+			},
+			33: {
+				title: "Matter Upgrade 33",
+                description: "Incrementy Upgrade 31 is better.",
+                cost: new Decimal("e242e4"),
+                unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
+			},
+			34: {
+				title: "Matter Upgrade 34",
+                description: "Incrementy Strength provide free Incrementy Speed.",
+                cost: new Decimal("e2435e3"),
+                unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
 			},
 	 },
 	passiveGeneration(){
@@ -1517,6 +1593,7 @@ addLayer("incrementy_n", {
 		if(hasUpgrade("incrementy_p",13))ret = ret.mul(1.35);
 		if(hasUpgrade("incrementy_p",21))ret = ret.mul(1.1);
 		if(hasUpgrade("incrementy_g",15))ret = ret.mul(upgradeEffect("incrementy_g",15));
+        if (inChallenge("incrementy_sp", 12)) ret = ret.div(100)
         return ret
     },
 	gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -1701,6 +1778,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(3);
 					if(hasUpgrade("incrementy_g",23))base=base.add(1.5);
 					if(hasUpgrade("incrementy_s",12))base=base.add(0.9);
@@ -1741,6 +1819,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(1.4);
                     base = base.plus(layers.incrementy_b.challenges[22].rewardEffect()[0])
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
@@ -1779,6 +1858,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(1e5);
 					if (inChallenge("incrementy_b", 12))  base= base.pow(new Decimal(2).div(3 + challengeCompletions("incrementy_b", 12)));
                      if (inChallenge("incrementy_b", 21)) return new Decimal(1)
@@ -1816,6 +1896,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=player.incrementy_n.best.plus(10).log10().pow(10);
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
@@ -1853,7 +1934,9 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=player.incrementy_n.best.plus(10).log10().pow(0.5);
+                                base = base.times(layers.incrementy_sp.challenges[22].rewardEffect())
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
 				free(){
@@ -1890,6 +1973,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(100);
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
@@ -1925,6 +2009,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(25);
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
@@ -1960,6 +2045,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(10);
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
@@ -1995,6 +2081,7 @@ addLayer("incrementy_n", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
+                                if (inChallenge("incrementy_sp", 11)) return new Decimal(1)
 					let base=new Decimal(10);
 					return Decimal.pow(base,player[this.layer].buyables[this.id].add(layers[this.layer].buyables[this.id].free()));
 				},
@@ -2097,7 +2184,8 @@ addLayer("incrementy_g", {
                 description: "Gluons boost Particle gain exponent.",
                 cost: new Decimal(1e32),
 				effect() {
-                    let ret = player.incrementy_g.points.add(1).log10().pow(0.5).mul(0.1).add(1);
+                    let ret = player.incrementy_g.points.add(1).log10().pow(0.5).mul(0.1).add(1); // CRITICAL
+					if(ret.gte(132.25)){ret = ret.sqrt().mul(11.5);}
 					if(hasUpgrade("incrementy_g",25))ret=ret.pow(2);
 					if(hasUpgrade("incrementy_g",32))ret=ret.pow(1.1);
                     return ret;
@@ -2405,7 +2493,11 @@ addLayer("incrementy_s", {
 		},
 	getResetGain() {
 		let ret=player.incrementy_p.points;
-		if(ret.lt("1e1450"))return new Decimal(0);
+		if(hasUpgrade("incrementy_sp",12)){
+			ret=Decimal.pow(10,ret.add(10).log10().pow(hasUpgrade("incrementy_sp",14)?0.3:0.25)).mul(tmp.incrementy_s.gainMult).floor();
+			return ret;
+		}
+		if(ret.lt("1e1450")&&(!player.incrementy_sp.best.gte(8)))return new Decimal(0);
 		if(hasUpgrade("incrementy_b",15)||player.incrementy_sp.best.gte(8))ret = ret.log10().pow(hasUpgrade("incrementy_s",41)?2:1).mul(tmp.incrementy_s.gainMult).floor();
 		else ret=ret.div("1e1440").log10().div(10).pow(0.5).mul(tmp.incrementy_s.gainMult).floor();
 		return ret;
@@ -2413,6 +2505,10 @@ addLayer("incrementy_s", {
 	getNextAt() {
 		let ret=tmp.incrementy_s.getResetGain.plus(1);
 		ret=ret.div(tmp.incrementy_s.gainMult);
+		if(hasUpgrade("incrementy_sp",12)){
+			ret=Decimal.pow(10,ret.log10().pow(hasUpgrade("incrementy_sp",14)?(10/3):4));
+			return ret;
+		}
 		if(hasUpgrade("incrementy_b",15)||player.incrementy_sp.best.gte(8)){
 			ret=Decimal.pow(10,ret.pow(1/(hasUpgrade("incrementy_s",41)?2:1)));
 			return ret;
@@ -2597,6 +2693,10 @@ addLayer("incrementy_b", {
     },
 	getResetGain() {
 		let ret=player.incrementy_p.points;
+		if(hasUpgrade("incrementy_sp",12)){
+			ret=Decimal.pow(10,ret.add(10).log10().pow(hasUpgrade("incrementy_sp",14)?0.4:0.3)).mul(tmp.incrementy_b.gainMult).floor();
+			return ret;
+		}
 		if(player.incrementy_sp.best.gte(5)){
 			ret=ret.add(10).log10().div(2).pow(hasUpgrade("incrementy_s",33)?2:1.5).mul(tmp.incrementy_b.gainMult).floor();
 			return ret;
@@ -2608,6 +2708,10 @@ addLayer("incrementy_b", {
 	getNextAt() {
 		let ret=tmp.incrementy_b.getResetGain.plus(1);
 		ret=ret.div(tmp.incrementy_b.gainMult);
+		if(hasUpgrade("incrementy_sp",12)){
+			ret=Decimal.pow(10,ret.log10().pow(10/(hasUpgrade("incrementy_sp",14)?4:3)));
+			return ret;
+		}
 		ret=ret.pow(1/(hasUpgrade("incrementy_s",33)?2:1.5)).mul(2);
 		if(player.incrementy_sp.best.gte(5)){
 			ret=Decimal.pow(10,ret);
@@ -2730,6 +2834,7 @@ addLayer("incrementy_b", {
         effect(){
                 let amt = player.incrementy_b.points
                 let ret = amt.times(9).plus(1).log10()
+				if(hasUpgrade("incrementy_sp",23))return ret;
                 if (hasUpgrade("incrementy_b", 23)) {
                         if (ret.gt(20)) ret = ret.times(5).log10().pow(4).times(1.25)
                 } else if (ret.gt(10)) ret = ret.log10().times(10)
@@ -2761,9 +2866,10 @@ addLayer("incrementy_b", {
                                 let tot = new Decimal(layers.incrementy_b.getBChallengeTotal() + 1)
                                 let comps = challengeCompletions("incrementy_b", 11)
 
-                                if (tot.gt(3)) tot = tot.log(3).plus(2)
-                                if (tot.gt(4)) tot = tot.log(4).plus(3)
-                                if (comps >= 4) comps = Math.log10(comps * 33 + 1) + 1
+								if (tot.gt(3) && !hasUpgrade("incrementy_sp", 15)) tot = tot.log(3).plus(2)
+								if (tot.gt(4) && !hasUpgrade("incrementy_sp", 15)) tot = tot.log(4).plus(3)
+									
+                                if (comps >= 4 && !hasUpgrade("incrementy_sp", 15)) comps = Math.log10(comps * 33 + 1) + 1
 
                                 let ret = Decimal.pow(tot, comps).minus(1)
 
@@ -2772,7 +2878,7 @@ addLayer("incrementy_b", {
                                 return ret
                         },
                         rewardDisplay(){
-                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 11)) + "/10 challenge completions, "
+                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 11)) + "/"+layers.incrementy_b.challenges[22].completionLimit()+" challenge completions, "
                                 let eff = "add " + format(layers.incrementy_b.challenges[11].rewardEffect()) + " to the base."
                                 return comps + eff
                         },
@@ -2781,6 +2887,8 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 11)
+								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
+								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
                                 let base = 286000
                                 base += comps * comps * comps * 2000
@@ -2789,7 +2897,12 @@ addLayer("incrementy_b", {
                         currencyDisplayName: "incrementy",
                         currencyInternalName: "5",
                         currencyLayer: "modpoints",
-                        completionLimit: 10,
+                        completionLimit(){
+							let ret=10;
+							if(hasUpgrade("incrementy_sp",11))ret+=(player.incrementy_sp.upgrades||[]).length;
+							if(hasUpgrade("incrementy_sp",11)&&hasUpgrade("incrementy_sp",31))ret+=(player.incrementy_sp.upgrades||[]).length;
+							return ret;
+						},
                 },
                 12: {
                         name: "Bin", 
@@ -2807,7 +2920,7 @@ addLayer("incrementy_b", {
                                 return ret
                         },
                         rewardDisplay(){
-                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 12)) + "/10 challenge completions, "
+                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 12)) + "/"+layers.incrementy_b.challenges[22].completionLimit()+" challenge completions, "
                                 let eff = "you get " + format(layers.incrementy_b.challenges[12].rewardEffect()) + " free Speed levels per Stamina."
                                 return comps + eff
                         },
@@ -2816,6 +2929,8 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 12)
+								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
+								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
                                 let base = 614000
                                 base += comps * 22000
@@ -2825,7 +2940,12 @@ addLayer("incrementy_b", {
                         currencyDisplayName: "incrementy",
                         currencyInternalName: "5",
                         currencyLayer: "modpoints",
-                        completionLimit: 10,
+                        completionLimit(){
+							let ret=10;
+							if(hasUpgrade("incrementy_sp",11))ret+=(player.incrementy_sp.upgrades||[]).length;
+							if(hasUpgrade("incrementy_sp",11)&&hasUpgrade("incrementy_sp",31))ret+=(player.incrementy_sp.upgrades||[]).length;
+							return ret;
+						},
                 },
                 21: {
                         name: "Band", 
@@ -2841,7 +2961,7 @@ addLayer("incrementy_b", {
                                 return ret
                         },
                         rewardDisplay(){
-                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 21)) + "/10 challenge completions, "
+                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 21)) + "/"+layers.incrementy_b.challenges[22].completionLimit()+" challenge completions, "
                                 let eff = "you get a log(Quarks)^" + format(layers.incrementy_b.challenges[21].rewardEffect()) + " multiplier to Amoeba gain."
                                 return comps + eff
                         },
@@ -2850,6 +2970,8 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 21)
+								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
+								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
                                 let base = 926000
                                 base += comps * 66000
@@ -2859,7 +2981,12 @@ addLayer("incrementy_b", {
                         currencyDisplayName: "incrementy",
                         currencyInternalName: "5",
                         currencyLayer: "modpoints",
-                        completionLimit: 10,
+                        completionLimit(){
+							let ret=10;
+							if(hasUpgrade("incrementy_sp",11))ret+=(player.incrementy_sp.upgrades||[]).length;
+							if(hasUpgrade("incrementy_sp",11)&&hasUpgrade("incrementy_sp",31))ret+=(player.incrementy_sp.upgrades||[]).length;
+							return ret;
+						},
                 },
                 22: {
                         name: "Banned", 
@@ -2875,7 +3002,7 @@ addLayer("incrementy_b", {
                                 return [ret, comps * (comps + 3) / 2 + comps * 4]
                         },
                         rewardDisplay(){
-                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 22)) + "/10 challenge completions, "
+                                let comps = "Because you have " + formatWhole(challengeCompletions("incrementy_b", 22)) + "/"+layers.incrementy_b.challenges[22].completionLimit()+" challenge completions, "
                                 let eff = "you get +" + format(layers.incrementy_b.challenges[22].rewardEffect()[0]) + " to the Particle Generation base and "
                                 let eff2 =  formatWhole(layers.incrementy_b.challenges[22].rewardEffect()[1]) + " extra Particle Simulation levels."
                                 return comps + eff + eff2
@@ -2885,6 +3012,8 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 22)
+								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
+								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",45)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
 								if(hasUpgrade("incrementy_s",44))return Decimal.pow(10,890000+comps*comps*15000);
 								if(hasUpgrade("incrementy_s",42))return Decimal.pow(10,1000000+comps*comps*15000);
@@ -2896,7 +3025,12 @@ addLayer("incrementy_b", {
                         currencyDisplayName: "incrementy",
                         currencyInternalName: "5",
                         currencyLayer: "modpoints",
-                        completionLimit: 10,
+                        completionLimit(){
+							let ret=10;
+							if(hasUpgrade("incrementy_sp",11))ret+=(player.incrementy_sp.upgrades||[]).length;
+							if(hasUpgrade("incrementy_sp",11)&&hasUpgrade("incrementy_sp",31))ret+=(player.incrementy_sp.upgrades||[]).length;
+							return ret;
+						},
                         countsAs: [11, 12, 21],
                 },
 		},
@@ -2911,6 +3045,10 @@ addLayer("incrementy_sp", {
         startData() { return {
                unlocked: true,
 		      points: new Decimal(0),
+                chall1points: new Decimal(0),
+                chall2points: new Decimal(0),
+                chall3points: new Decimal(0),
+                chall4points: new Decimal(0),
         }},
         color: "#1CA2E8",
         requires: new Decimal(1e20), 
@@ -2919,25 +3057,48 @@ addLayer("incrementy_sp", {
         baseAmount() {return player.incrementy_s.points}, 
         branches: ["incrementy_s"],
         type: "normal", 
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        mult = mult.times(layers.incrementy_sp.challenges[11].rewardEffect());
+		if(player.milestone_m.best.gte(5))mult = mult.mul(tmp.milestone_m.milestone5Effect);
+		if(hasUpgrade("incrementy_sp",51))mult=mult.mul(upgradeEffect("incrementy_sp",51));
+		if(hasUpgrade("incrementy_a",35))mult=mult.mul(upgradeEffect("incrementy_a",35));
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
 	getResetGain() {
 		let ret=player.incrementy_s.points;
 		if(ret.lt("1e20"))return new Decimal(0);
-		ret=ret.log10().div(20).pow(2).floor();
+		ret=ret.log10().div(20).pow(2).mul(tmp.incrementy_sp.gainMult).floor();
 		return ret;
 	},
 	getNextAt() {
 		let ret=tmp.incrementy_sp.getResetGain.plus(1);
+		ret=ret.div(tmp.incrementy_sp.gainMult);
 		ret=ret.pow(1/(2)).mul(20);
 		ret=Decimal.pow(10,ret);
 		return ret;
 	},
     row: 3, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(27)},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(28)},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || l=="incrementy_a" || l=="incrementy_e" || l=="incrementy_n" || l=="incrementy_g" || l=="incrementy_q" || l=="incrementy_p" ||  l=="incrementy_s" || l=="incrementy_sp" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_sp",["upgrades","milestones","challenges"]);
 			return;
 		},
+        effect(){
+				if(player.tm.buyables[5].lte(28))return new Decimal(0);
+                let amt = player.incrementy_sp.points
+                let ret = amt.add(10).log10().mul(Decimal.pow(1.1,player.tm.buyables[5])).div(5);
+				if(ret.gte(20))ret = ret.div(20).sqrt().mul(20);
+                return ret
+        },
+        effectDescription(){
+                let a = "which increases the Incrementy Stamina softcap by " + format(layers.incrementy_sp.effect()) + " (boosted by the level of this tree)";
+                return a 
+        },
         milestones: {
                 1: {
                         requirementDescription: "<b>Toad</b><br>Requires: 2 Super Prestige Points", 
@@ -2969,10 +3130,335 @@ addLayer("incrementy_sp", {
                 },
                 5: {
                         requirementDescription: "<b>Weight</b><br>Requires: 13 Super Prestige Points", 
-                        effectDescription: "Incrementy Upgrade 12 is better",
+                        effectDescription: "Incrementy Upgrade 13 is better",
                         done(){
                                 return player.incrementy_sp.best.gte(13)
                         },
                 },
 		},
+        challenges:{
+                rows: 2,
+                cols: 2,
+                11: {
+                        name: "Quartz", 
+                        challengeDescription: "All Neutrino Buyable bases are set to 1",
+                        rewardDescription: "Challenge Points boost Super Prestige Point gain<br>",
+                        rewardEffect(){
+                                let comps = challengeCompletions("incrementy_sp", 11)
+                                
+                                let pts = player.incrementy_sp.chall1points
+
+                                let exp = Decimal.div(5, 11-Math.sqrt(comps))
+                                if (hasUpgrade("incrementy_sp", 43)) exp = exp.times(2)
+
+                                return Decimal.pow(pts.plus(1), exp)
+                        },
+                        rewardDisplay(){
+                                let comps = "Because you have " + formatWhole(player.incrementy_sp.chall1points) + " Challenge Points "
+                                comps += "and " + formatWhole(challengeCompletions("incrementy_sp", 11)) + "/25 Challenge completions, "
+                                let eff = "you get " + format(layers.incrementy_sp.challenges[11].rewardEffect()) + "x Super Prestige Points."
+                                return comps + eff
+                        },
+                        unlocked(){
+                                return player.tm.buyables[5].gte(29);
+                        },
+                        goal(initial = false){
+                                let comps = challengeCompletions("incrementy_sp", 11)
+                                let init = hasUpgrade("incrementy_sp", 41) ? 20 : 21
+                                let exp = initial ? init : init + comps
+                                return Decimal.pow(10, Decimal.pow(2, exp))
+                        },
+                        currencyDisplayName: "incrementy",
+                        currencyInternalName: "5",
+                        currencyLayer: "modpoints",
+                        completionLimit: 25,
+                },
+                12: {
+                        name: "Quarts", 
+                        challengeDescription: "Neutrino gain is raised to the .01",
+                        rewardDescription: "Challenge Points boost Shard Gain<br>",
+                        rewardEffect(){
+                                let comps = challengeCompletions("incrementy_sp", 12)
+                                
+                                let pts = player.incrementy_sp.chall2points
+
+                                let exp = pts.sqrt().min(10 + comps * 3)
+
+                                let ret = Decimal.pow(pts.plus(1), exp)     
+
+                                if (ret.gt(1e100)) ret = ret.log10().pow(50)
+                                return ret                           
+                        },
+                        rewardDisplay(){
+                                let comps = "Because you have " + formatWhole(player.incrementy_sp.chall2points) + " Challenge Points "
+                                comps += "and " + formatWhole(challengeCompletions("incrementy_sp", 12)) + "/25 Challenge completions, "
+                                let eff = "you get " + format(layers.incrementy_sp.challenges[12].rewardEffect()) + "x Shard gain."
+                                return comps + eff
+                        },
+                        unlocked(){
+                                return hasUpgrade("incrementy_sp", 35);
+                        },
+                        goal(initial = false){
+                                let comps = challengeCompletions("incrementy_sp", 12)
+                                let init = hasUpgrade("incrementy_sp", 41) ? 27 : 31
+                                let exp = initial ? init : init + comps
+                                return Decimal.pow(10, Decimal.pow(2, exp))
+                        },
+                        currencyDisplayName: "incrementy",
+                        currencyInternalName: "5",
+                        currencyLayer: "modpoints",
+                        completionLimit: 25,
+                },
+                21: {
+                        name: "Jewel", 
+                        challengeDescription: "Incrementy Stamina Softcap starts at 1",
+                        rewardDescription: "Challenge Points boost Energy to Antimatter Synergy<br>",
+                        rewardEffect(){
+                                let comps = challengeCompletions("incrementy_sp", 21)
+
+                                if (comps == 0) return new Decimal(1)
+
+                                let pts = player.incrementy_sp.chall3points.div(1000)
+
+                                let effpts = pts.pow(1 - .8/Math.sqrt(comps))
+                                let ret = Decimal.minus(Decimal.div(1, effpts.plus(10).log10()), 1).times(-1).add(1)
+
+                                return ret
+                        },
+                        rewardDisplay(){
+                                let comps = "Because you have " + formatWhole(player.incrementy_sp.chall3points) + " Challenge Points, "
+                                comps += "and " + formatWhole(challengeCompletions("incrementy_sp", 21)) + "/25 Challenge completions, "
+                                let eff = "Energy^" + format(layers.incrementy_sp.challenges[21].rewardEffect().sub(1), 4) + " boosts Antimatter gain."
+                                return comps + eff
+                        },
+                        unlocked(){
+                                return player.tm.buyables[5].gte(34);
+                        },
+                        goal(initial = false){
+                                let comps = challengeCompletions("incrementy_sp", 21)
+                                let init = hasUpgrade("incrementy_sp", 41) ? 20 : 21
+                                let exp = initial ? init : init + comps
+                                return Decimal.pow(10, Decimal.pow(2, exp))
+                        },
+                        currencyDisplayName: "incrementy",
+                        currencyInternalName: "5",
+                        currencyLayer: "modpoints",
+                        completionLimit: 25,
+                },
+                22: {
+                        name: "Joule", 
+                        challengeDescription: "Incrementy gain is raised to the .01",
+                        rewardDescription: "Challenge Points boost Particle Boost base<br>",
+                        rewardEffect(){
+                                let comps = challengeCompletions("incrementy_sp", 22)
+
+                                let pts = player.incrementy_sp.chall4points
+
+                                //if (comps > 5) comps = comps / 4 + 3.75
+
+                                return Decimal.pow(pts.plus(1), comps/10)
+                        },
+                        rewardDisplay(){
+                                let comps = "Because you have " + formatWhole(player.incrementy_sp.chall4points) + " Challenge Points, "
+                                comps += "and " + formatWhole(challengeCompletions("incrementy_sp", 22)) + "/25 Challenge completions, "
+                                let eff = "you get x" + format(layers.incrementy_sp.challenges[22].rewardEffect()) + " to Particle Boost base."
+                                return comps + eff
+                        },
+                        unlocked(){
+                                return player.tm.buyables[5].gte(34);
+                        },
+                        goal(initial = false){
+                                let comps = challengeCompletions("incrementy_sp", 22)
+                                let init = hasUpgrade("incrementy_sp", 41) ? 13 : 14
+                                let exp = initial ? init : init + comps
+                                return Decimal.pow(10, Decimal.pow(2, exp))
+                        },
+                        currencyDisplayName: "incrementy",
+                        currencyInternalName: "5",
+                        currencyLayer: "modpoints",
+                        completionLimit: 25,
+                },
+		},
+		update(){
+			if (inChallenge("incrementy_sp", 11)) {
+					let base = layers.incrementy_sp.challenges[11].goal(true)
+					let pts = player.modpoints[5]
+					let diff = player.modpoints[5].max(10).log(10).max(2).log(2).minus(base.log(10).log(2)).max(0)
+					player.incrementy_sp.chall1points=player.incrementy_sp.chall1points.max(diff.plus(1).pow(3).minus(1).times(100).floor());
+			}
+			if (inChallenge("incrementy_sp", 12)) {
+					let base = layers.incrementy_sp.challenges[12].goal(true)
+					let pts = player.modpoints[5]
+					let diff = player.modpoints[5].max(10).log(10).max(2).log(2).minus(base.log(10).log(2)).max(0)
+					player.incrementy_sp.chall2points=player.incrementy_sp.chall2points.max(diff.plus(1).pow(3).minus(1).times(100).floor());
+			}
+			if (inChallenge("incrementy_sp", 21)) {
+					let base = layers.incrementy_sp.challenges[21].goal(true)
+					let pts = player.modpoints[5]
+					let diff = player.modpoints[5].max(10).log(10).max(2).log(2).minus(base.log(10).log(2)).max(0)
+					player.incrementy_sp.chall3points=player.incrementy_sp.chall3points.max(diff.plus(1).pow(3).minus(1).times(100).floor());
+			}
+			if (inChallenge("incrementy_sp", 22)) {
+					let base = layers.incrementy_sp.challenges[22].goal(true)
+					let pts = player.modpoints[5]
+					let diff = player.modpoints[5].max(10).log(10).max(2).log(2).minus(base.log(10).log(2)).max(0)
+					player.incrementy_sp.chall4points=player.incrementy_sp.chall4points.max(diff.plus(1).pow(3).minus(1).times(100).floor());
+			}
+		},
+		
+        upgrades: {
+                rows: 5,
+                cols: 5, 
+			11: {
+				title: "Super Prestige Upgrade 11",
+                description(){if(hasUpgrade("incrementy_sp",31))return "+2 Max Boson Challenge Completions per Super Prestige Upgrade";else return "+1 Max Boson Challenge Completions per Super Prestige Upgrade"},
+                cost: new Decimal(500),
+                unlocked() { return player.tm.buyables[5].gte(29); }, // The upgrade is only visible when this is true
+			}, 
+			12: {
+				title: "Super Prestige Upgrade 12",
+                description(){return "Boson & Shards gain are better."},
+                cost: new Decimal(750),
+                unlocked() { return player.tm.buyables[5].gte(30); }, // The upgrade is only visible when this is true
+			},
+			13: {
+				title: "Super Prestige Upgrade 13",
+                description(){return "Gain "+(hasUpgrade("incrementy_sp",24)?"1e6":hasUpgrade("incrementy_sp",22)?10000:100)+"% of Super Prestige points per second."},
+                cost: new Decimal(1000),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			14: {
+				title: "Super Prestige Upgrade 14",
+                description(){return "Boson & Shards gain are better."},
+                cost: new Decimal(10000),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			15: {
+				title: "Super Prestige Upgrade 15",
+                description(){return "Remove some softcaps in Boson Challenge 1 reward."},
+                cost: new Decimal(50000),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			21: {
+				title: "Super Prestige Upgrade 21",
+                description(){return "Antimatter gain is better."},
+                cost: new Decimal(500000),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			22: {
+				title: "Super Prestige Upgrade 22",
+                description(){return "100x to Super Prestige Upgrade 13"},
+                cost: new Decimal(1500000),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			23: {
+				title: "Super Prestige Upgrade 23",
+                description(){return "Remove Boson effect Softcap"},
+                cost: new Decimal(5e7),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			24: {
+				title: "Super Prestige Upgrade 24",
+                description(){return "100x to Super Prestige Upgrade 13"},
+                cost: new Decimal(3e8),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			25: {
+				title: "Super Prestige Upgrade 25",
+                description(){return "Base Antimatter gain is better (2x per incrementy buyable level)"},
+                cost: new Decimal(1e10),
+                unlocked() { return player.tm.buyables[5].gte(31); }, // The upgrade is only visible when this is true
+			},
+			31: {
+				title: "Super Prestige Upgrade 31",
+                description(){return "Super Prestige Upgrade 11's effect is doubled."},
+                cost: new Decimal(2e10),
+                unlocked() { return player.tm.buyables[5].gte(32); }, // The upgrade is only visible when this is true
+			},
+			32: {
+				title: "Super Prestige Upgrade 32",
+                description(){return "Amoeba effect to Antimatter is better."},
+                cost: new Decimal(6e10),
+                unlocked() { return player.tm.buyables[5].gte(32); }, // The upgrade is only visible when this is true
+			},
+			33: {
+				title: "Super Prestige Upgrade 33",
+                description(){return "Base Amoeba gain is better."},
+                cost: new Decimal(2e11),
+                unlocked() { return player.tm.buyables[5].gte(32); }, // The upgrade is only visible when this is true
+			},
+			34: {
+				title: "Super Prestige Upgrade 34",
+                description(){return "Each Super Prestige Upgrade pushes the Incrementy Stamina Softcap Start back by 0.1"},
+                cost: new Decimal(1e11),
+                unlocked() { return player.tm.buyables[5].gte(33); }, // The upgrade is only visible when this is true
+			},
+			35: {
+				title: "Super Prestige Upgrade 35",
+                description(){return "Unlock more SP challenges."},
+                cost: new Decimal(3e11),
+                unlocked() { return player.tm.buyables[5].gte(33); }, // The upgrade is only visible when this is true
+			},
+			41: {
+				title: "Super Prestige Upgrade 41",
+                description(){return "Reduce SP challenge goals."},
+                cost: new Decimal(1e15),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			42: {
+				title: "Super Prestige Upgrade 42",
+                description(){return "Amoeba effect to Incrementy is applied before Incrementy Stamina"},
+                cost: new Decimal(3e15),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			43: {
+				title: "Super Prestige Upgrade 43",
+                description(){return "Square Quartz reward"},
+                cost: new Decimal(6e15),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			44: {
+				title: "Super Prestige Upgrade 44",
+                description(){return "Amoeba effect to Antimatter is better."},
+                cost: new Decimal(3e18),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			45: {
+				title: "Super Prestige Upgrade 45",
+                description(){return "Base Antimatter gain is better (3x per incrementy buyable level)"},
+                cost: new Decimal(1e19),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			51: {
+				title: "Super Prestige Upgrade 51",
+                description(){return "Boson challenge completions boost Super Prestige point gain."},
+                cost: new Decimal(2e19),
+                unlocked() { return player.tm.buyables[5].gte(36); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = Decimal.pow(1.2,(layers.incrementy_b.getBChallengeTotal())**(hasUpgrade("incrementy_sp",53)?0.75:0.5));
+                    return ret;
+				},
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			52: {
+				title: "Super Prestige Upgrade 52",
+                description(){return "Unlock more Amoeba upgrades"},
+                cost: new Decimal(3e20),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+			53: {
+				title: "Super Prestige Upgrade 53",
+                description(){return "Super Prestige Upgrade 51 is better."},
+                cost: new Decimal(3e23),
+                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+			},
+		},
+	passiveGeneration(){
+		if(hasUpgrade("incrementy_sp",13) && hasUpgrade("incrementy_sp",24))return 1e4;
+		if(hasUpgrade("incrementy_sp",13) && hasUpgrade("incrementy_sp",22))return 100;
+		if(hasUpgrade("incrementy_sp",13))return 1;
+		return 0;
+	},
+
 });

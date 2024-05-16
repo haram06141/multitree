@@ -100,6 +100,7 @@ addLayer("burning_a", {
                     let ret = Decimal.pow(base,Decimal.log10(player.points.add(1)).pow(0.5));
 					if(hasUpgrade("burning_a",42))ret=ret.pow(2);
 					if(hasUpgrade("burning_c",21))ret=ret.pow(upgradeEffect("burning_c",21));
+					if(hasUpgrade("burning_e",25))ret=ret.pow(layers.burning_e.allocatedEffects()[5]);
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -403,7 +404,7 @@ addLayer("burning_e", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
-		allocation: [0,0,0,0,0],
+		allocation: [0,0,0,0,0,0],
     }},
     color: "#dddd00",
     requires: new Decimal(100), // Can be a function that takes requirement increases into account
@@ -464,6 +465,8 @@ addLayer("burning_e", {
         ["row", [["clickable", 41], "blank", ["bar", "a14Boost"], "blank", ["clickable", 42]]],
         "blank",
         ["row", [["clickable", 51], "blank", ["bar", "coalBoost"], "blank", ["clickable", 52]]],
+        "blank",
+        ["row", [["clickable", 61], "blank", ["bar", "a21Boost"], "blank", ["clickable", 62]]],
 					"upgrades"
 				],
 		
@@ -573,10 +576,33 @@ addLayer("burning_e", {
 			unlocked(){
 				return hasUpgrade("burning_e",24);
 			},
-        }
+        },
+        a21Boost: {
+            direction: RIGHT,
+            width: 300,
+            height: 50,
+            progress() {
+                return player[this.layer].allocation[5] / layers[this.layer].maxAllocation2()
+            },
+            display() {
+                return "Boost Ash Upgrade 21 (^" + format(layers[this.layer].allocatedEffects()[5]) + ")"
+            },
+            baseStyle: {
+                "background-color": "#FFFFFF"
+            },
+            fillStyle: {
+                "background-color": "#DDDD00"
+            },
+            textStyle: {
+                "color": "#000000"
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",25);
+			},
+        },
     },
 				clickables: {
-        rows: 3,
+        rows: 6,
         cols: 2,
         11: {
             display() {
@@ -740,19 +766,59 @@ addLayer("burning_e", {
                 "height": "50px"
             }
         },
+        61: {
+            display() {
+                return "<h1><b>-</b></h1>"
+            },
+            canClick() {
+                return player[this.layer].allocation[5] > 0
+            },
+            onClick(){
+                player[this.layer].allocation[5] = Math.round(player[this.layer].allocation[5] - 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",25);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
+        62: {
+            display() {
+                return "<h1><b>+</b></h1>"
+            },
+            canClick() {
+                return layers[this.layer].totalAllocation() < layers[this.layer].maxAllocation() && player[this.layer].allocation[5] < layers[this.layer].maxAllocation2()
+            },
+            onClick(){
+                player[this.layer].allocation[5] = Math.round(player[this.layer].allocation[5] + 1)
+            },
+			unlocked(){
+				return hasUpgrade("burning_e",25);
+			},
+            style: {
+                "width": "50px",
+                "height": "50px"
+            }
+        },
     },
 	totalAllocation(){
-		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2] + player[this.layer].allocation[3] + player[this.layer].allocation[4]
+		return player[this.layer].allocation[0] + player[this.layer].allocation[1] + player[this.layer].allocation[2] + player[this.layer].allocation[3] + player[this.layer].allocation[4] + player[this.layer].allocation[5]
 	},
 	maxAllocation(){
 		let base=10;
 		if(hasUpgrade("burning_e",11))base=5;
 		let ret=Decimal.log(player[this.layer].points.add(base-1),base);
+		if(ret.gte(500))ret = ret.mul(2).log10().mul(100).add(200);
 		return Math.floor(ret.min(1e10).toNumber());
 	},
 	maxAllocationNext(){
 		let base=10;
 		if(hasUpgrade("burning_e",11))base=5;
+		if(tmp[this.layer].maxAllocation>=500){
+			return Decimal.pow(base,Decimal.pow(10,(tmp[this.layer].maxAllocation-199)/100).div(2)).sub(base-1);
+		}
 		return Decimal.pow(base,tmp[this.layer].maxAllocation+1).sub(base-1);
 	},
 	maxAllocation2(){
@@ -766,7 +832,8 @@ addLayer("burning_e", {
 		tmp[this.layer].effect.mul(player[this.layer].allocation[1]**layers[this.layer].allocationPower() / 100).add(1),
 		tmp[this.layer].effect.mul(player[this.layer].allocation[2]**layers[this.layer].allocationPower() / 100).add(1).pow(1.25),
 		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[3]**layers[this.layer].allocationPower()).sub(1)).div(1e8).add(1).log10().pow(0.5).div(10).add(1),
-		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[4]**layers[this.layer].allocationPower()).sub(1)).div("1e1000").add(1).log10().pow(0.5).div(100).add(1)
+		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[4]**layers[this.layer].allocationPower()).sub(1)).div("1e1000").add(1).log10().pow(0.5).div(100).add(1).min(1.9),
+		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[5]**layers[this.layer].allocationPower()).sub(1)).div("1e2500").add(1).log10().pow(0.5).div(65).add(1).min(2.2)
 		];
 		return ret;
 	},
@@ -844,6 +911,12 @@ addLayer("burning_e", {
 				title: "Electricity Upgrade 24",
                 description: "Unlock an electricity bar.",
                 cost: new Decimal("1e3000"),
+                unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
+			},
+			25: {
+				title: "Electricity Upgrade 25",
+                description: "Unlock an electricity bar.",
+                cost: new Decimal("1e6200"),
                 unlocked() { return hasUpgrade("tm",24); }, // The upgrade is only visible when this is true
 			},
 		},
