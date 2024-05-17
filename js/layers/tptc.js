@@ -332,7 +332,7 @@ addLayer("tptc_b", {
 	},
 	effectDescription() { // Optional text to describe the effects
            let eff = this.effect();
-           return "translated to a "+format(eff)+"x multiplier to to point gain"
+           return "translated to a "+format(eff)+"x multiplier to point gain"
        },
 	doReset(l){
 			if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || !l.startsWith("tptc_")){return;}
