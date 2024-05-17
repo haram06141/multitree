@@ -2497,8 +2497,9 @@ addLayer("incrementy_s", {
 			ret=Decimal.pow(10,ret.add(10).log10().pow(hasUpgrade("incrementy_sp",14)?0.3:0.25)).mul(tmp.incrementy_s.gainMult).floor();
 			return ret;
 		}
-		if(ret.lt("1e1450")&&(!player.incrementy_sp.best.gte(8)))return new Decimal(0);
-		if(hasUpgrade("incrementy_b",15)||player.incrementy_sp.best.gte(8))ret = ret.log10().pow(hasUpgrade("incrementy_s",41)?2:1).mul(tmp.incrementy_s.gainMult).floor();
+		if(player.incrementy_sp.best.gte(8))return ret.add(10).log10().pow(hasUpgrade("incrementy_s",41)?2:1).mul(tmp.incrementy_s.gainMult).floor();
+		if(ret.lt("1e1450"))return new Decimal(0);
+		if(hasUpgrade("incrementy_b",15))ret = ret.log10().pow(hasUpgrade("incrementy_s",41)?2:1).mul(tmp.incrementy_s.gainMult).floor();
 		else ret=ret.div("1e1440").log10().div(10).pow(0.5).mul(tmp.incrementy_s.gainMult).floor();
 		return ret;
 	},

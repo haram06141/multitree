@@ -11,11 +11,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.6.1",
+	num: "1.6.1.1",
 	name: "Milestones!",
 }
 
 let changelog = `
+	<h3>v1.6.1.1</h3><br>
+	- Fixed an NaN issue<br>
 	<h3>v1.6.1</h3><br>
 	- Added Upgraded Milestones in The Milestone Tree<br>
 	- Endgame: ee11 points<br>
