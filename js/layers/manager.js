@@ -37,6 +37,16 @@ addLayer("tm", {
 				if(hasUpgrade("tptc_sp",13)){
 					ret.push(["buyable",0]);
 				}
+				ret.push(["display-text","Greatly thanks to these TMT mod authors that inspired me (loader3229): "]);
+				ret.push(["display-text","Jacorb90, who made The Prestige Tree Classic/Rewritten."]);
+				if(hasUpgrade("tptc_sp",13))ret.push(["display-text","Acamaeda, who made The Modding Tree."]);
+				if(player.tm.points.gte(2))ret.push(["display-text","okamii17, who made The Stardust Tree, the first known TMT mod."]);
+				if(player.tm.points.gte(3))ret.push(["display-text","unpingabot, who made The Prestige Forest."]);
+				if(player.tm.points.gte(4))ret.push(["display-text","thefinaluptake, who made The Burning Tree. (thefinaluptake is a layer in the Communitree!)"]);
+				if(player.tm.points.gte(5))ret.push(["display-text","pg132, who made The Incrementreeverse."]);
+				if(player.tm.points.gte(6))ret.push(["display-text","thepaperpilot, who made The Game Dev Tree, Lit and Profectus."]);
+				if(player.tm.points.gte(8))ret.push(["display-text","And me, loader3229, who made The Milestone Tree and The Multitree."]);
+				else ret.push(["display-text","And me, loader3229, who made The Multitree."]);
 				return ret;
 			}
 		},"Multitree Upgrades":{content:["upgrades"],unlocked(){return player.tptc_mb.best.gte(3)}}
@@ -179,7 +189,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
 					if(x.lt(30.5))return Decimal.pow(10,x.pow(6));
-					if(x.lt(35.5))return Decimal.pow(10,x.pow(x.div(5)));
+					if(x.lt(37.5))return Decimal.pow(10,x.pow(x.div(5)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -229,7 +239,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
 					if(x.lt(20.5))return Decimal.pow(10,x.pow(3).mul(1e5));
-					if(x.lt(24.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
+					if(x.lt(26.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -253,7 +263,7 @@ addLayer("tm", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(3.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(6.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -388,7 +398,7 @@ addLayer("tm", {
 		}
 	},
 	upgrades:{
-		rows: 4,
+		rows: 5,
 		cols: 5,
 		11: {
 				title: "Multitree Upgrade 11",
@@ -522,6 +532,22 @@ addLayer("tm", {
 				title: "Multitree Upgrade 42",
                 description: "Unlock some Super-Prestige upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e839e8"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		43: {
+				title: "Multitree Upgrade 43",
+                description: "Unlock more upgrades in The Game Dev Tree.",
+                cost: new Decimal("ee11"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		44: {
+				title: "Multitree Upgrade 44",
+                description: "Unlock some balance upgrades in The Prestige Tree Rewritten.",
+                cost: new Decimal("e111111111111"),
                 unlocked() { return true; }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",

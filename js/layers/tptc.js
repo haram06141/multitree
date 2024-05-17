@@ -1258,6 +1258,7 @@ addLayer("tptc_sb", {
     baseAmount() {return player.tptc_b.points},
     type: "static",
 	base: function(){
+		if(hasUpgrade("tptc_sp",24))return new Decimal(1.1);
 		if(hasUpgrade("tptc_sb",13))return new Decimal(1.12);
 		if(hasUpgrade("tptc_p",45))return new Decimal(1.125);
 		if(hasUpgrade("tptc_sb",12))return new Decimal(1.15);
@@ -1304,10 +1305,10 @@ addLayer("tptc_sb", {
      ],
 	 upgrades: {
             rows: 1,
-            cols: 3,
+            cols: 4,
 			11: {
 				title: "Super-Booster Upgrade 11",
-                description: "The second Super-Booster effect in TPTR ^1.15",
+                description(){return "The second Super-Booster effect in TPTR ^"+(hasUpgrade("tptc_sb",14)?2:1.15)},
                 cost: new Decimal(29),
                 unlocked() { return hasUpgrade("tm",31); }, // The upgrade is only visible when this is true
             },
@@ -1321,6 +1322,12 @@ addLayer("tptc_sb", {
 				title: "Super-Booster Upgrade 13",
                 description: "Super-Boosters in TPTC & TPTR are cheaper",
                 cost: new Decimal(48),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			14: {
+				title: "Super-Booster Upgrade 14",
+                description: "Super-Booster upgrade 11 is better.",
+                cost: new Decimal(70),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -1482,6 +1489,7 @@ addLayer("tptc_h", {
                 rewardEffect() {
                     let ret = new Decimal(1).add(player.tptc_h.points.add(1).log10().pow(0.5)).mul(player.tm.buyables[1]).div(5);
 					if(hasUpgrade("tptc_l",14))ret=ret.mul(buyableEffect("tptc_l",14));
+					ret=ret.mul(tmp.tptr_h.effect[1]);
                     return ret;
                 },
                 rewardDisplay() { 
@@ -2316,6 +2324,12 @@ addLayer("tptc_sp", {
 				title: "Super-Prestige Upgrade 14",
                 description: "The base effect of 2nd row of Prestige Upgrades ^1.25",
                 cost: new Decimal("e15e8"),
+                unlocked() { return hasUpgrade("tm", 42); },
+            },
+			24: {
+				title: "Super-Prestige Upgrade 24",
+                description: "Super-Boosters are cheaper.",
+                cost: new Decimal("e18e8"),
                 unlocked() { return hasUpgrade("tm", 42); },
             },
 		},

@@ -64,7 +64,7 @@ addLayer("tptr_p", {
 					if(player.tptr_s.unlocked)ret=ret.mul(buyableEffect("tptr_s",11));
 					if(player.tptr_q.unlocked)ret=ret.mul(tmp.tptr_q.enEff);
 					
-					if(player.milestone_m.best.gte(7))ret=ret.mul((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1));
+					if(player.milestone_m.best.gte(7))ret=ret.mul((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.tm.buyables[8].gte(6)?0.42:player.milestone_m.best.gte(20)?0.4:player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1));
 					
 					
                     return ret;
@@ -1221,7 +1221,8 @@ addLayer("tptr_s", {
 			if (hasUpgrade("tptr_s", 21)) pow = pow.plus(0.08);
 			if (hasChallenge("tptr_h", 21)) pow = pow.plus(challengeEffect("tptr_h", 21).div(100));
 			if (player.tptr_ss.unlocked) pow = pow.plus(layers.tptr_ss.eff2());
-			
+			if (hasUpgrade("tptr_ss", 42)) pow = pow.plus(1);
+			if (hasUpgrade("tptr_ba", 12)) pow = pow.plus(upgradeEffect("tptr_ba", 12));
 			return pow;
 		},
 		tabFormat: ["main-display",
@@ -1649,7 +1650,7 @@ addLayer("tptr_sb", {
 		},
 		effect() {
 			//if (!unl(this.layer)) return new Decimal(1);
-			return [Decimal.pow(this.effectBase(), player.tptr_sb.points).max(0),player.tptr_sb.points.add(1).pow(hasUpgrade("tptc_sb",11)?1.15:1)];
+			return [Decimal.pow(this.effectBase(), player.tptr_sb.points).max(0),player.tptr_sb.points.add(1).pow(hasUpgrade("tptc_sb",14)?2:hasUpgrade("tptc_sb",11)?1.15:1)];
 		},
 		effectDescription() {
 			return "which are multiplying the Booster base by "+format(tmp.tptr_sb.effect[0])+"x and are boosting your super booster base in TPTC by "+format(tmp.tptr_sb.effect[1])+"x";
@@ -1775,7 +1776,7 @@ addLayer("tptr_h", {
             mult = new Decimal(1)
 			if (hasUpgrade("tptr_q", 14)) mult = mult.times(upgradeEffect("tptr_q", 14).h);
 			if (player.tptr_m.unlocked) mult = mult.times(tmp.tptr_m.hexEff);
-			//if (hasUpgrade("ba", 22)) mult = mult.times(tmp.ba.negBuff);
+			if (hasUpgrade("tptr_ba", 22)) mult = mult.times(tmp.tptr_ba.negBuff);
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -1799,10 +1800,12 @@ addLayer("tptr_h", {
 				h=Decimal.pow(10, h.log10().root(4).times(new Decimal(15e4).log10().pow(3/4)));
 			}
 			
-			let eff = h.plus(1).pow(3).pow(hasChallenge("tptr_h", 11)?1.2:1);
-			return [eff];
+			let eff = h.plus(1).pow(3).pow(hasChallenge("tptr_h", 11)?1.2:1).pow(hasUpgrade("tptr_ba", 21)?8:1);
+			if(hasUpgrade("tptr_ba", 21))return [eff,eff];
+			return [eff,new Decimal(1)];
 		},
 		effectDescription() {
+			if(hasUpgrade("tptr_ba", 21))return "which are multiplying Rewritten Point gain, Time Energy gain, Time Energy cap in TPTR and Real Prestige Tree (H challenge) effect in TPTC by "+format(tmp.tptr_h.effect[0])+" (boosted by Rewritten Points)"
 			return "which are multiplying Rewritten Point gain, Time Energy gain, & the Time Energy cap by "+format(tmp.tptr_h.effect[0])+" (boosted by Rewritten Points)"
 		},
 		milestones: {
@@ -1959,6 +1962,7 @@ addLayer("tptr_q", {
 			if (hasUpgrade("tptr_q", 14)) mult = mult.times(upgradeEffect("tptr_q", 14).q);
 			if (player.tptr_m.unlocked) mult = mult.times(tmp.tptr_m.hexEff);
 			mult = mult.times(tmp.tptr_q.impr[33].effect);
+			if (hasUpgrade("tptr_ba", 22)) mult = mult.times(tmp.tptr_ba.negBuff);
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -2357,6 +2361,7 @@ addLayer("tptr_o", {
 		},
         requires() { 
 			let req = new Decimal(10);
+			if (hasUpgrade("tptr_ba", 23)) req = req.div(tmp.tptr_ba.posBuff.max(1));
 			return req;
 		},
         resource: "solarity", // Name of prestige currency
@@ -2406,6 +2411,9 @@ addLayer("tptr_o", {
 			 player.tptr_o.buyables[12]=player.tptr_o.buyables[12].add(layers.tptr_o.buyables[12].gain().mul(diff));
 			 player.tptr_o.buyables[13]=player.tptr_o.buyables[13].add(layers.tptr_o.buyables[13].gain().mul(diff));
 		 }
+		 if(player.tm.buyables[7].gte(26)){
+			 player.tptr_o.buyables[21]=player.tptr_o.buyables[21].add(layers.tptr_o.buyables[21].gain().mul(diff));
+		 }
 		},
 		solEnEff2() { return player.tptr_o.energy.plus(1).pow(2) },
 		tabFormat: ["main-display",
@@ -2428,6 +2436,7 @@ addLayer("tptr_o", {
 			let pow = new Decimal(1);
 			if (hasUpgrade("tptr_ss", 33)) pow = pow.plus(upgradeEffect("tptr_ss", 33));
 			if (hasUpgrade("tptr_ss", 41)) pow = pow.plus(buyableEffect("tptr_o", 21));
+			if (hasUpgrade("tptr_ba", 11)) pow = pow.plus(upgradeEffect("tptr_ba", 11));
 			if(pow.gte(32))return pow.div(32).cbrt().mul(32);
 			return pow;
 		},
@@ -2554,7 +2563,13 @@ addLayer("tptr_o", {
 			2: {
 				requirementDescription: "TPTR Level 22",
 				done() { return player.tm.buyables[7].gte(22) },
-				effectDescription: "Gain 100% of first 3 Solarity Buyables per second.",
+				effectDescription: "Gain 100% of first 3 Solarity Buyables gain per second.",
+			},
+			3: {
+				requirementDescription: "TPTR Level 26",
+				unlocked() { return player.tm.buyables[7].gte(25) },
+				done() { return player.tm.buyables[7].gte(26) },
+				effectDescription: "Gain 100% of Coronal Waves gain per second.",
 			},
 		},
 	 passiveGeneration(){
@@ -2623,7 +2638,7 @@ addLayer("tptr_ss", {
 		effPow() {
 			let pow = new Decimal(1);
 			if (hasUpgrade("tptr_ss", 12)) pow = pow.times(upgradeEffect("tptr_ss", 12));
-			//if (hasUpgrade("ba", 12)) pow = pow.times(upgradeEffect("ba", 12).plus(1));
+			if (hasUpgrade("tptr_ba", 12)) pow = pow.times(upgradeEffect("tptr_ba", 12).plus(1));
 			return pow;
 		},
 		eff1() { return player.tptr_ss.subspace.plus(1).pow(tmp.tptr_ss.effPow).log10().pow(3).times(100).floor() },
@@ -2723,6 +2738,12 @@ addLayer("tptr_ss", {
 				description: "Unlock Coronal Waves.",
 				cost() { return new Decimal(15) },
 				unlocked() { return player.tm.buyables[7].gte(25) },
+			},
+			42: {
+				title: "Sub-Subspace",
+				description: "Space Buildings are 100% stronger (additive).",
+				cost() { return new Decimal(17) },
+				unlocked() { return player.tm.buyables[7].gte(26) },
 			},
 		},
 		milestones: {
@@ -2865,7 +2886,7 @@ addLayer("tptr_m", {
 		update(diff){
 			for(var i in player.tptr_m.spellTimes){
 				player.tptr_m.spellTimes[i]=player.tptr_m.spellTimes[i].sub(diff);
-				if(false && player.tptr_m.spellTimes[i].lte(0) && player.tptr_m.points.gte(1) && tmp.tptr_m.clickables[i] && tmp.tptr_m.clickables[i].unlocked){
+				if(player.tm.buyables[7].gte(27) && player.tptr_m.spellTimes[i].lte(0) && player.tptr_m.points.gte(1) && tmp.tptr_m.clickables[i] && tmp.tptr_m.clickables[i].unlocked){
 					player.tptr_m.points=player.tptr_m.points.sub(1);
 					player.tptr_m.hexes=player.tptr_m.hexes.add(1);
 					player.tptr_m.spellTimes[i]=new Decimal(60);
@@ -2878,6 +2899,17 @@ addLayer("tptr_m", {
 		hexEffDesc() {
 			return "which are multiplying Hindrance Spirit, Quirk, Solar Energy, & Subspace gain by "+format(tmp.tptr_m.hexEff);
 		},
+		milestones: {
+			0: {
+				requirementDescription: "TPTR Level 27",
+				done() { return player.tm.buyables[7].gte(27) },
+				effectDescription: "Gain 100% of Magic gain per second, Autocast Spells.",
+			},
+		},
+	 passiveGeneration(){
+		 if(player.tm.buyables[7].gte(27))return 1;
+		 return 0;
+	 }
 });
 
 
@@ -2931,7 +2963,7 @@ addLayer("tptr_ba", {
 		dirBase() { return player.tptr_ba.points.times(10) },
 		posGainMult() {
 			let mult = new Decimal(1);
-			//if (hasUpgrade("ba", 24)) mult = mult.times(upgradeEffect("ba", 24).pos);
+			if (hasUpgrade("tptr_ba", 24)) mult = mult.times(upgradeEffect("tptr_ba", 24).pos);
 			return mult;
 		},
 		posGain() { return Decimal.pow(tmp.tptr_ba.dirBase, player.tptr_ba.allotted).times(player.tptr_ba.allotted).times(tmp.tptr_ba.posGainMult) },
@@ -2946,7 +2978,7 @@ addLayer("tptr_ba", {
 		posNerf() { return tmp.tptr_ba.noNerfs?new Decimal(1):(player.tptr_ba.pos.plus(1).sqrt()) },
 		negGainMult() {
 			let mult = new Decimal(1);
-			//if (hasUpgrade("ba", 24)) mult = mult.times(upgradeEffect("ba", 24).neg);
+			if (hasUpgrade("tptr_ba", 24)) mult = mult.times(upgradeEffect("tptr_ba", 24).neg);
 			return mult;
 		},
 		negGain() { return Decimal.pow(tmp.tptr_ba.dirBase, (1-player.tptr_ba.allotted)).times(1-player.tptr_ba.allotted).times(tmp.tptr_ba.negGainMult) },
@@ -3034,6 +3066,79 @@ addLayer("tptr_ba", {
 				requirementDescription: "1 Balance Energy",
 				done() { return player.tptr_ba.best.gte(1) },
 				effectDescription: "Autobuy Subspace Energy, Subspace Energy resets nothing, You can buy max Subspace energy. Autobuy Quirk Layers.",
+			},
+		},
+		upgrades: {
+			rows: 3,
+			cols: 4,
+			11: {
+				title: "Negative Ion",
+				description: "Negativity boosts Solar Power.",
+				cost() { return new Decimal(1e12) },
+				unlocked() { return hasUpgrade("tm",44) },
+				effect() { 
+					let ret = player.tptr_ba.neg.plus(1).log10().sqrt().div(10);
+					if(ret.gte(1.5))return ret.log10().pow(0.5).times(new Decimal(1.5).div(new Decimal(1.5).log10().pow(0.5)));
+					return ret;
+				},
+				effectDisplay() { return "+"+format(tmp.tptr_ba.upgrades[11].effect.times(100))+"%" },
+			},
+			12: {
+				title: "Positive Ion",
+				description: "Positivity boosts Space Building Power & all Subspace effects.",
+				cost() { return new Decimal(1e12) },
+				unlocked() { return hasUpgrade("tm",44) },
+				effect() { 
+					let ret = player.tptr_ba.pos.plus(1).log10().cbrt().div(10);
+					if(ret.gte(0.75))return ret.log10().pow(0.25).times(new Decimal(0.75).div(new Decimal(0.75).log10().pow(0.25)));
+					return ret;
+				},
+				effectDisplay() { return "+"+format(tmp.tptr_ba.upgrades[12].effect.times(100))+"%" },
+			},
+			13: {
+				title: "Negative Energy",
+				description: "Raise the Negativity buff to the power of 10.",
+				cost() { return new Decimal(1e13) },
+				unlocked() { return hasUpgrade("tm",44) },
+			},
+			14: {
+				title: "Positive Vibe",
+				description: "Halve the Negativity nerf.",
+				cost() { return new Decimal(1e13) },
+				unlocked() { return hasUpgrade("tm",44) },
+			},
+			21: {
+				title: "Neutral Atom",
+				description: "The Hindrance Spirit effect is raised to the power of 8, and affects Real Prestige Tree (H challenge) effect in TPTC.",
+				cost() { return new Decimal(1e20) },
+				unlocked() { return hasUpgrade("tm",44) },
+			},
+			22: {
+				title: "Negative Mass",
+				description: "The Negativity buff also multiplies Hindrance Spirit & Quirk gain.",
+				cost() { return new Decimal(1e23) },
+				unlocked() { return player.tm.buyables[7].gte(27) },
+			},
+			23: {
+				title: "Complete Plus",
+				description: "The Positivity buff also divides the Solarity requirement.",
+				cost() { return new Decimal(1e23) },
+				unlocked() { return player.tm.buyables[7].gte(27) },
+			},
+			24: {
+				title: "Net Neutrality",
+				description: "Positivity and Negativity boost each other's generation.",
+				cost() { return new Decimal(1e28) },
+				unlocked() { return player.tm.buyables[7].gte(27) },
+				effect() { 
+					let ret = {
+						pos: player.tptr_ba.neg.div(1e12).plus(1).log10().plus(1).pow(hasUpgrade("tptr_ba", 33)?15:5),
+						neg: player.tptr_ba.pos.div(1e12).plus(1).log10().plus(1).pow(hasUpgrade("tptr_ba", 33)?15:5),
+					} 
+					return ret;
+				},
+				effectDisplay() { return "Pos: "+format(tmp.tptr_ba.upgrades[24].effect.pos)+"x, Neg: "+format(tmp.tptr_ba.upgrades[24].effect.neg)+"x" },
+				style: {"font-size": "9px"},
 			},
 		},
 })

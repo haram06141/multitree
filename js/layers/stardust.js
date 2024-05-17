@@ -892,6 +892,8 @@ addLayer("stardust_c", {
 					if(player.stardust_c.points.gte(38))ret=player.stardust_c.points.div(10);
 					if(player.stardust_c.points.gte(68))ret=new Decimal(6.8);
 					if(player.stardust_c.points.gte(90))ret=new Decimal(7);
+					if(player.stardust_c.points.gte(140))ret=player.stardust_c.points.div(20);
+					if(player.stardust_c.points.gte(200))ret=new Decimal(10);
 					return ret;
                 },
                 effectDisplay() { return "^"+format(this.effect()) }, // Add formatting to the effect
@@ -936,6 +938,9 @@ addLayer("stardust_c", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=player.stardust_c.points.pow(0.5).mul(2).add(1);
 					if(player.stardust_c.points.gte(43))ret=player.stardust_c.points.div(3);
+					if(player.stardust_c.points.gte(129))ret=player.stardust_c.points.div(2.5);
+					if(player.stardust_c.points.gte(200))ret=player.stardust_c.points.pow(2).div(500);
+					if(player.stardust_c.points.gte(250))ret=player.stardust_c.points.div(2);
 					return ret;
                 },
                 effectDisplay() { return "^"+format(this.effect()) }, // Add formatting to the effect

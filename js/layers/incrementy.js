@@ -315,7 +315,10 @@ addLayer("incrementy_i", {
 			},
 			45: {
 				title: "Incrementy Upgrade 45",
-                description: "Matter gain exponent is multiplied by 2.",
+                description(){
+					if(hasUpgrade("incrementy_e", 34))return "Matter gain exponent is multiplied by 1.";
+					return "Matter gain exponent is multiplied by 2.";
+				},
                 cost: new Decimal("e1.43e5"),
                 unlocked() { return player.incrementy_q.challenges[11]; }, // The upgrade is only visible when this is true
 				currencyLayer: "modpoints",
@@ -404,6 +407,7 @@ addLayer("incrementy_i", {
                     let cost = Decimal.pow(2, x).mul(Decimal.pow(1.25, x.pow(2))).mul(Decimal.pow(1.1, Decimal.pow(1.2, x))).mul(1e6);
 					if(hasUpgrade("incrementy_i",25))cost = Decimal.pow(1.25, x.pow(2)).mul(Decimal.pow(1.1, Decimal.pow(1.2, x))).mul(1e6);
 					if(hasUpgrade("incrementy_i",34))cost = Decimal.pow(1.1, Decimal.pow(1.2, x)).mul(1e6);
+					if(hasUpgrade("incrementy_sp",54))cost = Decimal.pow(1.1, Decimal.pow(1.19, x));
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -431,7 +435,7 @@ addLayer("incrementy_i", {
 				},
 				softcap(){
 					if(inChallenge("incrementy_sp", 21))return new Decimal(1);
-					let ret=new Decimal(40).add(layers.incrementy_sp.effect());
+					let ret=new Decimal(40).add(layers.incrementy_sp.effect()).add(layers.incrementy_pi.effect());
 					if(player.incrementy_am.challenges[11])ret=ret.add(5);
 					if(player.incrementy_m.challenges[11])ret=ret.add(5);
 					if(hasUpgrade("incrementy_e",22))ret=ret.add(1);
@@ -467,6 +471,7 @@ addLayer("incrementy_i", {
 					}
 					if(hasUpgrade("incrementy_m",13)){
 						var target=player.modpoints[5].div(1e6).add(1).log(1.1).add(1).log(1.2).add(1).floor();
+						if(hasUpgrade("incrementy_sp",54))target=player.modpoints[5].add(1).log(1.1).add(1).log(1.19).add(1).floor();
 						if(target.gt(player.incrementy_i.buyables[13])){
 							player.incrementy_i.buyables[13]=target;
 						}
@@ -508,7 +513,7 @@ addLayer("incrementy_am", {
     },
     branches: ["incrementy_i"],
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(2)},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(2) && (!player.incrementy_pi.hidelayers)},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_am",["upgrades","milestones","challenges"]);
@@ -526,6 +531,7 @@ addLayer("incrementy_am", {
 	getResetGain() {
 		let ret=player.incrementy_i.buyables[11].add(player.incrementy_i.buyables[12]).add(player.incrementy_i.buyables[13]);
 		if(ret.lt(110) && !(player.incrementy_sp.best.gte(2)))return new Decimal(0);
+		if(hasUpgrade("incrementy_e",35))return Decimal.pow(10,ret).mul(layers.incrementy_am.gainMult()).floor();
 		if(hasUpgrade("incrementy_sp",45))return Decimal.pow(3,ret).mul(layers.incrementy_am.gainMult()).floor();
 		if(hasUpgrade("incrementy_sp",25))return Decimal.pow(2,ret).mul(layers.incrementy_am.gainMult()).floor();
 		if(hasUpgrade("incrementy_sp",21))return Decimal.pow(1.5,ret).mul(layers.incrementy_am.gainMult()).floor();
@@ -727,7 +733,7 @@ addLayer("incrementy_a", {
     },
     branches: ["incrementy_am"],
     row: 2, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3)},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && (!player.incrementy_pi.hidelayers)},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || l=="incrementy_a" || l=="incrementy_e" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_a",["upgrades","milestones","challenges"]);
@@ -914,7 +920,7 @@ addLayer("incrementy_m", {
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent(){
 		let ret=new Decimal(0.001);
-		if(hasUpgrade("incrementy_i",45))ret=ret.mul(2);
+		if(hasUpgrade("incrementy_i",45) && !hasUpgrade("incrementy_e",34))ret=ret.mul(2);
 		return ret;
 	}, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -934,13 +940,14 @@ addLayer("incrementy_m", {
     },
 	getResetGain() {
 		let ret = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent);
-		if(ret.gte("e15e5"))ret = Decimal.pow(10, ret.log10().div(15).log10().mul(3e5));
+		if(!hasUpgrade("incrementy_e",32) && ret.gte("e15e5"))ret = Decimal.pow(10, ret.log10().div(15).log10().mul(3e5));
+		else if(!hasUpgrade("incrementy_e",34) && ret.gte("e2e6"))ret = Decimal.pow(10, ret.log10().div(2).log10().div(6).mul(2e6));
 		ret = ret.times(tmp[this.layer].gainMult);
 		return ret;
 	},
     branches: ["incrementy_i"],
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && player.incrementy_am.challenges[12]>=1;},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && player.incrementy_am.challenges[12]>=1 && (!player.incrementy_pi.hidelayers);},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_m",["upgrades","milestones","challenges"]);
@@ -1067,6 +1074,17 @@ addLayer("incrementy_m", {
                 cost: new Decimal("e2435e3"),
                 unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
 			},
+			35: {
+				title: "Matter Upgrade 35",
+                description: "Matter boost Super Prestige point gain.",
+                cost: new Decimal("e244e4"),
+                unlocked() { return hasUpgrade("incrementy_a",34); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = player.incrementy_m.points.add(1e100).log10().log10();
+                    return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
 	 },
 	passiveGeneration(){
 		if(hasUpgrade("incrementy_e",11)&&player.incrementy_sp.best.gte(2))return 1e4;
@@ -1130,7 +1148,7 @@ addLayer("incrementy_e", {
     },
     branches: ["incrementy_am","incrementy_m"],
     row: 2, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && hasUpgrade("incrementy_m",15);},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(3) && hasUpgrade("incrementy_m",15) && (!player.incrementy_pi.hidelayers);},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || l=="incrementy_a" || l=="incrementy_e" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_e",["upgrades","milestones","challenges"]);
@@ -1187,6 +1205,8 @@ addLayer("incrementy_e", {
                 cost: new Decimal(1e100),
                 unlocked() { return true; }, // The upgrade is only visible when this is true
 				effect() {
+					if(hasUpgrade("incrementy_e",33))return Decimal.pow(10,player.incrementy_i.buyables[11]);
+					if(hasUpgrade("incrementy_e",31))return Decimal.pow(3,player.incrementy_i.buyables[11]);
                     let ret=player.incrementy_i.buyables[11].add(1);
 					ret=Decimal.pow(1.01,ret);
 					return ret;
@@ -1236,6 +1256,36 @@ addLayer("incrementy_e", {
                 description: "Energy Upgrade 21's effect ^1.6",
                 cost: new Decimal("1e335"),
                 unlocked() { return player.tm.buyables[5].gte(9); }, // The upgrade is only visible when this is true
+			},
+			31: {
+				title: "Energy Upgrade 31",
+                description: "Energy Upgrade 15 is better.",
+                cost: new Decimal("e38e5"),
+                unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
+			},
+			32: {
+				title: "Energy Upgrade 32",
+                description: "Matter gain softcap starts later.",
+                cost: new Decimal("e45e5"),
+                unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
+			},
+			33: {
+				title: "Energy Upgrade 33",
+                description: "Energy Upgrade 15 is better.",
+                cost: new Decimal("e533e4"),
+                unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
+			},
+			34: {
+				title: "Energy Upgrade 34",
+                description: "Disable Incrementy Upgrade 45, but Matter gain softcap starts later.",
+                cost: new Decimal("e606e4"),
+                unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
+			},
+			35: {
+				title: "Energy Upgrade 35",
+                description: "Base Antimatter gain is better. (10x per incrementy buyable level)",
+                cost: new Decimal("ee7"),
+                unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
 			},
 	 },
 	 resetsNothing: true,
@@ -2130,7 +2180,7 @@ addLayer("incrementy_g", {
         return new Decimal(1)
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(14);},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(14) && (!player.incrementy_pi.hidelayers);},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_g",["upgrades","milestones","challenges"]);
@@ -2326,7 +2376,7 @@ addLayer("incrementy_q", {
         return new Decimal(1)
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(16);},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(16) && (!player.incrementy_pi.hidelayers);},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_q",["upgrades","milestones","challenges"]);
@@ -2721,7 +2771,7 @@ addLayer("incrementy_b", {
 	},
     branches: ["incrementy_p", "incrementy_g", "incrementy_q"],
     row: 0, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(21)},
+    layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(21) && (!player.incrementy_pi.hidelayers)},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || !l.startsWith("incrementy_")){return;}
 			layerDataReset("incrementy_b",["upgrades","milestones","challenges"]);
@@ -3064,6 +3114,7 @@ addLayer("incrementy_sp", {
 		if(player.milestone_m.best.gte(5))mult = mult.mul(tmp.milestone_m.milestone5Effect);
 		if(hasUpgrade("incrementy_sp",51))mult=mult.mul(upgradeEffect("incrementy_sp",51));
 		if(hasUpgrade("incrementy_a",35))mult=mult.mul(upgradeEffect("incrementy_a",35));
+		if(hasUpgrade("incrementy_m",35))mult=mult.mul(upgradeEffect("incrementy_m",35));
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -3086,7 +3137,7 @@ addLayer("incrementy_sp", {
     layerShown(){return player.tm.currentTree==5 && player.tm.buyables[5].gte(28)},
 		doReset(l){
 			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || l=="incrementy_a" || l=="incrementy_e" || l=="incrementy_n" || l=="incrementy_g" || l=="incrementy_q" || l=="incrementy_p" ||  l=="incrementy_s" || l=="incrementy_sp" || !l.startsWith("incrementy_")){return;}
-			layerDataReset("incrementy_sp",["upgrades","milestones","challenges"]);
+			layerDataReset("incrementy_sp",["upgrades","milestones","challenges","chall1points","chall2points","chall3points","chall4points"]);
 			return;
 		},
         effect(){
@@ -3446,13 +3497,25 @@ addLayer("incrementy_sp", {
 				title: "Super Prestige Upgrade 52",
                 description(){return "Unlock more Amoeba upgrades"},
                 cost: new Decimal(3e20),
-                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+                unlocked() { return player.tm.buyables[5].gte(36); }, // The upgrade is only visible when this is true
 			},
 			53: {
 				title: "Super Prestige Upgrade 53",
                 description(){return "Super Prestige Upgrade 51 is better."},
                 cost: new Decimal(3e23),
-                unlocked() { return player.tm.buyables[5].gte(35); }, // The upgrade is only visible when this is true
+                unlocked() { return player.tm.buyables[5].gte(36); }, // The upgrade is only visible when this is true
+			},
+			54: {
+				title: "Super Prestige Upgrade 54",
+                description(){return "Incrementy Stamina are cheaper."},
+                cost: new Decimal(1e27),
+                unlocked() { return player.tm.buyables[5].gte(37); }, // The upgrade is only visible when this is true
+			},
+			55: {
+				title: "Super Prestige Upgrade 55",
+                description(){return "Unlock more Energy upgrades."},
+                cost: new Decimal(1e28),
+                unlocked() { return player.tm.buyables[5].gte(37); }, // The upgrade is only visible when this is true
 			},
 		},
 	passiveGeneration(){
@@ -3463,3 +3526,78 @@ addLayer("incrementy_sp", {
 	},
 
 });
+
+
+
+addLayer("incrementy_pi", {
+        name: "incrementy_pi", 
+        symbol: "π", 
+        position: 0,
+        startData() { return {
+                unlocked: false,
+				points: new Decimal(0),
+				hidelayers: false
+        }},
+        color: "#EC8241",
+        requires: new Decimal(1e30), 
+        resource: "Pions",
+       baseResource: "Super Prestige Points",
+        baseAmount() {return player.incrementy_sp.points}, 
+        branches: ["incrementy_sp"],
+        type: "normal", 
+        effect(){
+                let amt = player.incrementy_pi.points
+                let ret = amt.sqrt().min(4);
+                
+                return ret
+        },
+        effectDescription(){
+                let eff = layers.incrementy_pi.effect()
+                let a = "which increases the Incrementy Stamina softcap by " + format(eff) + " (Max: 4)";
+                return a
+        },
+		
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+	getResetGain() {
+		let ret=player.incrementy_sp.points;
+		if(ret.lt("1e30"))return new Decimal(0);
+		ret=ret.log10().div(10).pow(0.5).mul(tmp.incrementy_pi.gainMult).floor();
+		return ret;
+	},
+	getNextAt() {
+		let ret=tmp.incrementy_pi.getResetGain.plus(1);
+		ret=ret.div(tmp.incrementy_pi.gainMult);
+		ret=ret.pow(2).mul(10);
+		ret=Decimal.pow(10,ret).max(1e30);
+		return ret;
+	},
+		upgrades:{
+                rows: 5,
+                cols: 5,
+        },
+        row: 3, // Row the layer is in on the tree (0 is the first row)
+        layerShown(){
+                return player.tm.currentTree==5 && player.tm.buyables[5].gte(38)
+        },
+		doReset(l){
+			if(l=="incrementy_i" || l=="incrementy_b" || l=="incrementy_am" || l=="incrementy_m" || l=="incrementy_a" || l=="incrementy_e" || l=="incrementy_n" || l=="incrementy_g" || l=="incrementy_q" || l=="incrementy_p" ||  l=="incrementy_s" || l=="incrementy_sp" ||  l=="incrementy_pi" || !l.startsWith("incrementy_")){return;}
+			layerDataReset("incrementy_pi",["upgrades","milestones","challenges"]);
+			return;
+		},
+        milestones: {
+                1: {
+                        requirementDescription: "1 Pion", 
+                        effectDescription: "You can hide some layers in this tree (Keep I,N,P,S,SP and layers above SP).",
+                        done(){
+                                return player.incrementy_pi.best.gte(1)
+                        },
+						toggles:[["incrementy_pi","hidelayers"]]
+                },
+		},
+})
