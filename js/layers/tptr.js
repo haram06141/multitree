@@ -1793,7 +1793,7 @@ addLayer("tptr_h", {
         layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",46)},
         branches: ["tptr_t"],
 		effect() { 
-			if (!player[this.layer].unlocked) return new Decimal(1);
+			if (!player[this.layer].unlocked) return [new Decimal(1),new Decimal(1)];
 			let h = player.tptr_h.points.times(player.modpoints[7].plus(1).log("1e1000").plus(1));
 			
 			if(h.gte(15e4)){
