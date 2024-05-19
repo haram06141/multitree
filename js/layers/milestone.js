@@ -1,3 +1,24 @@
+addLayer("milestone_um", {
+    name: "upgraded milestone", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "UM", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+    }},
+    color: "#ccbb00",
+    resource: "upgraded milestones", // Name of prestige currency
+    type: "none",
+    row: 1,
+    layerShown(){return player.tm.currentTree==8 && player.tm.buyables[8].gte(2)},
+	doReset(){},
+	effectDescription: "Upgrade the tree to gain more.",
+	tabFormat: ["main-display"],
+	branches: ["milestone_m"],
+	update(){
+		player.milestone_um.points=new Decimal([0,0,2,5,9,14,16,18][player.tm.buyables[8].toNumber()]);
+	}
+})
 
 addLayer("milestone_m", {
     name: "milestone", // This is optional, only used in a few places, If absent it just uses the layer id.
@@ -9,7 +30,7 @@ addLayer("milestone_m", {
     }},
     color: "#793784",
     requires(){
-		if(player.milestone_m.points.gte([0,5,10,16,20,25,25][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
+		if(player.milestone_m.points.gte([0,5,10,16,20,25,25,25][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
 		return new Decimal("e2e8");
 	},
     resource: "MT-Milestones", // Name of prestige currency
