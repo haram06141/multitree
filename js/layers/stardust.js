@@ -360,7 +360,7 @@ addLayer("stardust_so", {
 					return cost
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
-                    let eff = Decimal.pow(10, x).mul(x.pow(2))
+                    let eff = Decimal.pow(10, x).mul(x.pow(2).add(1))
 					eff = eff.mul(buyableEffect("stardust_n",14));
                     return eff;
                 },
