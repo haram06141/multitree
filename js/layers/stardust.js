@@ -397,8 +397,8 @@ addLayer("stardust_so", {
                 unlocked() { return player.tm.buyables[2].gte(5); }, // The upgrade is only visible when this is true
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1e12;
-                    let ret = Decimal.pow(base,Decimal.log10(player.stardust_so.points.add(1)).pow(0.9));
-					if(hasUpgrade("stardust_s",41))ret=player.stardust_so.points.pow(50);
+                    let ret = Decimal.pow(base,Decimal.log10(player.stardust_so.points.add(1)).pow(0.9)).add(1);
+					if(hasUpgrade("stardust_s",41))ret=player.stardust_so.points.pow(50).add(1);
 					if(hasUpgrade("stardust_so",13))ret=ret.pow(2);
                     return ret;
                 },
@@ -623,8 +623,8 @@ addLayer("stardust_n", {
                 unlocked() { return player.tm.buyables[2].gte(5); }, // The upgrade is only visible when this is true
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let base=1e12;
-                    let ret = Decimal.pow(base,Decimal.log10(player.stardust_n.points.add(1)).pow(0.9));
-					if(hasUpgrade("stardust_s",42))ret=player.stardust_n.points.pow(50);
+                    let ret = Decimal.pow(base,Decimal.log10(player.stardust_n.points.add(1)).pow(0.9)).add(1);
+					if(hasUpgrade("stardust_s",42))ret=player.stardust_n.points.pow(50).add(1);
 					if(hasUpgrade("stardust_n",13))ret=ret.pow(2);
                     return ret;
                 },

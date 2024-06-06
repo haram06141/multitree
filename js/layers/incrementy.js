@@ -316,7 +316,7 @@ addLayer("incrementy_i", {
 			45: {
 				title: "Incrementy Upgrade 45",
                 description(){
-					if(hasUpgrade("incrementy_e", 34))return "Matter gain exponent is multiplied by 1.";
+					if(hasUpgrade("incrementy_e", 34))return "Matter gain softcap starts later.";
 					return "Matter gain exponent is multiplied by 2.";
 				},
                 cost: new Decimal("e1.43e5"),
@@ -942,6 +942,7 @@ addLayer("incrementy_m", {
 		let ret = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent);
 		if(!hasUpgrade("incrementy_e",32) && ret.gte("e15e5"))ret = Decimal.pow(10, ret.log10().div(15).log10().mul(3e5));
 		else if(!hasUpgrade("incrementy_e",34) && ret.gte("e2e6"))ret = Decimal.pow(10, ret.log10().div(2).log10().div(6).mul(2e6));
+		else if(ret.gte("e36e6"))ret = Decimal.pow(10, ret.log10().div(36).log10().mul(6e6));
 		ret = ret.times(tmp[this.layer].gainMult);
 		return ret;
 	},
@@ -1277,7 +1278,7 @@ addLayer("incrementy_e", {
 			},
 			34: {
 				title: "Energy Upgrade 34",
-                description: "Disable Incrementy Upgrade 45, but Matter gain softcap starts later.",
+                description: "Incrementy Upgrade 45 effect is changed.",
                 cost: new Decimal("e606e4"),
                 unlocked() { return hasUpgrade("incrementy_sp",55); }, // The upgrade is only visible when this is true
 			},
@@ -2938,6 +2939,7 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 11)
+								if(comps>=60)return Decimal.pow(10,(comps**7)/(100-comps));
 								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
 								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
@@ -2980,6 +2982,7 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 12)
+								if(comps>=60)return Decimal.pow(10,(comps**7)/(100-comps));
 								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
 								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
@@ -3021,6 +3024,7 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 21)
+								if(comps>=60)return Decimal.pow(10,(comps**7)/(100-comps));
 								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
 								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",42)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
@@ -3063,6 +3067,7 @@ addLayer("incrementy_b", {
                         },
                         goal(){
                                 let comps = challengeCompletions("incrementy_b", 22)
+								if(comps>=60)return Decimal.pow(10,(comps**7)/(100-comps));
 								if(comps>=40)return Decimal.pow(10,(comps**6)/(60-comps));
 								if(comps>=20)return Decimal.pow(10,(comps**5)*2);
 								if(hasUpgrade("incrementy_s",45)||comps>=10)return Decimal.pow(10,200000+comps*comps*15000);
@@ -3115,6 +3120,7 @@ addLayer("incrementy_sp", {
 		if(hasUpgrade("incrementy_sp",51))mult=mult.mul(upgradeEffect("incrementy_sp",51));
 		if(hasUpgrade("incrementy_a",35))mult=mult.mul(upgradeEffect("incrementy_a",35));
 		if(hasUpgrade("incrementy_m",35))mult=mult.mul(upgradeEffect("incrementy_m",35));
+		if(hasUpgrade("incrementy_pi",11))mult=mult.mul(upgradeEffect("incrementy_pi",11));
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -3275,6 +3281,7 @@ addLayer("incrementy_sp", {
                                 let effpts = pts.pow(1 - .8/Math.sqrt(comps))
                                 let ret = Decimal.minus(Decimal.div(1, effpts.plus(10).log10()), 1).times(-1).add(1)
 
+                                if (hasUpgrade("incrementy_pi", 12)) ret = ret.sub(1).sqrt().add(1)
                                 return ret
                         },
                         rewardDisplay(){
@@ -3547,13 +3554,19 @@ addLayer("incrementy_pi", {
         type: "normal", 
         effect(){
                 let amt = player.incrementy_pi.points
-                let ret = amt.sqrt().min(4);
+                let ret = amt.sqrt().min(this.effect2());
                 
                 return ret
         },
+        effect2(){
+                let amt = new Decimal(4);
+                if(player.tm.buyables[5].gte(39))amt = amt.add(2);
+                return amt
+        },
         effectDescription(){
                 let eff = layers.incrementy_pi.effect()
-                let a = "which increases the Incrementy Stamina softcap by " + format(eff) + " (Max: 4)";
+                let eff2 = layers.incrementy_pi.effect2()
+                let a = "which increases the Incrementy Stamina softcap by " + format(eff) + " (Max: "+format(eff2)+")";
                 return a
         },
 		
@@ -3599,5 +3612,26 @@ addLayer("incrementy_pi", {
                         },
 						toggles:[["incrementy_pi","hidelayers"]]
                 },
+		},
+        upgrades: {
+                rows: 5,
+                cols: 5, 
+			11: {
+				title: "Pion Upgrade 11",
+                description: "Pions boost Super Prestige Points gain.",
+                cost: new Decimal(40),
+                unlocked() { return player.tm.buyables[5].gte(39); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = player.incrementy_pi.points.pow(2).add(1);
+                    return ret;
+				},
+				effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			}, 
+			12: {
+				title: "Pion Upgrade 12",
+                description: "Square root Jewel Exponent (buff!)",
+                cost: new Decimal(60),
+                unlocked() { return player.tm.buyables[5].gte(39); }, // The upgrade is only visible when this is true
+			}, 
 		},
 })

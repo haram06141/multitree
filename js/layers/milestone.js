@@ -16,7 +16,7 @@ addLayer("milestone_um", {
 	tabFormat: ["main-display"],
 	branches: ["milestone_m"],
 	update(){
-		player.milestone_um.points=new Decimal([0,0,2,5,9,14,16,18][player.tm.buyables[8].toNumber()]);
+		player.milestone_um.points=new Decimal([0,0,2,5,9,14,16,18,21][player.tm.buyables[8].toNumber()]);
 	}
 })
 
@@ -30,7 +30,7 @@ addLayer("milestone_m", {
     }},
     color: "#793784",
     requires(){
-		if(player.milestone_m.points.gte([0,5,10,16,20,25,25,25][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
+		if(player.milestone_m.points.gte([0,5,10,16,20,25,25,29,30][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
 		return new Decimal("e2e8");
 	},
     resource: "MT-Milestones", // Name of prestige currency
@@ -50,6 +50,8 @@ addLayer("milestone_m", {
 		var base=new Decimal(3);
 		if(player.milestone_m.points.gte(16))base = base.add(0.15);
 		if(player.milestone_m.points.gte(20))base = base.add(0.1);
+		if(player.milestone_m.points.gte(25))base = base.add(0.25);
+		if(player.milestone_m.points.gte(29))base = base.add(0.05);
 		return base;
 	},
     layerShown(){return player.tm.currentTree==8},
@@ -397,6 +399,47 @@ addLayer("milestone_m", {
 				return "Add another effect to milestone power.";
 			},
         },
+		{
+			requirementDescription: "26th MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(25)},
+            done() {return player[this.layer].best.gte(26)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "The effect of 7th milestone is better.";
+			},
+        },
+		{
+			requirementDescription: "27th MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(26)},
+            done() {return player[this.layer].points.gte(27)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				let ret="Super-Prestige Point gain is boosted by your milestones. Currently: "+format(tmp.milestone_m.milestone27Effect)+"x";
+				return ret;
+			},
+        },
+		{
+			requirementDescription: "28th MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(27)},
+            done() {return player[this.layer].best.gte(28)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "The effect of 7th milestone is better.";
+			},
+        },
+		{
+			requirementDescription: "29th MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(28)},
+            done() {return player[this.layer].best.gte(29)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "Milestone Power boost update gain in the Game Dev Tree. Currently: "+format(tmp.milestone_m.milestone29Effect)+"x";
+			},
+        },
+		{
+			requirementDescription: "30th MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(29)},
+            done() {return player[this.layer].best.gte(30)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "Current Endgame";
+			},
+        },
 	],
 	milestone1Effect(){
 		var r=new Decimal(1);
@@ -459,6 +502,14 @@ addLayer("milestone_m", {
 		return p;
 	},
 	milestone21Effect(){
+		if(player.tm.buyables[8].gte(8))return player.modpoints[8].add(100).log10().pow(2);
+		return player.modpoints[8].add(100).log10();
+	},
+	milestone27Effect(){
+		var p=player.milestone_m.best;
+		return p;
+	},
+	milestone29Effect(){
 		return player.modpoints[8].add(100).log10();
 	},
 });
@@ -620,6 +671,7 @@ addLayer("milestone_sp", {
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+		if(player.milestone_m.best.gte(27))mult = mult.mul(tmp.milestone_m.milestone27Effect);
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses

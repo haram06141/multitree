@@ -189,7 +189,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
 					if(x.lt(30.5))return Decimal.pow(10,x.pow(6));
-					if(x.lt(37.5))return Decimal.pow(10,x.pow(x.div(5)));
+					if(x.lt(38.5))return Decimal.pow(10,x.pow(x.div(5)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -239,7 +239,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
 					if(x.lt(20.5))return Decimal.pow(10,x.pow(3).mul(1e5));
-					if(x.lt(26.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
+					if(x.lt(27.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -263,7 +263,7 @@ addLayer("tm", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(6.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(7.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -552,6 +552,14 @@ addLayer("tm", {
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
+		45: {
+				title: "Multitree Upgrade 45",
+                description: "Unlock more Update Upgrades in The Game Dev Tree.",
+                cost: new Decimal("e95e10"),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
 		16: {
 				title: "Rewrite Prestige",
 				fullDisplay(){
@@ -822,6 +830,27 @@ addLayer("tm", {
 				style(){
 					let ret={"width":"200px","height":"200px"};
 					if(hasUpgrade("tm",this.id))ret.backgroundColor="#eb34e0";
+					return ret;
+				}
+            },
+		57: {
+				title: "Rewrite Phantom Souls",
+				fullDisplay(){
+					return "<h2>Rewrite Phantom Souls</h2><br>Unlock Phantom Souls in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e142e10"))+" points<br>\
+					"+format(new Decimal(1234567))+" Phantom Souls in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,1e5))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e142e10")) && 
+					player.tptc_ps.points.gte(1234567) && 
+					player.modpoints[6].gte(Decimal.pow(10,1e5));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(28); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#b38fbf";
 					return ret;
 				}
             },

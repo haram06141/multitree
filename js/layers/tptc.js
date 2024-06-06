@@ -213,6 +213,7 @@ addLayer("tptc_p", {
 					if(hasUpgrade("tptc_p",14)&&hasUpgrade("tptc_p",41))ret=ret.pow(1.25);
 					if(hasUpgrade("tptc_p",15)&&hasUpgrade("tptc_p",41))ret=ret.pow(upgradeEffect("tptc_p",15));
 					if(hasUpgrade("tptc_p",33)&&hasUpgrade("tptc_p",41))ret=ret.pow(1.25);
+					if(hasUpgrade("tptc_sp",34))ret=ret.pow(1.25);
 					if(hasUpgrade("tptc_p",42)&&player.tptc_i.buyables[11].gte(3))ret = ret.mul(tmp.tptc_s.buyables[15].effect);
 					if(hasUpgrade("tptc_m",12))ret = ret.mul(tmp.tptc_m.clickables[15].effect);
 					if(hasUpgrade("tptc_p",43)&&player.tptc_mb.buyables[12].gte(3))ret = ret.mul(tmp.tptc_l.buyables[17].effect);
@@ -582,6 +583,7 @@ addLayer("tptc_t", {
 		base = base.mul(tmp.tptr_t.effect.tptc_t_boost);
 		ret = Decimal.pow(base,ret).mul(ret);
 		ret=ret.mul(tmp.tptc_m.clickables[11].effect);
+		ret=ret.mul(inChallenge("tptr_h",32)?0:1);
 		return ret;
 	},
 	effectDescription() { // Optional text to describe the effects
@@ -1865,6 +1867,7 @@ addLayer("tptc_m", {
 				13: new Decimal(0),
 				14: new Decimal(0),
 				15: new Decimal(0),
+				16: new Decimal(0),
 			},
 	}},
 	color: "#eb34c0",
@@ -1905,7 +1908,7 @@ addLayer("tptc_m", {
 	},
 	clickables: {
             rows: 1,
-            cols: 5,
+            cols: 6,
 			11: {
 				title: "Spell of Time",
 				unlocked(){return true},
@@ -1920,7 +1923,7 @@ addLayer("tptc_m", {
 					return layers.tptc_m.clickables[11].realEffect();
 				},
 				realEffect(){
-					let ret=Decimal.pow(10,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).mul(2).pow(0.9));
+					let ret=Decimal.pow(10,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).mul(2).pow(0.9));
 					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
 					return ret;
 				},
@@ -1944,7 +1947,7 @@ addLayer("tptc_m", {
 					return layers.tptc_m.clickables[12].realEffect();
 				},
 				realEffect(){
-					let ret=Decimal.pow(1.1,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).mul(2).pow(0.5));
+					let ret=Decimal.pow(1.1,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).mul(2).pow(0.5));
 					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
 					return ret;
 				},
@@ -1968,7 +1971,7 @@ addLayer("tptc_m", {
 					return layers.tptc_m.clickables[13].realEffect();
 				},
 				realEffect(){
-					let ret=Decimal.pow(1.1,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).pow(0.3)).min(50000);
+					let ret=Decimal.pow(1.1,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).pow(0.3)).min(50000);
 					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
 					return ret;
 				},
@@ -1992,7 +1995,7 @@ addLayer("tptc_m", {
 					return layers.tptc_m.clickables[14].realEffect();
 				},
 				realEffect(){
-					let ret=Decimal.pow(1.5,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).pow(0.4));
+					let ret=Decimal.pow(1.5,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).pow(0.4));
 					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
 					return ret;
 				},
@@ -2016,14 +2019,38 @@ addLayer("tptc_m", {
 					return layers.tptc_m.clickables[15].realEffect();
 				},
 				realEffect(){
-					let ret=Decimal.pow(2,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).pow(0.1));
-					if(hasUpgrade("tptc_p",42))ret=Decimal.pow(1.5,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1))).add(2).pow(0.4));
+					let ret=Decimal.pow(2,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).pow(0.1));
+					if(hasUpgrade("tptc_p",42))ret=Decimal.pow(1.5,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).pow(0.4));
 					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
 					return ret;
 				},
 				display(){
 					return "Multiply Prestige Upgrade 32 by "+format(layers.tptc_m.clickables[15].realEffect())+"\n\
 					Time: "+formatTime(player.tptc_m.spellTimes[15].max(0));
+				},
+                style: {'height':'160px','width':'200px'},
+			},
+			16: {
+				title: "Spell of Rewritten",
+				unlocked(){return hasUpgrade("tptc_m",14)},
+				canClick(){return player.tptc_m.points.gte(1) && player.tptc_m.spellTimes[16].lte(0)},
+				onClick(){
+					player.tptc_m.points=player.tptc_m.points.sub(1);
+					player.tptc_m.hexes=player.tptc_m.hexes.add(1);
+					player.tptc_m.spellTimes[16]=new Decimal(60);
+				},
+				effect(){
+					if(player.tptc_m.spellTimes[16].lte(0))return new Decimal(1);
+					return layers.tptc_m.clickables[16].realEffect();
+				},
+				realEffect(){
+					let ret=Decimal.pow(1.5,Decimal.log10(player.tptc_m.points.add(1).mul(player.tptc_m.hexes.add(1)).max(1)).add(2).pow(0.2));
+					ret=ret.pow(tmp.tptc_mb.buyables[11].effect);
+					return ret;
+				},
+				display(){
+					return "Multiply Effective Magic in Spells in TPTR by "+format(layers.tptc_m.clickables[16].realEffect())+"\n\
+					Time: "+formatTime(player.tptc_m.spellTimes[16].max(0));
 				},
                 style: {'height':'160px','width':'200px'},
 			},
@@ -2047,7 +2074,7 @@ addLayer("tptc_m", {
 	},
 		upgrades: {
             rows: 1,
-            cols: 3,
+            cols: 4,
 			11: {
 				title: "Magic Upgrade 11",
                 description(){
@@ -2082,6 +2109,12 @@ addLayer("tptc_m", {
 					return ret;
                 },
                 effectDisplay() { return "+"+format(this.effect())+"/sec" }, // Add formatting to the effect
+            },
+			14: {
+				title: "Magic Upgrade 14",
+                description: "Unlock a new spell.",
+                cost: new Decimal("e15e7"),
+                unlocked() { return hasUpgrade("tm",56); }, // The upgrade is only visible when this is true
             },
 		},
 	 passiveGeneration(){
@@ -2332,6 +2365,12 @@ addLayer("tptc_sp", {
                 cost: new Decimal("e18e8"),
                 unlocked() { return hasUpgrade("tm", 42); },
             },
+			34: {
+				title: "Super-Prestige Upgrade 34",
+                description: "The base effect of 2nd row of Prestige Upgrade 32 ^1.25",
+                cost: new Decimal("e12e9"),
+                unlocked() { return hasUpgrade("tm", 42); },
+            },
 		},
 	 passiveGeneration(){
 		 if(hasUpgrade("tptc_sp",21))return 1;
@@ -2374,6 +2413,7 @@ addLayer("tptc_ps", {
 		let base = new Decimal(4);
 		if(player.tptc_ge.challenges[22])base = base.mul(tmp.tptc_ge.challenges[22].rewardEffect);
 		base=base.mul(buyableEffect("tptc_mb",12));
+		base=base.mul(tmp.tptr_ps.effect);
 		ret = Decimal.pow(base,ret);
 		return ret;
 	},
@@ -3184,29 +3224,29 @@ addLayer("tptc_i", {
                     let ret="Level: "+formatWhole(player.tptc_i.buyables[11])+"<br>"+
 					"Cost: "+formatWhole(data.cost)+" Imperium Bricks<br>"+
 					"Unlocked "+formatWhole(player.tptc_i.buyables[11].min(6))+" new space buildings"+(player.tptc_i.buyables[11].gte(6)?" (MAX)":"");
-					if(player.tptc_i.buyables[11].gte(6)){
-						ret=ret+"<br>Space Building 1's effect ^"+format(tmp.tptc_i.buyables[11].effect[11])+((player.tptc_i.buyables[11].sub(6).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(6)||hasUpgrade("tptc_i",12)){
+						ret=ret+"<br>Space Building 1's effect ^"+format(tmp.tptc_i.buyables[11].effect[11])+((player.tptc_i.buyables[11].sub(6).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(7)){
-						ret=ret+"<br>Space Building 2's effect ^"+format(tmp.tptc_i.buyables[11].effect[12])+((player.tptc_i.buyables[11].sub(7).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(7)||hasUpgrade("tptc_i",12)){
+						ret=ret+"<br>Space Building 2's effect ^"+format(tmp.tptc_i.buyables[11].effect[12])+((player.tptc_i.buyables[11].sub(7).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(8)){
-						ret=ret+"<br>Space Building 3's effect ^"+format(tmp.tptc_i.buyables[11].effect[13])+((player.tptc_i.buyables[11].sub(8).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(8)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(1))){
+						ret=ret+"<br>Space Building 3's effect ^"+format(tmp.tptc_i.buyables[11].effect[13])+((player.tptc_i.buyables[11].sub(8).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(9)){
-						ret=ret+"<br>Space Building 4's effect ^"+format(tmp.tptc_i.buyables[11].effect[14])+((player.tptc_i.buyables[11].sub(9).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(9)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(2))){
+						ret=ret+"<br>Space Building 4's effect ^"+format(tmp.tptc_i.buyables[11].effect[14])+((player.tptc_i.buyables[11].sub(9).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(10)){
-						ret=ret+"<br>Space Building 5's effect ^"+format(tmp.tptc_i.buyables[11].effect[15])+((player.tptc_i.buyables[11].sub(10).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(10)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(3))){
+						ret=ret+"<br>Space Building 5's effect ^"+format(tmp.tptc_i.buyables[11].effect[15])+((player.tptc_i.buyables[11].sub(10).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(11)){
-						ret=ret+"<br>Space Building 6's effect ^"+format(tmp.tptc_i.buyables[11].effect[16])+((player.tptc_i.buyables[11].sub(11).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(11)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(4))){
+						ret=ret+"<br>Space Building 6's effect ^"+format(tmp.tptc_i.buyables[11].effect[16])+((player.tptc_i.buyables[11].sub(11).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(12)){
-						ret=ret+"<br>Space Building 7's effect ^"+format(tmp.tptc_i.buyables[11].effect[17])+((player.tptc_i.buyables[11].sub(12).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(12)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(5))){
+						ret=ret+"<br>Space Building 7's effect ^"+format(tmp.tptc_i.buyables[11].effect[17])+((player.tptc_i.buyables[11].sub(12).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
-					if(player.tptc_i.buyables[11].gte(13)){
-						ret=ret+"<br>Space Building 8's effect is multiplied by "+format(tmp.tptc_i.buyables[11].effect[18])+((player.tptc_i.buyables[11].sub(13).toNumber()%8==0)?" (Next Effect)":"");
+					if(player.tptc_i.buyables[11].gte(13)||(hasUpgrade("tptc_i",12)&&player.tptc_i.buyables[11].gte(6))){
+						ret=ret+"<br>Space Building 8's effect is multiplied by "+format(tmp.tptc_i.buyables[11].effect[18])+((player.tptc_i.buyables[11].sub(13).toNumber()%8==0&&!hasUpgrade("tptc_i",12))?" (Next Effect)":"");
 					}
 					return ret;
                 },
@@ -3220,6 +3260,16 @@ addLayer("tptc_i", {
 						16: new Decimal(1),
 						17: new Decimal(1),
 						18: new Decimal(1),
+					};
+					if(hasUpgrade("tptc_i",12))return {
+						11: player.tptc_i.buyables[11].div(75).add(1),
+						12: player.tptc_i.buyables[11].div(75).add(1),
+						13: player.tptc_i.buyables[11].div(75).add(1),
+						14: player.tptc_i.buyables[11].div(75).add(1),
+						15: player.tptc_i.buyables[11].div(75).add(1),
+						16: player.tptc_i.buyables[11].div(75).add(1),
+						17: player.tptc_i.buyables[11].div(75).add(1),
+						18: player.tptc_i.buyables[11].div(75).add(1),
 					};
 					let ret={
 						11: player.tptc_i.buyables[11].add(1).div(8).floor().mul(0.1).add(1),
@@ -3244,11 +3294,11 @@ addLayer("tptc_i", {
                 },
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':function(){
-						if(player.tptc_i.buyables[11].gte(13))return '372px';
-						if(player.tptc_i.buyables[11].gte(12))return '342px';
-						if(player.tptc_i.buyables[11].gte(11))return '312px';
-						if(player.tptc_i.buyables[11].gte(10))return '282px';
-						if(player.tptc_i.buyables[11].gte(9))return '252px';
+						if(player.tptc_i.buyables[11].gte(hasUpgrade("tptc_i",12)?6:13))return '372px';
+						if(player.tptc_i.buyables[11].gte(hasUpgrade("tptc_i",12)?5:12))return '342px';
+						if(player.tptc_i.buyables[11].gte(hasUpgrade("tptc_i",12)?4:11))return '312px';
+						if(player.tptc_i.buyables[11].gte(hasUpgrade("tptc_i",12)?3:10))return '282px';
+						if(player.tptc_i.buyables[11].gte(hasUpgrade("tptc_i",12)?2:9))return '252px';
 						return '222px';
 					}
 				},
@@ -3267,6 +3317,12 @@ addLayer("tptc_i", {
 					return ret;
                 },
                 effectDisplay() { return "+"+format(this.effect().mul(100))+"%" }, // Add formatting to the effect
+            },
+			12: {
+				title: "Imperium Upgrade 12",
+                description: "Imperium Building is better.",
+                cost: new Decimal(4269),
+                unlocked() { return true; }, // The upgrade is only visible when this is true
             },
 		},
 	 canBuyMax(){
