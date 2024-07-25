@@ -694,6 +694,7 @@ addLayer("stardust_c", {
         return eff
     },
     effectDescription() {
+		if(player[this.layer].points.gte(17))return "";
         eff = this.effect();
         return "which are providing "+format(eff)+" shards."
     },
@@ -710,7 +711,7 @@ addLayer("stardust_c", {
             1: {
                 title: "Respec Crystal Upgrades",
                 display: "",
-                unlocked() { return player[this.layer].unlocked }, 
+                unlocked() { return player[this.layer].unlocked && player[this.layer].points.lt(17)}, 
                 canAfford() {
 					return true;
 				},
@@ -956,7 +957,7 @@ addLayer("stardust_c", {
 	 tabFormat: ["main-display",
                     "prestige-button", "resource-display",
                     ["blank", "5px"],
-					["display-text",function(){return "Shards Remaining: "+format(player.stardust_c.shards)+"/"+format(tmp.stardust_c.effect)}],
+					["display-text",function(){if(player.stardust_c.points.lt(17))return "Shards Remaining: "+format(player.stardust_c.shards)+"/"+format(tmp.stardust_c.effect)}],
 					["buyable",1],
 					"upgrades","milestones"
 				],

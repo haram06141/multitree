@@ -1948,7 +1948,7 @@ addLayer("tptr_h", {
 					return eff;
 				},
 				rewardDisplay() { return format(tmp.tptr_h.challenges[32].rewardEffect)+"x" },
-				unlocked() { return tmp.tptr_ps.buyables[11].effects.hindr },
+				unlocked() { return (tmp.tptr_ps.buyables[11].effects.hindr||0)>=1 },
 				countsAs: [21,31,41]
 			},
 			41: {
@@ -2090,6 +2090,8 @@ addLayer("tptr_q", {
 						function() {if(!hasUpgrade("tptr_q", 44))return "";return 'You have ' + layers.tptr_q.getImprovements(32)+' Booster Improvements (Next at '+format(layers.tptr_q.impr.nextAt(32))+' Quirk Energy), <b>Booster Madness</b>\'s effect x' + format(tmp.tptr_q.impr[32].effect)},{}],
 					["display-text",
 						function() {if(!hasUpgrade("tptr_q", 44))return "";return 'You have ' + layers.tptr_q.getImprovements(33)+' Quirk Improvements (Next at '+format(layers.tptr_q.impr.nextAt(33))+' Quirk Energy), Quirk gain x' + format(tmp.tptr_q.impr[33].effect)},{}],
+					["display-text",
+						function() {if((tmp.tptr_ps.buyables[11].effects.quirkImpr||0)<1)return "";return 'You have ' + layers.tptr_q.getImprovements(41)+' Solar Improvements (Next at '+format(layers.tptr_q.impr.nextAt(41))+' Quirk Energy), Solar Energy gain x' + format(tmp.tptr_q.impr[41].effect)},{}],
 					"upgrades",
 							
 		],
@@ -2195,6 +2197,13 @@ addLayer("tptr_q", {
 				description: "Quirk gain is stronger.",
 				unlocked() { return hasUpgrade("tptr_q", 44) },
 				effect() { return Decimal.pow(1e8, Decimal.pow(layers.tptr_q.getImprovements(33).plus(tmp.tptr_q.impr.free), 1.2)) },
+			},
+			41: {
+				num: 271,
+				title: "Solar Improvement",
+				description: "Solar Energy gain is stronger.",
+				unlocked() { return (tmp.tptr_ps.buyables[11].effects.quirkImpr||0)>=1 },
+				effect() { return Decimal.pow("1e400", Decimal.pow(layers.tptr_q.getImprovements(41).plus(tmp.tptr_q.impr.free), 0.9)) },
 			},
 		},
 		getImprovements(id=11) {
@@ -2446,6 +2455,7 @@ addLayer("tptr_o", {
 		solEnGain() { 
 			let gain = player.tptr_t.energy.max(1).pow(tmp.tptr_o.effect).times(tmp.tptr_o.effect2);
 			if (player.tptr_m.unlocked) gain = gain.times(tmp.tptr_m.hexEff);
+			gain = gain.times(tmp.tptr_q.impr[41].effect);
 			if(!player.tptr_ba.unlocked)gain = gain.min(1e100);
 			return gain;
 		},

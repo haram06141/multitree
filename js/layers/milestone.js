@@ -30,7 +30,7 @@ addLayer("milestone_m", {
     }},
     color: "#793784",
     requires(){
-		if(player.milestone_m.points.gte([0,5,10,16,20,25,25,29,30][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
+		if(player.milestone_m.points.gte([0,5,10,16,20,25,25,29,32][player.tm.buyables[8].toNumber()]))return new Decimal(Infinity);
 		return new Decimal("e2e8");
 	},
     resource: "MT-Milestones", // Name of prestige currency
@@ -437,7 +437,23 @@ addLayer("milestone_m", {
             unlocked() {return player[this.layer].best.gte(29)},
             done() {return player[this.layer].best.gte(30)}, // Used to determine when to give the milestone
             effectDescription:  function(){
-				return "Current Endgame";
+				return "The previous milestone also boost Time Flux and Lectures gain in the Game Dev Tree.";
+			},
+        },
+		{
+			requirementDescription: "31st MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(30)},
+            done() {return player[this.layer].best.gte(31)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "Prestige and Super-Prestige Upgrade 11's effect is better.";
+			},
+        },
+		{
+			requirementDescription: "32nd MT-Milestone",
+            unlocked() {return player[this.layer].best.gte(31)},
+            done() {return player[this.layer].best.gte(32)}, // Used to determine when to give the milestone
+            effectDescription:  function(){
+				return "Prestige and Super-Prestige Upgrade 12's effect is better.";
 			},
         },
 	],
@@ -558,6 +574,7 @@ addLayer("milestone_p", {
 				let base=3;
 				if(player.milestone_m.points.gte(11))base+=0.25;
 				if(player.tm.buyables[8].gte(5))base+=0.25;
+				if(player.milestone_m.points.gte(31))base+=0.25;
                 let ret = Decimal.pow(base,Decimal.log10(player[this.layer].points.add(1)).pow(0.9).add(1))
                 return ret;
             },
@@ -572,6 +589,7 @@ addLayer("milestone_p", {
 				let base=2;
 				if(player.milestone_m.points.gte(12))base+=0.2;
 				if(player.tm.buyables[8].gte(5))base+=0.2;
+				if(player.milestone_m.points.gte(32))base+=0.1;
                 let ret = Decimal.pow(base,Decimal.log10(player[this.layer].points.add(1)).pow(0.9).add(1))
                 return ret;
             },
@@ -691,6 +709,7 @@ addLayer("milestone_sp", {
             unlocked() { return true}, // The upgrade is only visible when this is true
 			effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 				let base=50;
+				if(player.milestone_m.points.gte(31))base+=2.5;
                 let ret = Decimal.pow(base,Decimal.log10(player[this.layer].points.add(1)).pow(0.9).add(1))
                 return ret;
             },
@@ -703,6 +722,7 @@ addLayer("milestone_sp", {
             unlocked() { return true}, // The upgrade is only visible when this is true
 			effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 				let base=10;
+				if(player.milestone_m.points.gte(32))base+=0.5;
                 let ret = Decimal.pow(base,Decimal.log10(player[this.layer].points.add(1)).pow(0.9).add(1))
                 return ret;
             },
