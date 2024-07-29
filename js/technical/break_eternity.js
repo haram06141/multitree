@@ -1861,7 +1861,10 @@
       4) negative sign, negative mag (-e-15, -ee-15): layer 0 case would have been handled in the Math.pow check, so just return 1
       */
 
-      if (!Number.isFinite(this.layer) || !Number.isFinite(this.mag)) { return Decimal.dNaN; }
+      if (!Number.isFinite(this.layer) || !Number.isFinite(this.mag)) { 
+		if(!window.decimalError){alert((new Error("pow10 failed")).stack);window.decimalError=true;}
+		
+		return Decimal.dNaN; }
 
       var a = this;
 
@@ -2324,6 +2327,7 @@
       }
       else if (!Number.isFinite(slogdest))
       {
+		if(!window.decimalError){alert((new Error("layeradd failed")).stack);window.decimalError=true;}
         return Decimal.dNaN;
       }
       else if (slogdest >= -1)
