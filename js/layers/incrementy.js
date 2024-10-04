@@ -94,6 +94,7 @@ addLayer("incrementy_i", {
                 unlocked() { return true; }, // The upgrade is only visible when this is true
 				effect() {
                     let base=1.01;
+					if(hasUpgrade("incrementy_pi",13))base=1.1;
                     let ret = Decimal.pow(base,Decimal.log10(player.points.add(1)).pow(0.5));
 					if(hasUpgrade("incrementy_am",12))ret=ret.pow(2);
 					if(hasUpgrade("incrementy_m",12))ret=ret.pow(2);
@@ -341,7 +342,7 @@ addLayer("incrementy_i", {
                     let data = tmp[this.layer].buyables[this.id]
                     return "Amount: "+formatWhole(player.incrementy_i.buyables[11])+"+"+formatWhole(data.free)+"<br>"+
 					"Cost: "+format(data.cost)+" Incrementy<br>"+
-					"Effect: Incrementy gain x"+format(data.effect);
+					"Effect: "+(hasUpgrade("incrementy_a",24)?"Base ":"")+"Incrementy gain x"+format(data.effect);
                 },
                 unlocked() { return player[this.layer].unlocked }, 
                 canAfford() {
@@ -942,7 +943,8 @@ addLayer("incrementy_m", {
 		let ret = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent);
 		if(!hasUpgrade("incrementy_e",32) && ret.gte("e15e5"))ret = Decimal.pow(10, ret.log10().div(15).log10().mul(3e5));
 		else if(!hasUpgrade("incrementy_e",34) && ret.gte("e2e6"))ret = Decimal.pow(10, ret.log10().div(2).log10().div(6).mul(2e6));
-		else if(ret.gte("e36e6"))ret = Decimal.pow(10, ret.log10().div(36).log10().mul(6e6));
+		else if(!hasUpgrade("incrementy_pi",15) && ret.gte("e36e6"))ret = Decimal.pow(10, ret.log10().div(36).log10().mul(6e6));
+		else if(ret.gte("e4e7"))ret = Decimal.pow(10, ret.log10().div(4).log10().div(7).mul(4e7));
 		ret = ret.times(tmp[this.layer].gainMult);
 		return ret;
 	},
@@ -3619,7 +3621,7 @@ addLayer("incrementy_pi", {
 			11: {
 				title: "Pion Upgrade 11",
                 description: "Pions boost Super Prestige Points gain.",
-                cost: new Decimal(40),
+                cost: new Decimal(30),
                 unlocked() { return player.tm.buyables[5].gte(39); }, // The upgrade is only visible when this is true
 				effect() {
                     let ret = player.incrementy_pi.points.pow(2).add(1);
@@ -3630,8 +3632,31 @@ addLayer("incrementy_pi", {
 			12: {
 				title: "Pion Upgrade 12",
                 description: "Square root Jewel Exponent (buff!)",
-                cost: new Decimal(60),
+                cost: new Decimal(40),
                 unlocked() { return player.tm.buyables[5].gte(39); }, // The upgrade is only visible when this is true
+			}, 
+			13: {
+				title: "Pion Upgrade 13",
+                description: "Incrementy Upgrade 12 is better.",
+                cost: new Decimal(50),
+                unlocked() { return player.tm.buyables[5].gte(40); }, // The upgrade is only visible when this is true
+			}, 
+			14: {
+				title: "Pion Upgrade 14",
+                description: "Pions boost coin gain in The Dynas Tree.",
+                cost: new Decimal(60),
+                unlocked() { return player.tm.buyables[5].gte(40); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret = player.incrementy_pi.points.pow(1.5).add(1);
+                    return ret;
+				},
+				effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			}, 
+			15: {
+				title: "Pion Upgrade 15",
+                description: "Matter gain softcap starts later.",
+                cost: new Decimal(70),
+                unlocked() { return player.tm.buyables[5].gte(40); }, // The upgrade is only visible when this is true
 			}, 
 		},
 })

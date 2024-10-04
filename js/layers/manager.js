@@ -45,6 +45,7 @@ addLayer("tm", {
 				if(player.tm.points.gte(4))ret.push(["display-text","thefinaluptake, who made The Burning Tree. (thefinaluptake is a layer in the Communitree!)"]);
 				if(player.tm.points.gte(5))ret.push(["display-text","pg132, who made The Incrementreeverse."]);
 				if(player.tm.points.gte(6))ret.push(["display-text","thepaperpilot, who made The Game Dev Tree, Lit and Profectus."]);
+				if(player.tm.points.gte(9))ret.push(["display-text","ducdat0507, who made The Dynas Tree."]);
 				if(player.tm.points.gte(8))ret.push(["display-text","And me, loader3229, who made The Milestone Tree and The Multitree."]);
 				else ret.push(["display-text","And me, loader3229, who made The Multitree."]);
 				return ret;
@@ -65,7 +66,7 @@ addLayer("tm", {
             0: {
                 title: "The Modding Tree", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal("1e100000"),new Decimal("1e500000"),new Decimal("e2e7"),new Decimal("e2e8"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
+                    let cost = [new Decimal("1e800"),new Decimal("1e4000"),new Decimal("1e20000"),new Decimal("1e100000"),new Decimal("1e500000"),new Decimal("e2e7"),new Decimal("e2e8"),new Decimal("e2e12"),new Decimal(Infinity)][player[this.layer].buyables[this.id].toNumber()];
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -189,7 +190,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
 					if(x.lt(30.5))return Decimal.pow(10,x.pow(6));
-					if(x.lt(38.5))return Decimal.pow(10,x.pow(x.div(5)));
+					if(x.lt(39.5))return Decimal.pow(10,x.pow(x.div(5)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -239,7 +240,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
 					if(x.lt(20.5))return Decimal.pow(10,x.pow(3).mul(1e5));
-					if(x.lt(27.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
+					if(x.lt(28.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -263,7 +264,31 @@ addLayer("tm", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(7.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(10.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					return Decimal.dInf
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Level: "+formatWhole(player[this.layer].buyables[this.id])+"<br>Cost: "+format(data.cost)+" points";
+                },
+                unlocked() { return player[this.layer].points.gte(this.id) }, 
+                canAfford() {
+                    return player.points.gte(tmp[this.layer].buyables[this.id].cost)
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player.points = player.points.sub(cost)
+				},
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'100px','width':'150px'},
+            },
+            9: {
+                title: "Upgrade", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+					x=new Decimal(x);
+					if(x.lt(0.5))return new Decimal(0);
+					if(x.lt(5.5))return Decimal.pow(10,x.add(1).pow(2).mul(1e11).add(2e12));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -364,6 +389,16 @@ addLayer("tm", {
 				},
                 style: {'height':'100px','width':'150px'},
             },
+            9: {
+                title: "Switch to this tree",
+                display: "",
+                unlocked() { return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)}, 
+				canClick(){return player[this.layer].points.gte(this.id) && hasUpgrade("tptc_sp",13)},
+				onClick(){
+					player[this.layer].currentTree=this.id;
+				},
+                style: {'height':'100px','width':'150px'},
+            },
 	},
 	update(){
 		for(i=1;player.tm.points.gte(i);i++){
@@ -383,7 +418,7 @@ addLayer("tm", {
 			//hotkeys[layers.tm.hotkeys[1].key].id = 1;
 			//hotkeys[layers.tm.hotkeys[1].key].unlocked = true;
 			for (layer in layers){
-				if(!layer.startsWith(["_","tptc_","stardust_","forest_","burning_","incrementy_","gd_"][currentTreeTemp]))continue;
+				if(!layer.startsWith(["_","tptc_","stardust_","forest_","burning_","incrementy_","gd_","tptr_"][currentTreeTemp]))continue;
 				hk = layers[layer].hotkeys
 				if (hk){
 					for (id in hk){

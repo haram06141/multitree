@@ -35,7 +35,7 @@ addLayer("tptc_p", {
     row: 0, // Row the layer is in on the tree (0 is the first row)
     layerShown(){return player.tm.currentTree==1},
 		upgrades: {
-            rows: 4,
+            rows: 5,
             cols: 5,
 			11: {
 				title: "Prestige Upgrade 11",
@@ -270,6 +270,30 @@ addLayer("tptc_p", {
                 cost: new Decimal("e1e9"),
                 unlocked() { return hasUpgrade("tm",41); }, // The upgrade is only visible when this is true
             },
+			51: {
+				title: "Prestige Upgrade 51",
+                description: "Coin gain in The Dynas Tree is boosted by your Prestige Points.",
+                cost: new Decimal("ee12"),
+                unlocked() { return hasUpgrade("dynas_c",34); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let base=1.03;
+                    let ret = Decimal.pow(base,Decimal.log10(player.tptc_p.points.add(1)).pow(hasUpgrade("tptc_p",53)?0.25:hasUpgrade("tptc_p",52)?0.2:0.15));
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+            },
+			52: {
+				title: "Prestige Upgrade 52",
+                description: "Previous upgrade is better.",
+                cost: new Decimal("e27e11"),
+                unlocked() { return hasUpgrade("dynas_c",34); }, // The upgrade is only visible when this is true
+            },
+			53: {
+				title: "Prestige Upgrade 53",
+                description: "Previous upgrade is better.",
+                cost: new Decimal("e45e11"),
+                unlocked() { return hasUpgrade("dynas_c",34); }, // The upgrade is only visible when this is true
+            },
 		},  
 		
 		doReset(l){
@@ -352,7 +376,7 @@ addLayer("tptc_b", {
 			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
      ],
 	 upgrades: {
-            rows: 1,
+            rows: 2,
             cols: 5,
 			11: {
 				title: "Booster Upgrade 11",
@@ -374,6 +398,7 @@ addLayer("tptc_b", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=Decimal.pow(10,player.tptc_b.points);
 					if(hasUpgrade("tptc_b",15))ret = ret.pow(65);
+					if(hasUpgrade("tptc_b",21))ret = ret.pow(1000/65);
 					return ret;
                 },
                 effectDisplay() { return "/"+format(this.effect()) }, // Add formatting to the effect
@@ -394,6 +419,12 @@ addLayer("tptc_b", {
 				title: "Booster Upgrade 15",
                 description: "Booster Upgrade 12 is better.",
                 cost: new Decimal(1440000),
+                unlocked() { return hasUpgrade("tm",22); }, // The upgrade is only visible when this is true
+            },
+			21: {
+				title: "Booster Upgrade 21",
+                description: "Booster Upgrade 12 is better.",
+                cost: new Decimal(22e7),
                 unlocked() { return hasUpgrade("tm",22); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -508,7 +539,7 @@ addLayer("tptc_g", {
 			onPress(){if (player.tm.currentTree==1 && canReset(this.layer)) doReset(this.layer)}, unlocked(){return player.tm.currentTree==1}}
      ],
 	 upgrades: {
-            rows: 1,
+            rows: 2,
             cols: 5,
 			11: {
 				title: "Generator Upgrade 11",
@@ -524,6 +555,7 @@ addLayer("tptc_g", {
 				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
 					let ret=Decimal.pow(10,player.tptc_g.points);
 					if(hasUpgrade("tptc_g",15))ret = ret.pow(65);
+					if(hasUpgrade("tptc_g",21))ret = ret.pow(1000/65);
 					return ret;
                 },
                 effectDisplay() { return "/"+format(this.effect()) }, // Add formatting to the effect
@@ -549,6 +581,12 @@ addLayer("tptc_g", {
 				title: "Generator Upgrade 15",
                 description: "Generator Upgrade 12 is better.",
                 cost: new Decimal(1440000),
+                unlocked() { return hasUpgrade("tm",22); }, // The upgrade is only visible when this is true
+            },
+			21: {
+				title: "Generator Upgrade 21",
+                description: "Generator Upgrade 12 is better.",
+                cost: new Decimal(22e7),
                 unlocked() { return hasUpgrade("tm",22); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -581,7 +619,7 @@ addLayer("tptc_t", {
 		let base = new Decimal(2);
 		if(player.tptc_h.challenges[11])base=base.add(tmp.tptc_h.challenges[11].rewardEffect);
 		base = base.mul(tmp.tptr_t.effect.tptc_t_boost);
-		ret = Decimal.pow(base,ret).mul(ret);
+		ret = Decimal.pow(base,ret.mul(hasUpgrade("tptc_t",15)?1.5:1)).mul(ret);
 		ret=ret.mul(tmp.tptc_m.clickables[11].effect);
 		ret=ret.mul(inChallenge("tptr_h",32)?0:1);
 		return ret;
@@ -601,7 +639,7 @@ addLayer("tptc_t", {
 		 player.tptc_t.energy = player.tptc_t.energy.add(tmp.tptc_t.effect.times(diff)).max(0)
 		 if((inChallenge("tptc_h",11)||inChallenge("tptr_h",11)))player.tptc_t.energy=player.tptc_t.energy.min(player.tptc_t.points.pow(player.tptc_t.buyables[11].sqrt().add(5)));
 		 if(player.tptc_m.best.gte(1)){
-			player.tptc_t.buyables[11]=player.tptc_t.buyables[11].max(player.tptc_b.points.add(1).pow(1/1.5).sub(2).add(0.000001).floor());
+			player.tptc_t.buyables[11]=player.tptc_t.buyables[11].max(player.tptc_b.points.add(1).pow(1/(hasUpgrade("tptc_t",14)?1.4:1.5)).sub(2).add(0.000001).floor());
 		 }
 	 },
 	 
@@ -640,7 +678,7 @@ addLayer("tptc_t", {
             11: {
                 title: "Extra Time Capsules", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = x.add(3).pow(1.5).sub(1).ceil();
+                    let cost = x.add(3).pow(hasUpgrade("tptc_t",14)?1.4:1.5).sub(1).ceil();
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -674,7 +712,7 @@ addLayer("tptc_t", {
      ],
 	 upgrades: {
             rows: 1,
-            cols: 3,
+            cols: 5,
 			11: {
 				title: "Time Upgrade 11",
                 description: "The second effect of Time Capsules in TPTR is cubed.",
@@ -691,6 +729,18 @@ addLayer("tptc_t", {
 				title: "Time Upgrade 13",
                 description: "The second effect of Time Capsules in TPTR ^2.222",
                 cost: new Decimal(12500),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			14: {
+				title: "Time Upgrade 14",
+                description: "Extra Time Capsules are cheaper.",
+                cost: new Decimal(750000),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			15: {
+				title: "Time Upgrade 15",
+                description: "Time Capsules are 1.5x stronger.",
+                cost: new Decimal(1e6),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -738,6 +788,7 @@ addLayer("tptc_e", {
 					eff[0]=eff[0].pow(tmp.tptr_e.effect);
 					eff[1]=Decimal.pow(10,x.pow(0.9));
 					if(hasUpgrade("tptc_e",11))eff[1] = Decimal.pow(10, x.mul(10));
+					if(hasUpgrade("tptc_e",14))eff[1] = Decimal.pow(10, x.mul(15));
 					eff[1]=eff[1].pow(tmp.tptr_e.effect);
 					if(inChallenge("tptr_h",31))return [new Decimal(1),new Decimal(1)];
 					return eff;
@@ -781,7 +832,7 @@ addLayer("tptc_e", {
      ],
 	 upgrades: {
             rows: 1,
-            cols: 3,
+            cols: 4,
 			11: {
 				title: "Enhance Upgrade 11",
                 description: "First Enhancer effect is better.",
@@ -798,6 +849,12 @@ addLayer("tptc_e", {
 				title: "Enhance Upgrade 13",
                 description: "Second Enhancer effect is better.",
                 cost: new Decimal("e15e7"),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			14: {
+				title: "Enhance Upgrade 14",
+                description: "First Enhancer effect is better.",
+                cost: new Decimal("e4e11"),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -856,12 +913,12 @@ addLayer("tptc_s", {
 		return baseSpace.sub(tmp.tptc_s.getSpaceSpent);
 	},
 	getSpaceSpent(){
-		return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]).add(player[this.layer].buyables[16]).add(player[this.layer].buyables[17]).add(player[this.layer].buyables[18]);
+		return player[this.layer].buyables[11].add(player[this.layer].buyables[12]).add(player[this.layer].buyables[13]).add(player[this.layer].buyables[14]).add(player[this.layer].buyables[15]).add(player[this.layer].buyables[16]).add(player[this.layer].buyables[17]).add(player[this.layer].buyables[18]).add(player[this.layer].buyables[19]);
 	},
 	
 	buyables: {
             rows: 1,
-            cols: 8,
+            cols: 9,
             11: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
                     let cost = Decimal.pow(1e4,Decimal.pow(x,1.35))
@@ -1006,7 +1063,7 @@ addLayer("tptc_s", {
             },
             15: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = Decimal.pow(hasUpgrade("tptc_s",13)?1e30:1e100,Decimal.pow(x,1.35))
+                    let cost = Decimal.pow(hasUpgrade("tptc_s",14)?1e12:hasUpgrade("tptc_s",13)?1e30:1e100,Decimal.pow(x,1.35))
 					if(x.eq(0))return new Decimal(0)
                     return cost
                 },
@@ -1041,7 +1098,7 @@ addLayer("tptc_s", {
             },
             16: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = Decimal.pow(hasUpgrade("tptc_s",13)?1e35:1e50,Decimal.pow(x,1.35))
+                    let cost = Decimal.pow(hasUpgrade("tptc_s",14)?1e14:hasUpgrade("tptc_s",13)?1e35:1e50,Decimal.pow(x,1.35))
 					if(x.eq(0))return new Decimal(0)
                     return cost
                 },
@@ -1076,7 +1133,7 @@ addLayer("tptc_s", {
             },
             17: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = Decimal.pow(1e40,Decimal.pow(x,1.35))
+                    let cost = Decimal.pow(hasUpgrade("tptc_s",14)?1e16:1e40,Decimal.pow(x,1.35))
 					if(x.eq(0))return new Decimal(0)
                     return cost
                 },
@@ -1111,7 +1168,7 @@ addLayer("tptc_s", {
             },
             18: {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
-                    let cost = Decimal.pow(1e100,Decimal.pow(x,2))
+                    let cost = Decimal.pow(hasUpgrade("tptc_s",14)?1e50:1e100,Decimal.pow(x,2))
 					if(x.eq(0))return new Decimal(0)
                     return cost
                 },
@@ -1142,6 +1199,35 @@ addLayer("tptc_s", {
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'120px','width':'120px'},
             },
+            19: {
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let cost = Decimal.pow(1e100,Decimal.pow(x,4.5))
+					if(x.eq(0))return new Decimal(0)
+                    return cost
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+					let eff = x.add(10).log10();
+					return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Space Building 9\n\
+					Cost: " + format(data.cost) + " Generator Power\n\
+                    Level: " + format(player[this.layer].buyables[this.id]) + "\n"+
+                    "Currently: +"+format(data.effect.sub(1).mul(100))+"% to Space Building Power in TPTR.";
+                },
+                unlocked() { return hasUpgrade("tptc_s",14) }, 
+                canAfford() {
+                    return player.tptc_g.power.gte(tmp[this.layer].buyables[this.id].cost) && tmp.tptc_s.getSpace.gt(0)
+				},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+					player.tptc_g.power = player.tptc_g.power.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'120px','width':'120px'},
+            },
 	},
 	
 	milestones: {
@@ -1159,29 +1245,36 @@ addLayer("tptc_s", {
 	 },update(diff){
 		 if(player.tptc_ba.best.gte(1)){
 			var pow=player.tptc_g.power;
+			if(hasUpgrade("tptc_s",14)){
+				var target=pow.add(1).log(1e100).pow(1/4.5).add(1).floor();
+				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[19])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[19]);
+				if(target.gt(player.tptc_s.buyables[19])){
+					player.tptc_s.buyables[19]=target;
+				}
+			}
 			if(player.tptc_i.buyables[11].gte(6)){
-				var target=pow.add(1).log(1e100).pow(1/2).add(1).floor();
-				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[18])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[17]);
+				var target=pow.add(1).log(hasUpgrade("tptc_s",14)?1e50:1e100).pow(1/2).add(1).floor();
+				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[18])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[18]);
 				if(target.gt(player.tptc_s.buyables[18])){
 					player.tptc_s.buyables[18]=target;
 				}
 			}
 			if(player.tptc_i.buyables[11].gte(5)){
-				var target=pow.add(1).log(1e40).pow(1/1.35).add(1).floor();
+				var target=pow.add(1).log(hasUpgrade("tptc_s",14)?1e16:1e40).pow(1/1.35).add(1).floor();
 				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[17])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[17]);
 				if(target.gt(player.tptc_s.buyables[17])){
 					player.tptc_s.buyables[17]=target;
 				}
 			}
 			if(player.tptc_i.buyables[11].gte(4)){
-				var target=pow.add(1).log(hasUpgrade("tptc_s",13)?1e35:1e50).pow(1/1.35).add(1).floor();
+				var target=pow.add(1).log(hasUpgrade("tptc_s",14)?1e14:hasUpgrade("tptc_s",13)?1e35:1e50).pow(1/1.35).add(1).floor();
 				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[16])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[16]);
 				if(target.gt(player.tptc_s.buyables[16])){
 					player.tptc_s.buyables[16]=target;
 				}
 			}
 			if(player.tptc_i.buyables[11].gte(3)){
-				var target=pow.add(1).log(hasUpgrade("tptc_s",13)?1e30:1e100).pow(1/1.35).add(1).floor();
+				var target=pow.add(1).log(hasUpgrade("tptc_s",14)?1e12:hasUpgrade("tptc_s",13)?1e30:1e100).pow(1/1.35).add(1).floor();
 				if(target.gte(tmp.tptc_s.getSpace.add(player.tptc_s.buyables[15])))target=tmp.tptc_s.getSpace.add(player.tptc_s.buyables[15]);
 				if(target.gt(player.tptc_s.buyables[15])){
 					player.tptc_s.buyables[15]=target;
@@ -1220,7 +1313,7 @@ addLayer("tptc_s", {
      ],
 	 upgrades: {
             rows: 1,
-            cols: 3,
+            cols: 4,
 			11: {
 				title: "Space Upgrade 11",
                 description: "Space Building 3's effect is slightly better.",
@@ -1237,6 +1330,12 @@ addLayer("tptc_s", {
 				title: "Space Upgrade 13",
                 description: "Space Buildings are cheaper.",
                 cost: new Decimal(12500),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			14: {
+				title: "Space Upgrade 14",
+                description: "Space Buildings are cheaper, and Unlock Space Building 9.",
+                cost: new Decimal(750000),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -1278,6 +1377,7 @@ addLayer("tptc_sb", {
 		let ret = player.tptc_sb.points;
 		let base = new Decimal(1.5);
 		base = base.mul(tmp.tptc_hb.effect);
+		if(hasUpgrade('tptc_m',15))base = base.mul(tmp.tptc_m.clickables[13].effect.pow(0.1));
 		if(player.tptc_ge.challenges[12])base = base.mul(tmp.tptc_ge.challenges[12].rewardEffect);
 		base = base.mul(tmp.tptr_sb.effect[1]);
 		ret = Decimal.pow(base,ret);
@@ -1346,6 +1446,8 @@ addLayer("tptc_sg", {
     }},
     color: "#409c6e",
     requires: function(){
+		if(hasUpgrade('tptc_sg',13))return new Decimal(10);
+		if(hasUpgrade('dynas_c',25))return new Decimal(30);
 		return new Decimal(70);
 	},
     resource: "super generators",
@@ -1409,7 +1511,7 @@ addLayer("tptc_sg", {
      ],
 	 upgrades: {
             rows: 1,
-            cols: 2,
+            cols: 3,
 			11: {
 				title: "Super-Generator Upgrade 11",
                 description: "Super-Generators in TPTR are cheaper",
@@ -1420,6 +1522,12 @@ addLayer("tptc_sg", {
 				title: "Super-Generator Upgrade 12",
                 description: "Super-Generators in TPTR are cheaper",
                 cost: new Decimal(43),
+                unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
+            },
+			13: {
+				title: "Super-Generator Upgrade 13",
+                description: "Super-Generators are cheaper.",
+                cost: new Decimal(73),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },
 	 }
@@ -2074,7 +2182,7 @@ addLayer("tptc_m", {
 	},
 		upgrades: {
             rows: 1,
-            cols: 4,
+            cols: 5,
 			11: {
 				title: "Magic Upgrade 11",
                 description(){
@@ -2114,6 +2222,12 @@ addLayer("tptc_m", {
 				title: "Magic Upgrade 14",
                 description: "Unlock a new spell.",
                 cost: new Decimal("e15e7"),
+                unlocked() { return hasUpgrade("tm",56); }, // The upgrade is only visible when this is true
+            },
+			15: {
+				title: "Magic Upgrade 15",
+                description: "Spell 3 boost Super-Boosters at a reduced rate.",
+                cost: new Decimal("e3e9"),
                 unlocked() { return hasUpgrade("tm",56); }, // The upgrade is only visible when this is true
             },
 		},
@@ -2206,11 +2320,13 @@ addLayer("tptc_ba", {
 	posEff() {
 		let eff = player.tptc_ba.pos.add(1).log10().add(1).pow(2);
 		if(player.tptc_mb.buyables[12].gte(1))eff=eff.pow(buyableEffect("tptc_l",15));
+		eff = eff.pow(tmp.tptr_ba.effect);
 		return eff;
 	},
 	negEff() {
 		let eff = player.tptc_ba.neg.add(1).log10().add(1).pow(2);
 		if(player.tptc_mb.buyables[12].gte(1))eff=eff.pow(buyableEffect("tptc_l",15));
+		eff = eff.pow(tmp.tptr_ba.effect);
 		return eff;
 	},
 	 passiveGeneration(){
@@ -3324,6 +3440,17 @@ addLayer("tptc_i", {
                 cost: new Decimal(4269),
                 unlocked() { return true; }, // The upgrade is only visible when this is true
             },
+			13: {
+				title: "Imperium Upgrade 13",
+                description: "Imperium Bricks boost Machine Power gain.",
+                cost: new Decimal(10000),
+                unlocked() { return player.tm.buyables[1].gte(20); }, // The upgrade is only visible when this is true
+				effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+					let ret=player.tptc_i.points.add(1).pow(2);
+					return ret;
+                },
+                effectDisplay() { return "x"+format(this.effect().mul(100)) }, // Add formatting to the effect
+            },
 		},
 	 canBuyMax(){
 		 return player.tptc_i.best.gte(3);
@@ -3892,6 +4019,7 @@ addLayer("tptc_ma", {
 	gainMult(){
 		let ret=new Decimal(1);
 		if(hasUpgrade("tptc_ge",11))ret=ret.mul(upgradeEffect("tptc_ge",11));
+		if(hasUpgrade("tptc_i",13))ret=ret.mul(upgradeEffect("tptc_i",13));
 		if(player.tptc_mb.buyables[13].gte(3))ret=ret.mul(buyableEffect("tptc_ma",13));
 		return ret;
 	},

@@ -38,6 +38,24 @@ addLayer("tptr_p", {
 			if (hasUpgrade("tptr_p", 31))return  new Decimal(1.05);
         return new Decimal(1)
     },
+	getResetGain() {
+		if (tmp[this.layer].baseAmount.lt(tmp[this.layer].requires)) return new Decimal(0)
+		let gain = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent).times(tmp[this.layer].gainMult).pow(tmp[this.layer].gainExp)
+		
+		// softcap processing
+		
+		if (gain.gte(Decimal.pow(10,7e7/3))){
+			let mult2 = tmp[this.layer].gainMult;let mult3 = new Decimal(1);
+			if(player.tm.buyables[8].gte(1))mult2=mult2.div(tmp.milestone_m.powerEffect[0]);
+			if(player.tm.buyables[8].gte(1))mult3=mult3.mul(tmp.milestone_m.powerEffect[0]);
+			let gain2 = tmp[this.layer].baseAmount.div(tmp[this.layer].requires).pow(tmp[this.layer].exponent).times(mult2).pow(tmp[this.layer].gainExp);
+			if(gain2.gte("ee7"))gain2 = gain2.mul("ee7").sqrt();
+			gain2 = gain2.mul(mult3);
+			gain = Decimal.max(Decimal.pow(10,7e7/3),gain2);
+		}
+		
+		return gain.floor().max(0);
+	},
     row: 0, // Row the layer is in on the tree (0 is the first row)
     layerShown(){return player.tm.currentTree==7 && hasUpgrade("tm",16)},
 		upgrades: {
@@ -64,7 +82,7 @@ addLayer("tptr_p", {
 					if(player.tptr_s.unlocked)ret=ret.mul(buyableEffect("tptr_s",11));
 					if(player.tptr_q.unlocked)ret=ret.mul(tmp.tptr_q.enEff);
 					
-					if(player.milestone_m.best.gte(7))ret=ret.mul((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.tm.buyables[8].gte(8)?0.7:player.milestone_m.best.gte(28)?0.6:player.milestone_m.best.gte(26)?0.5:player.tm.buyables[8].gte(6)?0.42:player.milestone_m.best.gte(20)?0.4:player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1));
+					if(player.milestone_m.best.gte(7))ret=ret.mul((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.tm.buyables[8].gte(10)?1:player.tm.buyables[8].gte(8)?0.7:player.milestone_m.best.gte(28)?0.6:player.milestone_m.best.gte(26)?0.5:player.tm.buyables[8].gte(6)?0.42:player.milestone_m.best.gte(20)?0.4:player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1));
 					
 					
                     return ret;
@@ -1224,6 +1242,8 @@ addLayer("tptr_s", {
 			if (player.tptr_ss.unlocked) pow = pow.plus(layers.tptr_ss.eff2());
 			if (hasUpgrade("tptr_ss", 42)) pow = pow.plus(1);
 			if (hasUpgrade("tptr_ba", 12)) pow = pow.plus(upgradeEffect("tptr_ba", 12));
+			
+			pow = pow.plus(tmp.tptc_s.buyables[19].effect.sub(1));
 			return pow;
 		},
 		tabFormat: ["main-display",
@@ -1716,6 +1736,10 @@ addLayer("tptr_sg", {
 		effectBase() {
 			let base = new Decimal(5);
 			if (hasUpgrade("tptr_ss", 32)) base = base.plus(upgradeEffect("tptr_ss", 32));
+			
+			
+			if (hasUpgrade("tptr_ba", 32)) base = base.times(upgradeEffect("tptr_ba", 32));
+
 			return base;
 		},
 		effect() {
@@ -2801,6 +2825,12 @@ addLayer("tptr_ss", {
 				cost() { return new Decimal(17) },
 				unlocked() { return player.tm.buyables[7].gte(26) },
 			},
+			43: {
+				title: "Balanced C-R Synergy",
+				description: "Unlock a new effect of Balance Energy.",
+				cost() { return new Decimal(20) },
+				unlocked() { return player.tm.buyables[7].gte(29) },
+			},
 		},
 		milestones: {
 			0: {
@@ -2868,6 +2898,9 @@ addLayer("tptr_m", {
                     ["blank", "5px"],
                         "milestones",
 					["display-text","Casting a spell costs 1 magic. Effect of spells are based on your magic."],
+					["display-text",
+                        function() {return 'Effective Magic: ' + format(player.tptr_m.points.mul(layers.tptc_m.clickables[16].effect())) + ', Spell Power: '+format(tmp.tptr_m.spellPower.mul(100))+"%" },
+                        {}],
                         "clickables",
                     ["display-text",
                         function() {return 'You have ' + format(player.tptr_m.hexes) + ' Hexes, '+tmp.tptr_m.hexEffDesc },
@@ -2902,7 +2935,7 @@ addLayer("tptr_m", {
 					let eff = power.div(2).plus(1)
 					if (hasUpgrade("tptr_ba", 31)) eff = Decimal.pow(1.1, power).times(eff);
 					let sc=new Decimal(1e6);
-					if(eff.gte(sc))eff = Decimal.pow(eff.log10().div(sc.log10()).root(1.5).mul(sc.log10()));
+					if(eff.gte(sc))eff = Decimal.pow(10,eff.log10().div(sc.log10()).root(1.5).mul(sc.log10()));
 					return eff.div(1.5).max(1);
 				},
 				display(){
@@ -2929,7 +2962,7 @@ addLayer("tptr_m", {
 					let eff = power.div(5).plus(1)
 					if (hasUpgrade("tptr_ba", 31)) eff = Decimal.pow(1.1, power).times(eff);
 					let sc=new Decimal(1e6);
-					if(eff.gte(sc))eff = Decimal.pow(eff.log10().div(sc.log10()).root(2).mul(sc.log10()));
+					if(eff.gte(sc))eff = Decimal.pow(10,eff.log10().div(sc.log10()).root(2).mul(sc.log10()));
 					return eff.div(1.2).max(1);
 				},
 				display(){
@@ -3028,6 +3061,14 @@ addLayer("tptr_ba", {
         gainExp() { // Calculate the exponent on main currency from bonuses
             return new Decimal(1)
         },
+		effect() { 
+			if(!hasUpgrade("tptr_ss",33))return new Decimal(1);
+			return player.tptr_ba.points.add(10).log10();
+		},
+		effectDescription() {
+			if(!hasUpgrade("tptr_ss",33))return null;
+			return "which are boosting your Positivity & Negativity effect in TPTC by ^"+format(tmp.tptr_ba.effect)
+		},
         row: 4, // Row the layer is in on the tree (0 is the first row)
 		doReset(l){
 			if(l=="tptr_p" || l=="tptr_b" || l=="tptr_g" || l=="tptr_t" || l=="tptr_e" || l=="tptr_s" || l=="tptr_sb" || l=="tptr_sg" || l=="tptr_o" || l=="tptr_h" || l=="tptr_q" || l=="tptr_ss" || l=="tptr_m" || l=="tptr_ba" || l=="tptr_ps" || !l.startsWith("tptr_")){return;}
@@ -3221,6 +3262,28 @@ addLayer("tptr_ba", {
 					return ret;
 				},
 				effectDisplay() { return "Pos: "+format(tmp.tptr_ba.upgrades[24].effect.pos)+"x, Neg: "+format(tmp.tptr_ba.upgrades[24].effect.neg)+"x" },
+				style: {"font-size": "9px"},
+			},
+			31: {
+				title: "Tangible Degeneration",
+				description: "The first two Spells use better formulas.",
+				cost() { return new Decimal(1e50) },
+				unlocked() { return player.tm.buyables[7].gte(29) },
+			},
+			32: {
+				title: "Visible Regeneration",
+				description: "Positivity multiplies the Super-Generator base.",
+				cost() { return new Decimal(1e50) },
+				unlocked() { return player.tm.buyables[7].gte(29) },
+				effect() { 
+					let eff = player.tptr_ba.pos.plus(1).log10().div(50).plus(1).pow(10);
+					if(eff.gte(1e9))eff = eff.log10().pow(1.6).times(new Decimal(1e9).div(new Decimal(1e9).log10().pow(1.6)));
+
+					//if (hasUpgrade("hn", 44)) eff = eff.times(upgradeEffect("p", 44));
+					//if ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes(this.layer):false) eff = eff.pow(10);
+					return eff;
+				},
+				effectDisplay() { return format(tmp.tptr_ba.upgrades[32].effect)+"x" },
 				style: {"font-size": "9px"},
 			},
 			33: {

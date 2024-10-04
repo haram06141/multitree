@@ -419,6 +419,7 @@ addLayer("gd_e", {
 		if(hasUpgrade("gd_r",25))mult=mult.mul(tmp.gd_t.effect);
 		if(hasUpgrade("incrementy_p",34))mult=mult.mul(10);
 		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11) && hasUpgrade("gd_l",21))mult = mult.mul(upgradeEffect("gd_l",11));
+		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -608,6 +609,7 @@ addLayer("gd_c", {
 		if(hasUpgrade("gd_g",11) && hasUpgrade("gd_f",14))mult = mult.mul(upgradeEffect("gd_f",14));
 		if(hasUpgrade("gd_r",25))mult=mult.mul(tmp.gd_t.effect);
 		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11))mult = mult.mul(upgradeEffect("gd_l",11));
+		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -1961,6 +1963,10 @@ addLayer("gd_a", {
                 done() {return player[this.layer].best.gte(1)}, // Used to determine when to give the milestone
                 effectDescription: "Autobuy refactors, you can buy max refactors, refactors doesn't reset anything.",
             },
+            1: {requirementDescription: "50 Endpoints",
+                done() {return player[this.layer].best.gte(50)}, // Used to determine when to give the milestone
+                effectDescription: "You can buy max endpoints.",
+            },
 	},
 	
 	buyables: {
@@ -2086,6 +2092,7 @@ addLayer("gd_a", {
                 style: {'height':'222px'},
             },
 	},
+		canBuyMax() {return hasMilestone("gd_a",1)},
 });
 
 
