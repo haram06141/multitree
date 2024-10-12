@@ -1,4 +1,4 @@
-addLayer("tm", {
+﻿addLayer("tm", {
     name: "treemanager", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "TM", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
@@ -6,6 +6,7 @@ addLayer("tm", {
         unlocked: true,
 		points: new Decimal(1),
 		currentTree: 1,
+		p_upg: new Decimal(0),
     }},
     color: "#FFFFFF",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -59,7 +60,27 @@ addLayer("tm", {
 		,["row",[["upgrade",46],["upgrade",47]]]
 		,["row",[["upgrade",38],["upgrade",39]]]
 		,["row",[["upgrade",56],["upgrade",57],["upgrade",58]]]
-		],unlocked(){return player.tm.buyables[0].gte(6) && player.tm.buyables[1].gte(20)}}
+		,["row",[["upgrade",19]]]
+		],unlocked(){return player.tm.buyables[0].gte(6) && player.tm.buyables[1].gte(20)}},
+		"Multiplier Upgrades":{
+			content(){
+				let mfot=getMultiplierFromOtherTrees();
+				let s=new Decimal(0);
+				let ret=[["display-text","You can upgrade Multiplier from other trees now!"],["display-text","P="+format(mfot.p,4)],["blank","4px"]];
+				for(i=2;player.tm.points.gte(i);i++){
+					let m=mfot[i];
+					let n=m.log10().root(mfot.p);
+					s=s.add(n);
+					ret.push(["row",[["display-text",TREES[i]+" - log10("+format(m,4)+")^(1/P)="+format(n,4)]]]);
+					if(i==6)i++;
+				}
+				ret.push(["row",[["display-text","-------------------------------------------------------------"]]]);
+				ret.push(["row",[["display-text","Sum: "+format(s,4)]]]);
+				ret.push(["row",[["display-text","Total Multiplier: 10^("+format(s,4)+"^P×"+format(mfot[0],4)+")="+format(mfot[1],4)]]]);
+				ret.push(["row",[["display-text","-------------------------------------------------------------"]]]);
+				ret.push(["clickable",0]);
+				return ret;
+			},unlocked(){return player.tm.buyables[0].gte(8) && hasUpgrade("tm",51)}},
 	},
 	
 	buyables: {
@@ -190,7 +211,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
 					if(x.lt(30.5))return Decimal.pow(10,x.pow(6));
-					if(x.lt(39.5))return Decimal.pow(10,x.pow(x.div(5)));
+					if(x.lt(41.5))return Decimal.pow(10,x.pow(x.div(5)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -240,7 +261,7 @@ addLayer("tm", {
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
 					if(x.lt(20.5))return Decimal.pow(10,x.pow(3).mul(1e5));
-					if(x.lt(28.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
+					if(x.lt(29.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -264,7 +285,7 @@ addLayer("tm", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(10.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(14.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -288,7 +309,8 @@ addLayer("tm", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(5.5))return Decimal.pow(10,x.add(1).pow(2).mul(1e11).add(2e12));
+					if(x.lt(7.5))return Decimal.pow(10,x.add(1).pow(2).mul(1e11).add(2e12));
+					if(x.lt(8.5))return Decimal.pow(10,x.add(1).pow(2).mul(2e11));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -309,6 +331,30 @@ addLayer("tm", {
             },
 	},
 	clickables: {
+            0: {
+                title: "Upgrade P", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].p_upg) { // cost for buying xth buyable, can be an object if there are multiple currencies
+					x=new Decimal(x);
+					if(x.gte(20))return Decimal.pow(10,Decimal.mul(7.5e11,x));
+					if(x.gte(11))return Decimal.pow(10,Decimal.mul(5e11,x).add(5.3e12));
+					if(x.gte(5))return Decimal.pow(10,Decimal.mul(2e11,x).add(7.8e12));
+					return Decimal.pow(10,Decimal.mul(1.6e11,x).add(7.8e12));
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].clickables[this.id]
+                    return "Level: "+formatWhole(player[this.layer].p_upg)+"<br>Cost: "+format(data.cost)+" points";
+                },
+                unlocked() {return hasUpgrade("tm",51);}, 
+				canClick(){
+					let data = tmp[this.layer].clickables[this.id]
+					return player.points.gte(data.cost)
+				},
+				onClick(){
+					let data = tmp[this.layer].clickables[this.id]
+					if(player.points.gte(this.cost()))player[this.layer].p_upg=player[this.layer].p_upg.add(1);
+				},
+                style: {'height':'100px','width':'150px'},
+            },
             1: {
                 title: "Switch to this tree",
                 display: "",
@@ -487,7 +533,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 22",
                 description: "Unlock some Row 2 upgrades in The Prestige Tree Classic and Rewritten.",
                 cost: new Decimal("e223e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -495,7 +541,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 23",
                 description: "Unlock some upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e268e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -503,7 +549,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 24",
                 description: "Unlock some Row 2 upgrades in The Burning Tree.",
                 cost: new Decimal("e33333333"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -511,7 +557,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 25",
                 description: "Unlock some Row 2 upgrades in The Game Dev Tree.",
                 cost: new Decimal("e376e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -519,7 +565,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 31",
                 description: "Unlock some Row 3 upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e448e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -527,7 +573,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 32",
                 description: "Unlock some Stardust upgrades in The Stardust Tree.",
                 cost: new Decimal("e548e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -535,7 +581,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 33",
                 description: "Unlock some Prestige upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e57777777"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -543,7 +589,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 34",
                 description: "Unlock some Row 3 upgrades in The Prestige Tree Rewritten.",
                 cost: new Decimal("e775e5"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -551,7 +597,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 35",
                 description: "Unlock some Row 3 upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e22e7"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -559,7 +605,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 41",
                 description: "Unlock the 4th row of Prestige upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e475e6"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -567,7 +613,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 42",
                 description: "Unlock some Super-Prestige upgrades in The Prestige Tree Classic.",
                 cost: new Decimal("e839e8"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -575,7 +621,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 43",
                 description: "Unlock more upgrades in The Game Dev Tree.",
                 cost: new Decimal("ee11"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -583,7 +629,7 @@ addLayer("tm", {
 				title: "Multitree Upgrade 44",
                 description: "Unlock some balance upgrades in The Prestige Tree Rewritten.",
                 cost: new Decimal("e111111111111"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -591,7 +637,31 @@ addLayer("tm", {
 				title: "Multitree Upgrade 45",
                 description: "Unlock more Update Upgrades in The Game Dev Tree.",
                 cost: new Decimal("e95e10"),
-                unlocked() { return true; }, // The upgrade is only visible when this is true
+                unlocked() { return player[this.layer].points.gte(7); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		51: {
+				title: "Multitree Upgrade 51",
+                description: "Unlock a new feature in Tree Manager.",
+                cost: Decimal.pow(10,7e13/9),
+                unlocked() { return player[this.layer].points.gte(9); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		52: {
+				title: "Multitree Upgrade 52",
+                description: "Unlock new upgrades in Game Dev Tree.",
+                cost: new Decimal("e81e11"),
+                unlocked() { return player[this.layer].points.gte(9); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		53: {
+				title: "Multitree Upgrade 53",
+                description: "Chemical Synthesizer Scaling in The Prestige Forest is weaker.",
+                cost: new Decimal("e15555555555555"),
+                unlocked() { return player[this.layer].points.gte(9); }, // The upgrade is only visible when this is true
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
@@ -907,6 +977,27 @@ addLayer("tm", {
 				style(){
 					let ret={"width":"200px","height":"200px"};
 					if(hasUpgrade("tm",this.id))ret.backgroundColor="#fced9f";
+					return ret;
+				}
+            },
+		19: {
+				title: "Add Honour",
+				fullDisplay(){
+					return "<h2>Add Honour</h2><br>Unlock Honour in The Prestige Tree Rewritten.<br>\
+					Costs: "+format(new Decimal("e125e11"))+" points<br>\
+					"+format(new Decimal("e175e9"))+" Super-Prestige Points in The Prestige Tree Classic<br>\
+					"+format(Decimal.pow(10,7e5))+" hours of work in The Game Dev Tree"
+				},canAfford(){
+					return player.points.gte(new Decimal("e125e11")) && 
+					player.tptc_sp.points.gte("e175e9") && 
+					player.modpoints[6].gte(Decimal.pow(10,7e5));
+				},pay(){},
+                unlocked() { return player.tm.buyables[7].gte(30); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+				style(){
+					let ret={"width":"200px","height":"200px"};
+					if(hasUpgrade("tm",this.id))ret.backgroundColor="#ffbf00";
 					return ret;
 				}
             },

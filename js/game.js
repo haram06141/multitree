@@ -208,7 +208,7 @@ function doReset(layer, force=false) {
 			}
 		}
 	
-		tmp[layer].baseAmount = new Decimal(0) // quick fix
+		if (!tmp[layer].resetsNothing)tmp[layer].baseAmount = new Decimal(0) // quick fix
 	}
 
 	if (tmp[layer].resetsNothing) return

@@ -835,6 +835,7 @@ addLayer("burning_e", {
 		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[4]**layers[this.layer].allocationPower()).sub(1)).div("1e1000").add(1).log10().pow(0.5).div(100).add(1).min(1.9),
 		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[5]**layers[this.layer].allocationPower()).sub(1)).div("1e2500").add(1).log10().pow(0.5).div(65).add(1).min(2.2)
 		];
+		if(ret[3].gte(70))ret[3]=ret[3].mul(70).sqrt();
 		return ret;
 	},
 	allocationPower(){

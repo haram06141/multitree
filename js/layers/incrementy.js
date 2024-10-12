@@ -56,6 +56,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_s",32))ret=ret.mul(layers.incrementy_s.effect());
 					if(hasUpgrade("incrementy_i",21)&&hasUpgrade("incrementy_b",22))ret=ret.mul(buyableEffect("incrementy_i",12));
 					if(hasUpgrade("incrementy_sp",42))ret=ret.mul(layers.incrementy_a.effect()[0]);
+					if(player.tm.buyables[5].gte(21)&&hasUpgrade("incrementy_pi",24))ret=ret.mul(player.incrementy_a.points.add(1).pow(layers.incrementy_b.effect().div(9)));
 					
 					if(hasUpgrade("incrementy_i",22))ret=ret.pow(buyableEffect("incrementy_i",13));
 					
@@ -71,7 +72,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_n",22))ret=ret.mul(buyableEffect("incrementy_n",21));
 					if(hasUpgrade("incrementy_g",24))ret=ret.mul(upgradeEffect("incrementy_g",24));
 					if(!hasUpgrade("incrementy_s",32))ret=ret.mul(layers.incrementy_s.effect());
-					if(player.tm.buyables[5].gte(21))ret=ret.mul(player.incrementy_a.points.add(1).pow(layers.incrementy_b.effect()));
+					if(player.tm.buyables[5].gte(21)&&!hasUpgrade("incrementy_pi",24))ret=ret.mul(player.incrementy_a.points.add(1).pow(layers.incrementy_b.effect()));
 					
 					if(inChallenge("incrementy_am",11))ret=ret.pow(0.1);
 					if(inChallenge("incrementy_m",11))ret=ret.root(2);
@@ -409,6 +410,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_i",25))cost = Decimal.pow(1.25, x.pow(2)).mul(Decimal.pow(1.1, Decimal.pow(1.2, x))).mul(1e6);
 					if(hasUpgrade("incrementy_i",34))cost = Decimal.pow(1.1, Decimal.pow(1.2, x)).mul(1e6);
 					if(hasUpgrade("incrementy_sp",54))cost = Decimal.pow(1.1, Decimal.pow(1.19, x));
+					if(hasUpgrade("incrementy_pi",31))cost = Decimal.pow(1.1, Decimal.pow(1.185, x));
                     return cost
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -473,6 +475,7 @@ addLayer("incrementy_i", {
 					if(hasUpgrade("incrementy_m",13)){
 						var target=player.modpoints[5].div(1e6).add(1).log(1.1).add(1).log(1.2).add(1).floor();
 						if(hasUpgrade("incrementy_sp",54))target=player.modpoints[5].add(1).log(1.1).add(1).log(1.19).add(1).floor();
+						if(hasUpgrade("incrementy_pi",31))target=player.modpoints[5].add(1).log(1.1).add(1).log(1.185).add(1).floor();
 						if(target.gt(player.incrementy_i.buyables[13])){
 							player.incrementy_i.buyables[13]=target;
 						}
@@ -1475,7 +1478,10 @@ addLayer("incrementy_p", {
 			},
 			34: {
 				title: "Particle Upgrade 34",
-                description: "Gain 1e3x more rewritten points in TPTR, and 10x more experience in Game Dev Tree.",
+                description(){
+					if(hasUpgrade("incrementy_pi",25))return "Gain "+format(player.incrementy_p.points.add(1e3))+"x more rewritten points in TPTR, and "+format(player.incrementy_s.points.add(10))+"x more experience/cash in Game Dev Tree.";
+					return "Gain 1e3x more rewritten points in TPTR, and 10x more experience in Game Dev Tree.";
+				},
                 cost: new Decimal("1e1170"),
                 unlocked() { return hasChallenge("incrementy_q",22); }, // The upgrade is only visible when this is true
 			},
@@ -2896,7 +2902,7 @@ addLayer("incrementy_b", {
                 return ret
         },
         effectDescription(){
-                let a = "which multiplies Incrementy gain by Amoebas ^" + format(layers.incrementy_b.effect()) + "."
+                let a = "which multiplies "+(hasUpgrade("incrementy_pi",24)?"Base ":"")+"Incrementy gain by Amoebas ^" + format(layers.incrementy_b.effect().div(hasUpgrade("incrementy_pi",24)?9:1)) + "."
                 return a 
         },
 		
@@ -3131,12 +3137,20 @@ addLayer("incrementy_sp", {
 	getResetGain() {
 		let ret=player.incrementy_s.points;
 		if(ret.lt("1e20"))return new Decimal(0);
+		if(hasUpgrade("incrementy_pi",22)){
+			ret=Decimal.pow(10,ret.add(10).log10().pow(0.4)).mul(tmp.incrementy_sp.gainMult).floor();
+			return ret;
+		}
 		ret=ret.log10().div(20).pow(2).mul(tmp.incrementy_sp.gainMult).floor();
 		return ret;
 	},
 	getNextAt() {
 		let ret=tmp.incrementy_sp.getResetGain.plus(1);
 		ret=ret.div(tmp.incrementy_sp.gainMult);
+		if(hasUpgrade("incrementy_pi",22)){
+			ret=Decimal.pow(10,ret.log10().pow(10/4));
+			return ret;
+		}
 		ret=ret.pow(1/(2)).mul(20);
 		ret=Decimal.pow(10,ret);
 		return ret;
@@ -3153,6 +3167,7 @@ addLayer("incrementy_sp", {
                 let amt = player.incrementy_sp.points
                 let ret = amt.add(10).log10().mul(Decimal.pow(1.1,player.tm.buyables[5])).div(5);
 				if(ret.gte(20))ret = ret.div(20).sqrt().mul(20);
+				if(ret.gte(84))ret = ret.add(16).log10().mul(42);
                 return ret
         },
         effectDescription(){
@@ -3556,13 +3571,16 @@ addLayer("incrementy_pi", {
         type: "normal", 
         effect(){
                 let amt = player.incrementy_pi.points
-                let ret = amt.sqrt().min(this.effect2());
+                let ret = amt.sqrt();
+				if(ret.gte(6))ret=ret.add(994).log10().mul(2);
+				ret=ret.min(this.effect2());
                 
                 return ret
         },
         effect2(){
                 let amt = new Decimal(4);
                 if(player.tm.buyables[5].gte(39))amt = amt.add(2);
+                if(player.tm.buyables[5].gte(42))amt = amt.add(2);
                 return amt
         },
         effectDescription(){
@@ -3574,6 +3592,7 @@ addLayer("incrementy_pi", {
 		
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+		if(hasUpgrade("incrementy_pi",23))mult=mult.mul(upgradeEffect("incrementy_pi",23));
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -3582,13 +3601,22 @@ addLayer("incrementy_pi", {
 	getResetGain() {
 		let ret=player.incrementy_sp.points;
 		if(ret.lt("1e30"))return new Decimal(0);
+		if(hasUpgrade("incrementy_pi",21)){
+			ret=ret.add(10).log10().div(2).pow(1.5).mul(tmp.incrementy_pi.gainMult).floor();
+			return ret;
+		}
 		ret=ret.log10().div(10).pow(0.5).mul(tmp.incrementy_pi.gainMult).floor();
 		return ret;
 	},
 	getNextAt() {
 		let ret=tmp.incrementy_pi.getResetGain.plus(1);
 		ret=ret.div(tmp.incrementy_pi.gainMult);
-		ret=ret.pow(2).mul(10);
+		
+		if(hasUpgrade("incrementy_pi",21)){
+			ret=ret.pow(1/1.5).mul(2);
+		}else{
+			ret=ret.pow(2).mul(10);
+		}
 		ret=Decimal.pow(10,ret).max(1e30);
 		return ret;
 	},
@@ -3658,5 +3686,53 @@ addLayer("incrementy_pi", {
                 cost: new Decimal(70),
                 unlocked() { return player.tm.buyables[5].gte(40); }, // The upgrade is only visible when this is true
 			}, 
+			21: {
+				title: "Pion Upgrade 21",
+                description: "Pion gain is better.",
+                cost: new Decimal(50),
+                unlocked() { return player.tm.buyables[5].gte(41); }, // The upgrade is only visible when this is true
+			}, 
+			22: {
+				title: "Pion Upgrade 22",
+                description: "Super-Prestige gain is better.",
+                cost: new Decimal(500),
+                unlocked() { return player.tm.buyables[5].gte(41); }, // The upgrade is only visible when this is true
+			}, 
+			23: {
+				title: "Pion Upgrade 23",
+                description: "Boost Pion gain based on Pion upgrades.",
+                cost: new Decimal(1000),
+                unlocked() { return player.tm.buyables[5].gte(41); }, // The upgrade is only visible when this is true
+				effect() {
+                    let ret=Decimal.pow(hasUpgrade("incrementy_pi",32)?2:1.2,player.incrementy_pi.upgrades.length);
+					return ret;
+				},
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+			},
+			24: {
+				title: "Pion Upgrade 24",
+                description: "Boson effect is better.",
+                cost: new Decimal(3000),
+                unlocked() { return player.tm.buyables[5].gte(41); }, // The upgrade is only visible when this is true
+			},
+			25: {
+				title: "Pion Upgrade 25",
+                description: "Particle Upgrade 34 is better.",
+                cost: new Decimal(6000),
+                unlocked() { return player.tm.buyables[5].gte(41); }, // The upgrade is only visible when this is true
+			},
+			31: {
+				title: "Pion Upgrade 31",
+                description: "Incrementy Stamina is cheaper.",
+                cost: new Decimal(5000),
+                unlocked() { return player.tm.buyables[5].gte(42); }, // The upgrade is only visible when this is true
+			},
+			32: {
+				title: "Pion Upgrade 32",
+                description: "Pion Upgrade 23 is better.",
+                cost: new Decimal(20000),
+                unlocked() { return player.tm.buyables[5].gte(42); }, // The upgrade is only visible when this is true
+			},
 		},
 })
+

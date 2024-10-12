@@ -11,11 +11,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.7",
+	num: "1.7.1",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.7.1</h3><br>
+	- Added Honour in TPTR<br>
+	- Endgame: e2e13 points<br>
 	<h3>v1.7</h3><br>
 	- Added a new tree (The Dynas Tree)<br>
 	- Endgame: e6.555e12 points<br>
@@ -126,17 +129,8 @@ function getPointGen() {
 	gain = gain.mul(tmp.tm.buyables[0].effect);
 	
 	
-	let mfot=new Decimal(1);
-	if(hasUpgrade("stardust_s",12))mfot = mfot.mul(upgradeEffect("stardust_s",12));
-	if(hasUpgrade("forest_p",21))mfot = mfot.mul(upgradeEffect("forest_p",21));
-	if(hasUpgrade("burning_a",14))mfot = mfot.mul(upgradeEffect("burning_a",14));
-	if(hasUpgrade("incrementy_i",13))mfot = mfot.mul(upgradeEffect("incrementy_i",13));
-	if(hasUpgrade("gd_u",21))mfot = mfot.mul(upgradeEffect("gd_u",21));
-	if(hasUpgrade("dynas_c",15))mfot = mfot.mul(upgradeEffect("dynas_c",15));
-	mfot = mfot.mul(buyableEffect("gd_f",15));
-	mfot = mfot.mul((tmp.milestone_m.powerEffect[1]||new Decimal(1)));
+	let mfot=getMultiplierFromOtherTrees()[1];
 	
-	if(inChallenge("tptc_ge",11))mfot = mfot.pow(layers.tptc_ge.c11pow());
 	if(inChallenge("tptr_h",22)&&inChallenge("incrementy_am",12))return mfot.pow(0.1);
 	if(inChallenge("tptr_h",22))return mfot;
 	gain=gain.mul(mfot);
@@ -147,6 +141,33 @@ function getPointGen() {
 	return gain;
 }
 
+function getMultiplierFromOtherTrees() {
+	let mfots=[new Decimal(1),new Decimal(0),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1)];
+	if(hasUpgrade("stardust_s",12))mfots[2] = mfots[2].mul(upgradeEffect("stardust_s",12));
+	if(hasUpgrade("forest_p",21))mfots[3] = mfots[3].mul(upgradeEffect("forest_p",21));
+	if(hasUpgrade("burning_a",14))mfots[4] = mfots[4].mul(upgradeEffect("burning_a",14));
+	if(hasUpgrade("incrementy_i",13))mfots[5] = mfots[5].mul(upgradeEffect("incrementy_i",13));
+	if(hasUpgrade("gd_u",21))mfots[6] = mfots[6].mul(upgradeEffect("gd_u",21));
+	if(hasUpgrade("dynas_c",15))mfots[9] = mfots[9].mul(upgradeEffect("dynas_c",15));
+	if(!hasUpgrade("gd_g",31))mfots[6] = mfots[6].mul(buyableEffect("gd_f",15));
+	mfots[8] = mfots[8].mul((tmp.milestone_m.powerEffect[1]||new Decimal(1)));
+	
+	if(inChallenge("tptc_ge",11))mfots[0] = mfots[0].mul(layers.tptc_ge.c11pow());
+	
+	let power=new Decimal(1);
+	power=power.add(player.tm.p_upg.mul(0.01));
+	
+	for(var i=2;i<=9;i++){
+		mfots[1]=mfots[1].add(mfots[i].log10().root(power));
+	}
+	mfots[1]=mfots[1].pow(power).mul(mfots[0]);
+	mfots[1]=Decimal.pow(10,mfots[1]);
+	
+	mfots.p=power;
+	
+	return mfots;
+}
+
 // You can add non-layer related variables that should to into "player" and be saved here, along with default values
 function addedPlayerData() { return {
 	modpoints: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
@@ -155,7 +176,7 @@ function addedPlayerData() { return {
 var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse","The Game Dev Tree","The Prestige Tree Rewritten","The Milestone Tree","The Dynas Tree","The Multitree"];
 var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132","thepaperpilot","jacorb90","loader3229","ducdat0507","loader3229"];
 var MODPOINTSNAME=["","","energy","energy","embers","incrementy","hours of work","rewritten points","milestone power","Dynas points",""];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9","0.9","0.9","0.9","0.9","0.91","0.91","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3","0.3","0.4","0.4","0.4","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.6","0.6","0.6","0.6","0.6","0.6"],["","1.005","1.010","1.016","1.020","1.025","1.025","1.029","1.032","1.035","1.038"],["","0.0.1","0.0.1","0.0.1","0.0.1","0.1.0","0.1.0"]];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9","0.9","0.9","0.9","0.9","0.91","0.91","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3","0.3","0.4","0.4","0.4","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.6","0.6","0.6","0.6","0.6","0.6","1.0"],["","1.005","1.010","1.016","1.020","1.025","1.025","1.029","1.032","1.035","1.038","1.040","1.043","1.045","1.048","1.048"],["","0.0.1","0.0.1","0.0.1","0.0.1","0.1.0","0.1.0","0.1.0","0.1.0","0.1.0","0.1.0"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -180,10 +201,8 @@ var displayThings = [
 			return "Base productivity is "+format(tmp.gd_u.upgrades[11].realEffect);
 		}
 		if(player.tm.currentTree==8){
-			let ret="Milestone Power Effects: <br>"+format(tmp.milestone_m.powerEffect[0])+"x Prestige point gain in TPTR";
-			if(player.milestone_m.best.gte(7))ret="Milestone Power Effects: <br>"+format((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.milestone_m.best.gte(20)?0.4:player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1))+"x Rewritten Point gain & "+format(tmp.milestone_m.powerEffect[0])+"x Prestige point gain in TPTR";
-			if(player.milestone_m.best.gte(25))ret="Milestone Power Effects: "+format(tmp.milestone_m.powerEffect[1]||new Decimal(1))+"x Point gain";
-			return ret;
+			if(player.milestone_m.best.gte(25))return "Milestone Power Effects: "+format(tmp.milestone_m.powerEffect[1]||new Decimal(1))+"x Point gain";
+			return "Milestone Power Effects: ";
 		}
 		return "";
 	},
@@ -192,19 +211,29 @@ var displayThings = [
 			return "Productivity slowdown starts at "+format(tmp.gd_u.scstart);
 		}
 		if(player.tm.currentTree==8){
+			if(player.tm.buyables[8].gte(10))return format(tmp.milestone_m.powerEffect[0])+"x Rewritten Point/Prestige Point gain in TPTR";
+			return format(tmp.milestone_m.powerEffect[0])+"x Prestige Point gain in TPTR";
+		}
+		if(getMultiplierFromOtherTrees()[1].gte(2) && (!inChallenge("tptr_h",22))&&(!inChallenge("incrementy_am",12)))return "Point Multiplier from TPTC: "+format(getPointGen().div(getMultiplierFromOtherTrees()[1]));
+		return "";
+	},
+	function(){
+		if(player.tm.currentTree==8){
 			let ret="";
-			if(player.tm.buyables[8].gte(10))return format(tmp.milestone_m.powerEffect[0])+"x Rewritten Point gain & Prestige Point gain in TPTR";
+			if(player.tm.buyables[8].gte(10))return "";
 			
-			if(player.milestone_m.best.gte(25))ret=format((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.tm.buyables[8].gte(8)?0.7:player.milestone_m.best.gte(28)?0.6:player.milestone_m.best.gte(26)?0.5:player.tm.buyables[8].gte(6)?0.42:0.4))+"x Rewritten Point gain & "+format(tmp.milestone_m.powerEffect[0])+"x Prestige point gain in TPTR";
+			if(player.milestone_m.best.gte(20))ret=format((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.tm.buyables[8].gte(8)?0.7:player.milestone_m.best.gte(28)?0.6:player.milestone_m.best.gte(26)?0.5:player.tm.buyables[8].gte(6)?0.42:0.4))+"x Rewritten Point gain in TPTR";
+			if(player.milestone_m.best.gte(7))ret=format((tmp.milestone_m.powerEffect[0]||new Decimal(1)).pow(player.milestone_m.best.gte(19)?0.35:player.tm.buyables[8].gte(4)?(1/3):player.milestone_m.best.gte(15)?0.3:player.milestone_m.best.gte(9)?0.25:player.milestone_m.best.gte(8)?0.2:0.1))+"x Rewritten Point gain in TPTR";
 			return ret;
 		}
+		if(getMultiplierFromOtherTrees()[1].gte(2))return "Point Multiplier from other trees: "+format(getMultiplierFromOtherTrees()[1]);
 		return "";
 	},
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e6.555e12");
+	return player.points.gte("e2e13");
 }
 
 

@@ -49,14 +49,14 @@ addLayer("gd_u", {
 		if(!hasUpgrade("gd_u",41))return getResetGain(this.layer,"static");
 		let ret=player.modpoints[6];
 		if(ret.lt(5))return new Decimal(0);
-		ret=ret.log10().pow(2).mul(tmp.gd_u.gainMult3).floor();
+		ret=ret.log10().pow(hasUpgrade("gd_u",62)?3:2).mul(tmp.gd_u.gainMult3).floor();
 		return ret;
 	},
 	getNextAt(a) {
 		if(!hasUpgrade("gd_u",41))return getNextAt(this.layer,a,"static");
 		let ret=tmp.gd_u.getResetGain.plus(1);
 		ret=ret.div(tmp.gd_u.gainMult3);
-		ret=ret.pow(1/(2));
+		ret=ret.pow(1/(hasUpgrade("gd_u",62)?3:2));
 		ret=Decimal.pow(10,ret).max(5);
 		return ret;
 	},
@@ -76,7 +76,7 @@ addLayer("gd_u", {
     ],
 	
 	 upgrades: {
-            rows: 5,
+            rows: 6,
             cols: 5,
 			11: {
 				title: "Update Upgrade 11",
@@ -168,6 +168,7 @@ addLayer("gd_u", {
 					if(hasUpgrade("gd_e",24))ret=ret.pow(2);
 					if(hasUpgrade("gd_u",55))ret=ret.pow(10);
 					if(hasUpgrade("gd_l",25))ret=ret.pow(4);
+					if(hasUpgrade("gd_g",31))ret=ret.pow(tmp.gd_f.buyables[15].effect2);
                     return ret;
 				},
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -268,7 +269,7 @@ addLayer("gd_u", {
                 cost: new Decimal(8e20),
                 unlocked() { return hasUpgrade("tm",45); },
 				effect() {
-                    let ret=player.gd_f.fans.add(1e10).log10().add(1e10).log10().mul(player.gd_f.buyables[14].add(1)).pow(0.25).pow(layers.gd_g.effect()[1]);
+                    let ret=player.gd_f.fans.add(1e10).log10().add(1e10).log10().mul(player.gd_f.buyables[14].add(1)).pow(hasUpgrade("gd_u",64)?0.4:0.25).pow(layers.gd_g.effect()[1]);
 					return ret;
 				},
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -312,6 +313,36 @@ addLayer("gd_u", {
                 description: "Update Upgrade 21's effect ^10",
                 cost: new Decimal(1e25),
                 unlocked() { return hasUpgrade("gd_u",51); },
+			},
+			61: {
+				title: "Update Upgrade 61",
+                description: "Fame buyable 'Point Boost' is affected by Good Will when bought Good Will Upgrade 31.",
+                cost: new Decimal(1e50),
+                unlocked() { return hasUpgrade("tm",51); },
+			},
+			62: {
+				title: "Update Upgrade 62",
+                description: "Gain of first 2 rows resources are better.",
+                cost: new Decimal(3e50),
+                unlocked() { return hasUpgrade("tm",51); },
+			},
+			63: {
+				title: "Update Upgrade 63",
+                description: "Unlock a new refactoring effect.",
+                cost: new Decimal(5e55),
+                unlocked() { return hasUpgrade("tm",51); },
+			},
+			64: {
+				title: "Update Upgrade 64",
+                description: "Fame buyable 'Twitch' and 'Github' are better.",
+                cost: new Decimal(2e56),
+                unlocked() { return hasUpgrade("tm",51); },
+			},
+			65: {
+				title: "Update Upgrade 65",
+                description: "Unlock a new refactoring effect.",
+                cost: new Decimal(5e57),
+                unlocked() { return hasUpgrade("tm",51); },
 			},
 	 },
 	 update(diff){
@@ -396,13 +427,18 @@ addLayer("gd_e", {
 		points: new Decimal(0)
     }},
     color: "#FF5642",
-    requires: new Decimal(20), // Can be a function that takes requirement increases into account
+    requires(){
+		ret = new Decimal(20)
+		if(hasUpgrade("gd_u",62))ret = new Decimal(1);
+		return ret
+	}, // Can be a function that takes requirement increases into account
     resource: "experience", // Name of prestige currency
     baseResource: "updates", // Name of resource prestige is based on
     baseAmount() {return player.gd_u.points}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent(){
 		ret = new Decimal(3)
+		if(hasUpgrade("gd_u",62))ret = ret.mul(1.125);
 		if(hasUpgrade("gd_e",15))ret = ret.mul(1.1);
 		if(player.gd_r.best.gte(10))ret = ret.mul((buyableEffect("gd_r",11)[1]||new Decimal(1)).max(1));
 		if(hasUpgrade("gd_a",11) && hasUpgrade("gd_r",11))ret = ret.mul(upgradeEffect("gd_r",11));
@@ -417,7 +453,8 @@ addLayer("gd_e", {
 		if(player.gd_s.best.gte(10))mult = mult.mul(buyableEffect("gd_s",21));
 		if(player.gd_r.best.gte(30))mult = mult.mul((buyableEffect("gd_r",11)[3]||new Decimal(1)).max(1));
 		if(hasUpgrade("gd_r",25))mult=mult.mul(tmp.gd_t.effect);
-		if(hasUpgrade("incrementy_p",34))mult=mult.mul(10);
+		if(hasUpgrade("incrementy_pi",25))mult = mult.mul(player.incrementy_s.points.add(10));
+		else if(hasUpgrade("incrementy_p",34))mult=mult.mul(10);
 		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11) && hasUpgrade("gd_l",21))mult = mult.mul(upgradeEffect("gd_l",11));
 		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
 		return mult
@@ -500,6 +537,11 @@ addLayer("gd_e", {
                 description: "Experience gain is boosted by your hours of work.",
                 cost: new Decimal(2e5),
 				effect() {
+					if(hasUpgrade("gd_g",33)){
+						let base=10;
+						let ret = Decimal.pow(base,Decimal.log10(player.modpoints[6].mul(10).add(1)).pow(0.3));
+						return ret;
+					}
 					let ret = player.modpoints[6].add(10).log10();
 					return ret
 				},
@@ -587,7 +629,12 @@ addLayer("gd_c", {
 		points: new Decimal(0)
     }},
     color: "#F5A833",
-    requires: new Decimal(30), // Can be a function that takes requirement increases into account
+    
+    requires(){
+		ret = new Decimal(20)
+		if(hasUpgrade("gd_u",62))ret = new Decimal(1);
+		return ret
+	}, // Can be a function that takes requirement increases into account
     resource: "cash", // Name of prestige currency
     baseResource: "updates", // Name of resource prestige is based on
     baseAmount() {return player.gd_u.points}, // Get the current amount of baseResource
@@ -598,18 +645,22 @@ addLayer("gd_c", {
 		if(hasUpgrade("gd_g",11) && hasUpgrade("gd_f",11))ret = ret.mul(upgradeEffect("gd_f",11));
 		if(hasUpgrade("gd_c",22))ret = ret.mul(1.1)
 		if(hasUpgrade("gd_g",21) && hasUpgrade("gd_f",33))ret = ret.mul(1.5)
+		if(hasUpgrade("gd_u",63))ret = ret.mul((buyableEffect("gd_r",11)[1]||new Decimal(1)).max(1));
 		return ret
 	}, // Prestige currency exponent
     resetDescription: "Sell mod to publisher for ",
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(100)
 		if(hasUpgrade("gd_e",13))mult = mult.mul(upgradeEffect("gd_e",13));
+		if(hasUpgrade("gd_e",14) && hasUpgrade("gd_g",33))mult = mult.mul(upgradeEffect("gd_e",14));
 		mult = mult.mul(tmp.gd_f.buyables[12].effect);
 		if(hasUpgrade("gd_g",14))mult = mult.mul(upgradeEffect("gd_g",14));
 		if(hasUpgrade("gd_g",11) && hasUpgrade("gd_f",14))mult = mult.mul(upgradeEffect("gd_f",14));
 		if(hasUpgrade("gd_r",25))mult=mult.mul(tmp.gd_t.effect);
 		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11))mult = mult.mul(upgradeEffect("gd_l",11));
 		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
+		if(hasUpgrade("incrementy_pi",25))mult = mult.mul(player.incrementy_s.points.add(10));
+		if(hasUpgrade("gd_u",65))mult = mult.mul((buyableEffect("gd_r",11)[3]||new Decimal(1)).max(1));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -873,6 +924,8 @@ addLayer("gd_r", {
 					if(player[this.layer].best.gte(10))ret=ret+"<br>" + format(data.effect[1]) + "x experience exponent";
 					if(player[this.layer].best.gte(20))ret=ret+"<br>+" + format(data.effect[2]) + " to refactor base";
 					if(player[this.layer].best.gte(30))ret=ret+"<br>" + format(data.effect[3]) + "x experience gain";
+					if(hasUpgrade("gd_u",63))ret=ret+"<br>" + format(data.effect[1]) + "x cash exponent";
+					if(hasUpgrade("gd_u",65))ret=ret+"<br>" + format(data.effect[3]) + "x cash gain";
 						return ret;
                 },
                 unlocked() { return true; }, 
@@ -1170,7 +1223,7 @@ addLayer("gd_f", {
                     player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
                 },
 				effect(){
-					return player.gd_f.fans.add(9).log10().pow(player[this.layer].buyables[this.id].sqrt().mul(0.25)).pow(layers.gd_g.effect()[1]);
+					return player.gd_f.fans.add(9).log10().pow(player[this.layer].buyables[this.id].sqrt().mul(hasUpgrade("gd_u",64)?0.4:0.25)).pow(layers.gd_g.effect()[1]);
 				},
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'222px'},
@@ -1206,7 +1259,7 @@ addLayer("gd_f", {
                 },
 				effect(){
 					if(hasUpgrade("gd_u",45))return upgradeEffect("gd_u",45);
-					return player.gd_f.fans.add(9).log10().pow(player[this.layer].buyables[this.id].sqrt().mul(0.3)).pow(layers.gd_g.effect()[1]);
+					return player.gd_f.fans.add(9).log10().pow(player[this.layer].buyables[this.id].sqrt().mul(hasUpgrade("gd_u",64)?0.4:0.3)).pow(layers.gd_g.effect()[1]);
 				},
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'222px'},
@@ -1224,7 +1277,7 @@ addLayer("gd_f", {
                     return "Point gain is boosted based on your fans.\n\
 					Level: "+formatWhole(player[this.layer].buyables[this.id])+"\n\
 					Cost: "+formatWhole(data.cost)+" fame\n\
-					Effect:  Point gain is multiplied by " + format(data.effect) + "";
+					Effect: "+(hasUpgrade("gd_g",31)?("Update Upgrade 21 ^" + format(data.effect2,4) + (hasUpgrade('gd_g',32)?(hasUpgrade('gd_u',61)?"":"(unaffected by Good Will)"):(" (unaffected by Fans"+(hasUpgrade('gd_u',61)?")":" & Good Will)")))):("Point gain is multiplied by " + format(data.effect) + ""));
                 },
                 unlocked() { return true; }, 
                 canAfford() {
@@ -1238,7 +1291,18 @@ addLayer("gd_f", {
 				effect(){
 					let base=10;
                     let ret = Decimal.pow(base,Decimal.log10(player.gd_f.fans.add(10)).pow(0.55));
-                    return ret.pow(player[this.layer].buyables[this.id].pow(0.9)).pow(layers.gd_g.effect()[1]);
+                    return ret.pow(player[this.layer].buyables[this.id].pow(0.9)).min("ee10").pow(layers.gd_g.effect()[1]);
+				},
+				effect2(){
+					let ret=player[this.layer].buyables[this.id].add(1).log10().pow(2).div(48).add(1);
+					if(hasUpgrade('gd_u',61)){
+						ret=player[this.layer].buyables[this.id].add(1).log10().pow(2).div(87).add(1);
+						ret=ret.pow(layers.gd_g.effect()[1]);
+					}
+					if(hasUpgrade('gd_g',32)){
+						ret=ret.pow(player.gd_f.fans.add(1).log10().add(1).log10().div(100).add(1));
+					}
+					return ret;
 				},
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'222px'},
@@ -1711,7 +1775,7 @@ addLayer("gd_g", {
             1: {
                 title: "Respec Good Will Upgrades",
                 display: "",
-                unlocked() { return player[this.layer].unlocked }, 
+                unlocked() { return player[this.layer].unlocked && player[this.layer].points.lt(15) }, 
                 canAfford() {
 					return true;
 				},
@@ -1726,7 +1790,7 @@ addLayer("gd_g", {
             },
 		},
 		upgrades: {
-            rows: 2,
+            rows: 3,
             cols: 5,
 			11: {
 				title: "Good Will Upgrade 11",
@@ -1839,6 +1903,33 @@ addLayer("gd_g", {
 				currencyInternalName: "unused",
 				currencyLayer: "gd_g",
                 unlocked() { return player[this.layer].best.gte(15); }, // The upgrade is only visible when this is true
+            },
+			31: {
+				title: "Good Will Upgrade 31",
+                description: "Fame Buyable 'Point Boost' will boost Update Upgrade 21 instead.",
+                cost: new Decimal(3),
+				currencyDisplayName: "unused good will",
+				currencyInternalName: "unused",
+				currencyLayer: "gd_g",
+                unlocked() { return player[this.layer].best.gte(18) && hasUpgrade("tm",52); }, // The upgrade is only visible when this is true
+            },
+			32: {
+				title: "Good Will Upgrade 32",
+                description: "Fame Buyable 'Point Boost' is affected by fans when bought Good Will Upgrade 31.",
+                cost: new Decimal(3),
+				currencyDisplayName: "unused good will",
+				currencyInternalName: "unused",
+				currencyLayer: "gd_g",
+                unlocked() { return player[this.layer].best.gte(24) && hasUpgrade("tm",52); }, // The upgrade is only visible when this is true
+            },
+			33: {
+				title: "Good Will Upgrade 33",
+                description: "Experience Upgrade 14 is better and applied to cash gain.",
+                cost: new Decimal(3),
+				currencyDisplayName: "unused good will",
+				currencyInternalName: "unused",
+				currencyLayer: "gd_g",
+                unlocked() { return player[this.layer].best.gte(24) && hasUpgrade("tm",52); }, // The upgrade is only visible when this is true
             },
 		},
 	milestones: {

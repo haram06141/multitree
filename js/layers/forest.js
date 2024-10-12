@@ -568,7 +568,11 @@ addLayer("forest_c", {
     getNextAt() {
 		let scaling=new Decimal(2);
 		if(hasUpgrade("forest_p",53))scaling=scaling.div(upgradeEffect("forest_p",53));
-		if(player.forest_c.points.gte(15))scaling=scaling.mul(player.forest_c.points.sub(15).pow(player.forest_c.points.div(6)).mul(0.1).add(1));
+		if(!hasUpgrade("tm",53)){
+			if(player.forest_c.points.gte(15))scaling=scaling.mul(player.forest_c.points.sub(15).pow(player.forest_c.points.div(6)).mul(0.1).add(1));
+		}else{
+			if(player.forest_c.points.gte(15))scaling=scaling.mul(player.forest_c.points.sub(15).pow(player.forest_c.points.div(7).div(upgradeEffect("forest_p",53))).mul(0.1).div(upgradeEffect("forest_p",53)).add(1));
+		}
 		let ret=new Decimal(11).add(player.forest_c.points.times(Decimal.max(10,player.forest_c.points.mul(scaling))));
 		ret=ret.ceil();
 		return ret;

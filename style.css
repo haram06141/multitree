@@ -680,3 +680,65 @@ button > * {
 #treeTab td button {
     margin: 0 10px;
 }
+
+
+
+
+@keyframes honour {
+	0% {
+		background-position: 0% 0%;
+	}
+	100% {
+		background-position: 400% 0%;
+	}
+}
+
+@keyframes nebula {
+	0% {
+		background-color: #430082;
+	}
+	50% {
+		background-color: #1d007a;
+	}
+	100% {
+		background-color: #430082;
+	}
+}
+
+@keyframes mastery {
+	0% {
+		background-size: 200%;
+	}
+	50% {
+		background-size: 100%;
+	}
+	100% {
+		background-size: 200%;
+	}
+}
+
+@keyframes energy {
+	0% {
+		background-position: 0% 0%;
+	}
+	100% {
+		background-position: 0% 400%;
+	}
+}
+
+@keyframes idea {
+	0% {
+		filter: brightness(100%);
+	}
+	25% {
+		filter: brightness(125%);
+	}
+	75% {
+		filter: brightness(75%);
+	}
+	100% {
+		filter: brightness(100%);
+	}
+}
+
+
