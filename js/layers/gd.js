@@ -457,6 +457,9 @@ addLayer("gd_e", {
 		else if(hasUpgrade("incrementy_p",34))mult=mult.mul(10);
 		if(hasUpgrade("gd_g",15) && hasUpgrade("gd_l",11) && hasUpgrade("gd_l",21))mult = mult.mul(upgradeEffect("gd_l",11));
 		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
+		
+		if(hasUpgrade("gd_g",34))mult = mult.mul(upgradeEffect("gd_g",14)).mul(100);
+		if(hasUpgrade("gd_g",34) && hasUpgrade("gd_f",14))mult = mult.mul(upgradeEffect("gd_f",14));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -661,6 +664,7 @@ addLayer("gd_c", {
 		if(player.milestone_m.best.gte(30) && player.tm.buyables[8].gte(11))mult = mult.mul(tmp.milestone_m.milestone29Effect);
 		if(hasUpgrade("incrementy_pi",25))mult = mult.mul(player.incrementy_s.points.add(10));
 		if(hasUpgrade("gd_u",65))mult = mult.mul((buyableEffect("gd_r",11)[3]||new Decimal(1)).max(1));
+		if(hasUpgrade("incrementy_pi",43))mult = mult.mul(buyableEffect("gd_s",21));
 		return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -1073,7 +1077,10 @@ addLayer("gd_f", {
     baseResource: "cash", // Name of resource prestige is based on
     baseAmount() {return player.gd_c.points}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-	base: 4,
+	base(){
+		if(hasUpgrade("incrementy_pi",42))return 3;
+		return 4;
+	},
     exponent(){
 		ret = new Decimal(1.25)
 		return ret
@@ -1461,7 +1468,10 @@ addLayer("gd_s", {
     baseResource: "experience", // Name of resource prestige is based on
     baseAmount() {return player.gd_e.points}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-	base: 10,
+	base(){
+		if(hasMilestone("gd_d",4))return 9;
+		return 10;
+	},
     exponent(){
 		ret = new Decimal(1.25)
 		return ret
@@ -1931,6 +1941,15 @@ addLayer("gd_g", {
 				currencyLayer: "gd_g",
                 unlocked() { return player[this.layer].best.gte(24) && hasUpgrade("tm",52); }, // The upgrade is only visible when this is true
             },
+			34: {
+				title: "Good Will Upgrade 34",
+                description: "Fame Upgrade 14 & First Good Will Effect boost Experience gain.",
+                cost: new Decimal(3),
+				currencyDisplayName: "unused good will",
+				currencyInternalName: "unused",
+				currencyLayer: "gd_g",
+                unlocked() { return player[this.layer].best.gte(27) && hasUpgrade("tm",52); }, // The upgrade is only visible when this is true
+            },
 		},
 	milestones: {
             0: {requirementDescription: "3 good will",
@@ -2247,6 +2266,11 @@ addLayer("gd_d", {
                 unlocked() {return hasUpgrade("gd_r",25) && hasUpgrade("gd_f",25);}, // Used to determine when to give the milestone
                 done() {return player[this.layer].best.gte(9)}, // Used to determine when to give the milestone
                 effectDescription: "Greatly Boost Time Flux and Lectures gain. Gain 100% of Time Flux and Lectures gain per second. Buying Time Flux buyables costs nothing.",
+            },
+			4: {requirementDescription: "19 diplomas",
+                unlocked() {return hasUpgrade("gd_r",35) && hasUpgrade("gd_f",35);}, // Used to determine when to give the milestone
+                done() {return player[this.layer].best.gte(19)}, // Used to determine when to give the milestone
+                effectDescription: "Enrollments are cheaper.",
             }
 	},
         effect(){

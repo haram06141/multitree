@@ -11,11 +11,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "1.7.1",
+	num: "1.7.2",
 	name: "",
 }
 
 let changelog = `
+	<h3>v1.7.2</h3><br>
+	- Endgame: e6.42e13 points<br>
 	<h3>v1.7.1</h3><br>
 	- Added Honour in TPTR<br>
 	- Endgame: e2e13 points<br>
@@ -151,6 +153,7 @@ function getMultiplierFromOtherTrees() {
 	if(hasUpgrade("dynas_c",15))mfots[9] = mfots[9].mul(upgradeEffect("dynas_c",15));
 	if(!hasUpgrade("gd_g",31))mfots[6] = mfots[6].mul(buyableEffect("gd_f",15));
 	mfots[8] = mfots[8].mul((tmp.milestone_m.powerEffect[1]||new Decimal(1)));
+	if(hasUpgrade("tm",55))mfots[7] = mfots[7].mul(upgradeEffect("tm",55));
 	
 	if(inChallenge("tptc_ge",11))mfots[0] = mfots[0].mul(layers.tptc_ge.c11pow());
 	
@@ -176,7 +179,7 @@ function addedPlayerData() { return {
 var TREES=["","The Prestige Tree Classic","The Stardust Tree","The Prestige Forest","The Burning Tree","The Incrementreeverse","The Game Dev Tree","The Prestige Tree Rewritten","The Milestone Tree","The Dynas Tree","The Multitree"];
 var TREEAUTHOR=["","jacorb90","okamii17","unpingabot","thefinaluptake","pg132","thepaperpilot","jacorb90","loader3229","ducdat0507","loader3229"];
 var MODPOINTSNAME=["","","energy","energy","embers","incrementy","hours of work","rewritten points","milestone power","Dynas points",""];
-var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9","0.9","0.9","0.9","0.9","0.91","0.91","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3","0.3","0.4","0.4","0.4","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.6","0.6","0.6","0.6","0.6","0.6","1.0"],["","1.005","1.010","1.016","1.020","1.025","1.025","1.029","1.032","1.035","1.038","1.040","1.043","1.045","1.048","1.048"],["","0.0.1","0.0.1","0.0.1","0.0.1","0.1.0","0.1.0","0.1.0","0.1.0","0.1.0","0.1.0"]];
+var TREEVERS=[[],["","Pre-Alpha Build 1","Pre-Alpha Build 2","Alpha Build 1","Beta v1.0","Beta v1.1 Alpha 12","Beta v1.1","Beta v1.2","1.0","1.1","1.1","1.1","1.1","1.1","1.1","1.2","1.2","1.2","1.2","1.2","1.2"],["","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a","0.0.3a"],["","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0","0.0"],["","0.0.1","0.0.2","0.2.0","0.2.0","0.2.0","0.2.0"],["","0.1","0.3","0.4","0.5","0.5","0.6","0.7","0.8","0.8","0.8","0.85","0.85","0.85","0.87","0.87","0.88","0.88","0.88","0.9","0.9","0.9","0.9","0.9","0.9","0.91","0.91","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.92","0.93"],["","0.0","0.1","0.2","0.2","0.2","1.0","1.0","1.0","1.0","1.0","1.0"],["","0.1","0.2","0.3","0.3","0.3","0.3","0.4","0.4","0.4","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.5","0.6","0.6","0.6","0.6","0.6","0.6","1.0","1.0"],["","1.005","1.010","1.016","1.020","1.025","1.025","1.029","1.032","1.035","1.038","1.040","1.043","1.045","1.048","1.050","1.055","1.060"],["","0.0.1","0.0.1","0.0.1","0.0.1","0.1.0","0.1.0","0.1.0","0.1.0","0.1.0","0.2.0","0.2.0","0.2.0"]];
 
 // Display extra things at the top of the page
 var displayThings = [
@@ -203,6 +206,9 @@ var displayThings = [
 		if(player.tm.currentTree==8){
 			if(player.milestone_m.best.gte(25))return "Milestone Power Effects: "+format(tmp.milestone_m.powerEffect[1]||new Decimal(1))+"x Point gain";
 			return "Milestone Power Effects: ";
+		}
+		if(player.tm.currentTree==7 && hasUpgrade("tm",55)){
+			return "Rewritten Point Effect: "+format(upgradeEffect("tm",55))+"x Point gain";
 		}
 		return "";
 	},
@@ -233,7 +239,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte("e2e13");
+	return player.points.gte("e642e11");
 }
 
 

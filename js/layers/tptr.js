@@ -105,6 +105,7 @@ addLayer("tptr_p", {
 					if(hasChallenge("tptr_h", 22) && eff.gte(sc))eff = Decimal.pow(10, eff.log10().root(new Decimal(2).sub((hasUpgrade("tptr_hn", 21)) ? upgradeEffect("tptr_hn", 21) : 0)).times(new Decimal(sc).log10().pow(Decimal.sub(1, new Decimal(2).sub((hasUpgrade("tptr_hn", 21)) ? upgradeEffect("tptr_hn", 21) : 0).pow(-1)))));
 					else eff = eff.min(sc);
 					if (hasUpgrade("tptr_p", 14)) eff = eff.pow(3);
+					if (hasUpgrade("tptr_hn", 14)) eff = eff.pow(1.05);
 
 					return eff;
 				},
@@ -198,6 +199,14 @@ addLayer("tptr_p", {
 				effectDisplay() { return "^"+format(tmp.tptr_p.upgrades[33].effect) },
 				unlocked() { return player.tm.buyables[7].gte(4); },
 			},
+			34: {
+				title: "Solar Potential",
+				description: "Solarity multiplies the Solarity gain exponent.",
+				cost() { return new Decimal("e126e6"); },
+				unlocked() { return hasUpgrade("tptr_hn", 11) },
+				effect() { return player.tptr_o.points.plus(1).log10().plus(1).log10().plus(1).log10().plus(1).times((hasUpgrade("tptr_hn", 34)) ? upgradeEffect("tptr_hn", 34) : 1) },
+				effectDisplay() { return format(tmp.tptr_p.upgrades[34].effect)+"x" },
+			},
 			41: {
 				title: "Prestige Recursion",
 				description: "Prestige Points boost their own gain.",
@@ -210,6 +219,28 @@ addLayer("tptr_p", {
 				},
 				effectDisplay() { return format(tmp.tptr_p.upgrades[41].effect)+"x" },
 			},
+			42: {
+				title: "Spatial Awareness",
+				description: "Space Building costs scale 50% slower.",
+				cost() { return new Decimal("e84e6") },
+				unlocked() { return hasUpgrade("tptr_hn", 11) },
+			},
+			43: {
+				title: "Booster Potential",
+				description: "Quirk Energy also affects the Booster effect.",
+				cost() { return new Decimal("e123e6") },
+				unlocked() { return hasUpgrade("tptr_hn", 11) },
+			},
+			44: {
+				title: "Spelling Dictionary",
+				description: "The softcaps for the first two Spells start later based on your Boosters.",
+				cost() { return new Decimal("e118e6") },
+				unlocked() { return hasUpgrade("tptr_hn", 11) },
+				effect() { return player.tptr_b.points.plus(1).pow(3) },
+				effectDisplay() { return format(tmp.tptr_p.upgrades[44].effect)+"x later" },
+				style: {"font-size": "9px"},
+			},
+
 
 		},
 		doReset(l){
@@ -329,7 +360,7 @@ addLayer("tptr_b", {
 		if(hasChallenge("tptr_h",41))eff2 = Decimal.pow(1.03,player.tptr_b.points);
 		if (hasUpgrade("tptc_b", 22))eff2 = Decimal.pow(1.1,player.tptr_b.points.div(2));
 		if (hasUpgrade("tptc_b", 13))eff2 = eff2.pow(2)
-		let ret = [Decimal.pow(tmp.tptr_b.effectBase, player.tptr_b.points).max(0), eff2];
+		let ret = [Decimal.pow(tmp.tptr_b.effectBase, player.tptr_b.points).max(0).times(hasUpgrade("tptr_p", 43)?tmp.tptr_q.enEff:1), eff2];
 		return ret;
 	},
 	effectDescription() { // Optional text to describe the effects
@@ -2161,13 +2192,15 @@ addLayer("tptr_q", {
 						function() {if((tmp.tptr_ps.buyables[11].effects.quirkImpr||0)<1)return "";return 'You have ' + layers.tptr_q.getImprovements(41)+' Solar Improvements (Next at '+format(layers.tptr_q.impr.nextAt(41))+' Quirk Energy), Solar Energy gain x' + format(tmp.tptr_q.impr[41].effect)},{}],
 					["display-text",
 						function() {if((tmp.tptr_ps.buyables[11].effects.quirkImpr||0)<2)return "";return 'You have ' + layers.tptr_q.getImprovements(42)+' Subspatial Improvements (Next at '+format(layers.tptr_q.impr.nextAt(42))+' Quirk Energy), Subspace Base x' + format(tmp.tptr_q.impr[42].effect)},{}],
+					["display-text",
+						function() {if((tmp.tptr_ps.buyables[11].effects.quirkImpr||0)<3)return "";return 'You have ' + layers.tptr_q.getImprovements(43)+' Layer Improvements (Next at '+format(layers.tptr_q.impr.nextAt(43))+' Quirk Energy), Free Quirk Layers +' + format(tmp.tptr_q.impr[43].effect)},{}],
 					"upgrades",
 							
 		],
 		freeLayers() {
 			let l = new Decimal(0);
 			if (player.tm.buyables[7].gte(28)) l = l.plus(tmp.tptr_m.clickables[13].effect);
-			//if (tmp.q.impr[43].unlocked) l = l.plus(improvementEffect("q", 43));
+			if (tmp.tptr_q.impr[43].unlocked) l = l.plus(tmp.tptr_q.impr[43].effect);
 			//if (player.i.buyables[11].gte(3)) l = l.plus(buyableEffect("s", 18));
 			return l;
 		},
@@ -2281,7 +2314,13 @@ addLayer("tptr_q", {
 				unlocked() { return (tmp.tptr_ps.buyables[11].effects.quirkImpr||0)>=2 },
 				effect() { return Decimal.pow(10, Decimal.pow(layers.tptr_q.getImprovements(42).plus(tmp.tptr_q.impr.free), 0.75)) },
 			},
-
+			43: {
+				num: 301,
+				title: "Layer Improvement",
+				description: "Add free Quirk Layers.",
+				unlocked() { return (tmp.tptr_ps.buyables[11].effects.quirkImpr||0)>=3 },
+				effect() { return Decimal.mul(Decimal.pow(layers.tptr_q.getImprovements(43).plus(tmp.tptr_q.impr.free), 0.8), 1.25) },
+			},
 		},
 		getImprovements(id=11) {
 			if (!player[this.layer].unlocked) return new Decimal(0);
@@ -2502,6 +2541,7 @@ addLayer("tptr_o", {
         type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
 		exponent() { 
 			let exp = new Decimal(10);
+			if (hasUpgrade("tptr_p", 34)) exp = exp.times(upgradeEffect("tptr_p", 34));
 			return exp;
 		}, // Prestige currency exponent
         gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -2528,7 +2568,12 @@ addLayer("tptr_o", {
 			return eff.div(100).min(cap);
 		},
 		effect2() { if(!player.tptr_o.unlocked)return new Decimal(0);return player.tptr_o.points.div(1e20).plus(1).sqrt(); },
-		effect3() { if(!player.tptr_o.unlocked)return new Decimal(1);return player.tptr_o.points.add(1).log10().add(1).log10().add(1).log10().add(1); },
+		effect3() { if(!player.tptr_o.unlocked)return new Decimal(1);
+			if(player.tptr_o.points.gte(1e300)){
+				return player.tptr_o.points.add(1).log10().add(1).log10().div(1.6).add(1);
+			}
+			return player.tptr_o.points.add(1).log10().add(1).log10().add(1).log10().add(1); 
+		},
 		solEnGain() { 
 			let gain = player.tptr_t.energy.max(1).pow(tmp.tptr_o.effect).times(tmp.tptr_o.effect2);
 			if (player.tptr_m.unlocked) gain = gain.times(tmp.tptr_m.hexEff);
@@ -2658,7 +2703,7 @@ addLayer("tptr_o", {
 				effect() { 
 					let eff = player[this.layer].buyables[this.id].times(tmp.tptr_o.multiplyBuyables).plus(1).pow(tmp.tptr_o.solPow).log10().plus(1).log10();
 					if(eff.gte(4))eff = Decimal.pow(10,eff.log10().div(Math.log10(4)).sqrt().mul(Math.log10(4)));
-					//if (hasUpgrade("hn", 24)) eff = eff.times(2);
+					if (hasUpgrade("tptr_hn", 24)) eff = eff.times(2);
 					//if ((Array.isArray(tmp.ma.mastered))?tmp.ma.mastered.includes(this.layer):false) eff = eff.times(1.4);
 					return eff;
 				},
@@ -2989,6 +3034,7 @@ addLayer("tptr_m", {
 					let eff = power.div(2).plus(1)
 					if (hasUpgrade("tptr_ba", 31)) eff = Decimal.pow(1.1, power).times(eff);
 					let sc=new Decimal(1e6);
+					if (hasUpgrade("tptr_p", 44)) sc = sc.mul(upgradeEffect("tptr_p", 44));
 					if(eff.gte(sc))eff = Decimal.pow(10,eff.log10().div(sc.log10()).root(1.5).mul(sc.log10()));
 					return eff.div(1.5).max(1);
 				},
@@ -3016,6 +3062,7 @@ addLayer("tptr_m", {
 					let eff = power.div(5).plus(1)
 					if (hasUpgrade("tptr_ba", 31)) eff = Decimal.pow(1.1, power).times(eff);
 					let sc=new Decimal(1e6);
+					if (hasUpgrade("tptr_p", 44)) sc = sc.mul(upgradeEffect("tptr_p", 44));
 					if(eff.gte(sc))eff = Decimal.pow(10,eff.log10().div(sc.log10()).root(2).mul(sc.log10()));
 					return eff.div(1.2).max(1);
 				},
@@ -3511,7 +3558,7 @@ addLayer("tptr_ps", {
 				},
 				display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
-                    let display = ((tmp.nerdMode?("Cost Formula: 2*x+1 Phantom Souls, (x+1)^4*174+200 Damned Souls"):("Cost: " + formatWhole(data.cost.phantom) + " Phantom Souls, "+formatWhole(data.cost.damned)+" Damned Souls"))+"\n\
+                    let display = (("Cost: " + formatWhole(data.cost.phantom) + " Phantom Souls, "+formatWhole(data.cost.damned)+" Damned Souls")+"\n\
                     Amount: " + formatWhole(player[this.layer].buyables[this.id])+"\n\
 					Effects: ")
 					let curr = data.effects;
@@ -3706,7 +3753,8 @@ addLayer("tptr_hn", {
         type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
         exponent: new Decimal(0.025), // Prestige currency exponent
 		requires() { 
-			let b = Decimal.pow(10,700/*293.2*/).div(player.tptr_ba.points.add(1).pow(0.8));
+			let b = Decimal.pow(10,700).div(player.tptr_ba.points.add(1).pow(0.8));
+			if(player.tm.buyables[7].gte(31))b = player.tptr_ba.points.add(1).pow(-0.8);
 			return b;
 		},
         gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -3751,6 +3799,11 @@ addLayer("tptr_hn", {
 				done() { return player.tptr_hn.total.gte(2) || player.tptr_hn.best.gte(2) },
 				effectDescription: "Remove Positivity and Negativity nerf. Balance Energy will directly produce Positivity and Negativity.",
 			},
+			2: {
+				requirementDescription: "TPTR Level 31",
+				done() { return player.tm.buyables[7].gte(31) },
+				effectDescription: "Base Honour Requirement is reduced to 1.",
+			},
 		},
 		
 		upgrades: {
@@ -3780,23 +3833,13 @@ addLayer("tptr_hn", {
 				unlocked() { return hasUpgrade("tptr_p", 13) },
 				effect() { return tmp.tptr_p.upgrades[13].effect.max(1).log10().plus(1).log10().times(40).plus(1) },
 				effectDisplay() { return "^"+format(tmp.tptr_hn.upgrades[13].effect) },
-			},/*
+			},
 			14: {
 				title: "Anti-Calm",
 				description: "<b>Prestigious Intensity</b>'s effect is 5% stronger.",
-				multiRes: [
-					{
-						cost() { return new Decimal(player.ma.current=="hn"?"1e7010":1e5) },
-					},
-					{
-						currencyDisplayName: "prestige points",
-						currencyInternalName: "points",
-						currencyLayer: "p",
-						cost() { return new Decimal(player.ma.current=="hn"?"e4.55e10":"1e11000000") },
-					},
-				],
-				unlocked() { return player.hn.unlocked && hasUpgrade("p", 14) && hasMilestone("hn", 7) },
-			},
+				cost() { return new Decimal(2e5) },
+				unlocked() { return hasUpgrade("tptr_p", 13) },
+			},/*
 			15: {
 				title: "Lightspeed Black Hole",
 				description: "You can activate two secondary Dust effects at once.",
@@ -3837,23 +3880,13 @@ addLayer("tptr_hn", {
 				unlocked() { return hasUpgrade("tptr_p", 23) },
 				effect() { return player.tptr_ba.points.plus(1).log10().plus(1).pow(.75).times(1) },
 				effectDisplay() { return "^"+format(tmp.tptr_hn.upgrades[23].effect) },
-			},/*
+			},
 			24: {
 				title: "Coronal Energies",
 				description: "Both Coronal Wave effects are doubled (unaffected by softcap).",
-				multiRes: [
-					{
-						cost() { return new Decimal(player.ma.current=="hn"?"1e12645":1.5e5) },
-					},
-					{
-						currencyDisplayName: "prestige points",
-						currencyInternalName: "points",
-						currencyLayer: "p",
-						cost() { return new Decimal(player.ma.current=="hn"?"e6.05e11":"1e12000000") },
-					},
-				],
-				unlocked() { return player.hn.unlocked && hasUpgrade("p", 24) && hasMilestone("hn", 7) },
-			},
+				cost() { return new Decimal(1e11) },
+				unlocked() { return hasUpgrade("tptr_p", 24) },
+			},/*
 			25: {
 				title: "Imploded Hypernova",
 				description: "Hyperspace Energy & Nebula Energy multiply the Solarity gain exponent & Dust gain.",
@@ -3878,23 +3911,13 @@ addLayer("tptr_hn", {
 				title: "Begin Again in Classic",
 				description: "Unlock more Row 6 Upgrades in Prestige Tree Classic.",
 				cost() { return new Decimal(1000) },
-			},/*
+			},
 			32: {
 				title: "Less Useless",
 				description: "<b>Upgrade Power</b> is raised ^7.",
-				multiRes: [
-					{
-						cost() { return new Decimal(player.ma.current=="hn"?"1e12800":1e4) },
-					},
-					{
-						currencyDisplayName: "prestige points",
-						currencyInternalName: "points",
-						currencyLayer: "p",
-						cost() { return new Decimal(player.ma.current=="hn"?"e6.3e11":"1e10250000") },
-					},
-				],
-				unlocked() { return player.hn.unlocked && hasUpgrade("p", 32) },
-			},*/
+				cost() { return new Decimal(1e5) },
+				unlocked() { return hasUpgrade("tptr_p", 32) },
+			},
 			33: {
 				title: "Column Leader Leader",
 				description: "<b>Column Leader</b> is stronger based on your Best Honour.",
@@ -3902,26 +3925,15 @@ addLayer("tptr_hn", {
 				unlocked() { return hasUpgrade("tptr_p", 33) },
 				effect() { return Decimal.pow(10, player.tptr_hn.best.plus(1).log10().plus(1).log10().sqrt()).times(1) },
 				effectDisplay() { return format(tmp.tptr_hn.upgrades[33].effect)+"x" },
-			},/*
+			},
 			34: {
 				title: "Solar Exertion",
 				description: "The <b>Solar Potential</b> effect is boosted by your Total Honour.",
-				multiRes: [
-					{
-						cost() { return new Decimal(player.ma.current=="hn"?"1e12820":5e5) },
-					},
-					{
-						currencyDisplayName: "prestige points",
-						currencyInternalName: "points",
-						currencyLayer: "p",
-						cost() { return new Decimal(player.ma.current=="hn"?"e6.32e11":"1e12500000") },
-					},
-				],
-				unlocked() { return player.hn.unlocked && hasUpgrade("p", 34) && hasMilestone("hn", 7) },
-				effect() { return player.hn.total.plus(1).log10().plus(1).log10().plus(1).log10().plus(1) },
-				effectDisplay() { return format(tmp.hn.upgrades[34].effect)+"x" },
-				formula: "log(log(log(x+1)+1)+1)+1",
-			},
+				cost() { return new Decimal(5e11) },
+				unlocked() { return hasUpgrade("tptr_p", 34) },
+				effect() { return player.tptr_hn.total.plus(1).log10().plus(1).log10().plus(1).log10().plus(1) },
+				effectDisplay() { return format(tmp.tptr_hn.upgrades[34].effect)+"x" },
+			},/*
 			35: {
 				title: "Below Death",
 				description: "Purple & Blue Dust multiply the Subspace base.",

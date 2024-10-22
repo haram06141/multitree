@@ -307,7 +307,7 @@ addLayer("burning_c", {
 				effect() {
 					let base=3;
                     let ret = Decimal.pow(base,Decimal.log10(player.burning_c.best.add(3)).pow(0.9));
-                    //if (ret.gte("1e20000000")) ret = ret.sqrt().times("1e10000000")
+                    ret=ret.min(2000/3);
                     return ret;
 				},
                 effectDisplay() { return "^"+format(this.effect()) }, // Add formatting to the effect
@@ -836,6 +836,8 @@ addLayer("burning_e", {
 		tmp[this.layer].effect.mul(Decimal.pow(2,player[this.layer].allocation[5]**layers[this.layer].allocationPower()).sub(1)).div("1e2500").add(1).log10().pow(0.5).div(65).add(1).min(2.2)
 		];
 		if(ret[3].gte(70))ret[3]=ret[3].mul(70).sqrt();
+		if(ret[3].gte(81))ret[3]=ret[3].mul(81).sqrt();
+		ret[3]=ret[3].min(100);
 		return ret;
 	},
 	allocationPower(){

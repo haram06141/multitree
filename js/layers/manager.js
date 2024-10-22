@@ -72,7 +72,7 @@
 					let n=m.log10().root(mfot.p);
 					s=s.add(n);
 					ret.push(["row",[["display-text",TREES[i]+" - log10("+format(m,4)+")^(1/P)="+format(n,4)]]]);
-					if(i==6)i++;
+					if(i==6 && !hasUpgrade("tm",55))i++;
 				}
 				ret.push(["row",[["display-text","-------------------------------------------------------------"]]]);
 				ret.push(["row",[["display-text","Sum: "+format(s,4)]]]);
@@ -211,7 +211,7 @@
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(10.5))return Decimal.pow(10,x.pow(2).mul(1e4).add(1e5));
 					if(x.lt(30.5))return Decimal.pow(10,x.pow(6));
-					if(x.lt(41.5))return Decimal.pow(10,x.pow(x.div(5)));
+					if(x.lt(42.5))return Decimal.pow(10,x.pow(x.div(5)));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -261,7 +261,7 @@
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(13.5))return Decimal.pow(10,x.pow(2).mul(1e6).add(x.mul(5e5)).add(2e7));
 					if(x.lt(20.5))return Decimal.pow(10,x.pow(3).mul(1e5));
-					if(x.lt(29.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
+					if(x.lt(30.5))return Decimal.pow(10,x.pow(x.div(4)).mul(300));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -285,7 +285,8 @@
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
-					if(x.lt(14.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(15.5))return Decimal.pow(10,x.pow(4).mul(5e8).add(x.mul(5e8)));
+					if(x.lt(16.5))return Decimal.pow(10,x.mul(1.25).pow(5).mul(14687500));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -310,7 +311,8 @@
 					x=new Decimal(x);
 					if(x.lt(0.5))return new Decimal(0);
 					if(x.lt(7.5))return Decimal.pow(10,x.add(1).pow(2).mul(1e11).add(2e12));
-					if(x.lt(8.5))return Decimal.pow(10,x.add(1).pow(2).mul(2e11));
+					if(x.lt(9.5))return Decimal.pow(10,x.add(1).pow(2).mul(2e11));
+					if(x.lt(11.5))return Decimal.pow(10,x.pow(x.div(5)).mul(3e11));
 					return Decimal.dInf
                 },
                 display() { // Everything else displayed in the buyable button after the title
@@ -335,10 +337,12 @@
                 title: "Upgrade P", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].p_upg) { // cost for buying xth buyable, can be an object if there are multiple currencies
 					x=new Decimal(x);
-					if(x.gte(20))return Decimal.pow(10,Decimal.mul(7.5e11,x));
-					if(x.gte(11))return Decimal.pow(10,Decimal.mul(5e11,x).add(5.3e12));
-					if(x.gte(5))return Decimal.pow(10,Decimal.mul(2e11,x).add(7.8e12));
-					return Decimal.pow(10,Decimal.mul(1.6e11,x).add(7.8e12));
+					if(x.gte(45))return Decimal.pow(10,x.pow(3).mul(5e8));
+					if(x.gte(34))return Decimal.pow(10,x.pow(2).mul(2.25e10));
+					if(x.gte(20))return Decimal.pow(10,x.mul(7.5e11));
+					if(x.gte(11))return Decimal.pow(10,x.mul(5e11).add(5.3e12));
+					if(x.gte(5))return Decimal.pow(10,x.mul(2e11).add(7.8e12));
+					return Decimal.pow(10,x.mul(1.6e11).add(7.8e12));
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].clickables[this.id]
@@ -665,6 +669,28 @@
 				currencyDisplayName: "points",
 				currencyInternalName: "points",
             },
+		54: {
+				title: "Multitree Upgrade 54",
+                description: "Unlock new upgrades in The Incrementreeverse.",
+                cost: new Decimal("e27e12"),
+                unlocked() { return player[this.layer].points.gte(9); }, // The upgrade is only visible when this is true
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+		55: {
+				title: "Multitree Upgrade 55",
+                description: "Unlock an effect of Rewritten Points in TPTR.",
+                cost: new Decimal("e485e11"),
+                unlocked() { return player[this.layer].points.gte(9); }, // The upgrade is only visible when this is true
+				effect(){
+					let ret=player.modpoints[7].add(1).pow(2);
+					if(player.milestone_m.best.gte(60))ret = ret.pow(50);
+					return ret;
+				},
+				currencyDisplayName: "points",
+				currencyInternalName: "points",
+            },
+
 		16: {
 				title: "Rewrite Prestige",
 				fullDisplay(){

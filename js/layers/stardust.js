@@ -895,6 +895,8 @@ addLayer("stardust_c", {
 					if(player.stardust_c.points.gte(90))ret=new Decimal(7);
 					if(player.stardust_c.points.gte(140))ret=player.stardust_c.points.div(20);
 					if(player.stardust_c.points.gte(200))ret=new Decimal(10);
+					if(player.stardust_c.points.gte(500))ret=player.stardust_c.points.div(50);
+					if(player.stardust_c.points.gte(1000))ret=new Decimal(20);
 					return ret;
                 },
                 effectDisplay() { return "^"+format(this.effect()) }, // Add formatting to the effect
