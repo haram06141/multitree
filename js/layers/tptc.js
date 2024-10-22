@@ -2989,9 +2989,11 @@ addLayer("tptc_l", {
 					if(inChallenge("tptc_ge",31) || player.tptc_mb.buyables[12].lt(1))return new Decimal(1);
 					let x=player[this.layer].buyables[this.id].mul(player.tptc_l.power.add(1).log10().add(1));
 					ret=x.add(1).pow(0.7);
-					if(hasUpgrade("tptc_l",25))if(ret.gte(Decimal.pow(2,16))){
-						ret=ret.log2().div(16).pow(0.82).mul(5).add(11);
-						ret=Decimal.pow(2,ret);
+					if(hasUpgrade("tptc_l",25)){
+						if(ret.gte(Decimal.pow(2,16))){
+							ret=ret.log2().div(16).pow(0.82).mul(5).add(11);
+							ret=Decimal.pow(2,ret);
+						}
 					}else if(ret.gte(Decimal.pow(2,15))){
 						ret=ret.log2().div(15).pow(0.8).mul(5).add(10);
 						ret=Decimal.pow(2,ret);
