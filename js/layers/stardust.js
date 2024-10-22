@@ -67,8 +67,8 @@ addLayer("stardust_s", {
 					let base=20;
                     let ret = Decimal.pow(base,Decimal.log10(player.modpoints[2].mul(10).add(1)).pow(0.9));
 					if(player.stardust_c.points.gte(31))ret = Decimal.pow(base,Decimal.log10(player.modpoints[2].mul(10).add(1)).pow(0.95));
-					if(player.stardust_c.points.gte(33))ret = player.modpoints[2].pow(1.3);
-					if(player.stardust_c.points.gte(37))ret = player.modpoints[2].pow(1.5625);
+					if(player.stardust_c.points.gte(33))ret = player.modpoints[2].add(1).pow(1.3);
+					if(player.stardust_c.points.gte(37))ret = player.modpoints[2].add(1).pow(1.5625);
 					if(hasUpgrade("stardust_so",11))ret=ret.pow(2);
 					if(hasUpgrade("stardust_n",11))ret=ret.pow(2);
 					if(hasUpgrade("stardust_s",31))ret=ret.pow(2);

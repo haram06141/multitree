@@ -161,7 +161,7 @@ function getMultiplierFromOtherTrees() {
 	power=power.add(player.tm.p_upg.mul(0.01));
 	
 	for(var i=2;i<=9;i++){
-		mfots[1]=mfots[1].add(mfots[i].log10().root(power));
+		mfots[1]=mfots[1].add(mfots[i].max(1).log10().root(power));
 	}
 	mfots[1]=mfots[1].pow(power).mul(mfots[0]);
 	mfots[1]=Decimal.pow(10,mfots[1]);
