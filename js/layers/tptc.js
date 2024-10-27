@@ -645,18 +645,23 @@ addLayer("tptc_t", {
     layerShown(){return player.tm.currentTree==1 && player.tm.buyables[1].gte(3)},
 	branches: ["tptc_b"],
 	effect() {
-		let ret = player.tptc_t.points.add(player.tptc_t.buyables[11].mul(inChallenge("tptr_h",31)?0:1));
+		let ret = this.effect1();
 		let base = new Decimal(2);
 		if(player.tptc_h.challenges[11])base=base.add(tmp.tptc_h.challenges[11].rewardEffect);
 		base = base.mul(tmp.tptr_t.effect.tptc_t_boost);
-		ret = Decimal.pow(base,ret.mul(hasUpgrade("tptc_t",15)?1.5:1)).mul(ret);
+		ret = Decimal.pow(base,ret).mul(ret);
 		ret=ret.mul(tmp.tptc_m.clickables[11].effect);
 		ret=ret.mul(inChallenge("tptr_h",32)?0:1);
 		return ret;
 	},
+	effect1() {
+		let ret = player.tptc_t.points.add(player.tptc_t.buyables[11].mul(inChallenge("tptr_h",31)?0:1));
+		ret=ret.mul(hasUpgrade("tptc_t",15)?1.5:1);
+		return ret;
+	},
 	effectDescription() { // Optional text to describe the effects
            let eff = this.effect();
-           return "which are generating "+format(eff)+" Time Energy/sec"+((inChallenge("tptc_h",11)||inChallenge("tptr_h",11))?", but with a limit of "+format(player.tptc_t.points.pow(player.tptc_t.buyables[11].sqrt().add(5)))+" Time Energy":"");
+           return "which are generating "+format(eff)+" Time Energy/sec"+((inChallenge("tptc_h",11)||inChallenge("tptr_h",11))?", but with a limit of "+format(player.tptc_t.points.pow(player.tptc_t.buyables[11].sqrt().mul(this.effect1().sub(player.tptc_t.buyables[11]).sub(player.tptc_t.points).max(1).sqrt()).add(5)))+" Time Energy":"");
        },
 	doReset(l){
 			if(l=="tptc_p" || l=="tptc_b" || l=="tptc_g" || l=="tptc_t" || l=="tptc_e" || l=="tptc_s" || l=="tptc_sb" || l=="tptc_sg" || !l.startsWith("tptc_")){return;}
@@ -667,7 +672,7 @@ addLayer("tptc_t", {
 		
 	 update(diff){
 		 player.tptc_t.energy = player.tptc_t.energy.add(tmp.tptc_t.effect.times(diff)).max(0)
-		 if((inChallenge("tptc_h",11)||inChallenge("tptr_h",11)))player.tptc_t.energy=player.tptc_t.energy.min(player.tptc_t.points.pow(player.tptc_t.buyables[11].sqrt().add(5)));
+		 if((inChallenge("tptc_h",11)||inChallenge("tptr_h",11)))player.tptc_t.energy=player.tptc_t.energy.min(player.tptc_t.points.pow(player.tptc_t.buyables[11].sqrt().mul(this.effect1().sub(player.tptc_t.buyables[11]).sub(player.tptc_t.points).max(1).sqrt()).add(5)));
 		 if(player.tptc_m.best.gte(1)){
 			player.tptc_t.buyables[11]=player.tptc_t.buyables[11].max(player.tptc_b.points.add(1).pow(1/(hasUpgrade("tptc_t",14)?1.4:1.5)).sub(2).add(0.000001).floor());
 		 }
@@ -713,7 +718,8 @@ addLayer("tptc_t", {
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
-                    return "You have "+formatWhole(player[this.layer].buyables[this.id])+" Extra Time Capsules.\n\
+					let extra2 = tmp[this.layer].effect1.sub(player[this.layer].buyables[this.id]).sub(player[this.layer].points);
+                    return "You have "+formatWhole(player[this.layer].buyables[this.id])+(extra2.gte(1)?("+"+formatWhole(extra2)):"")+" Extra Time Capsules.\n\
 					Cost for Next Extra Time Capsule: " + format(data.cost) + " Boosters";
                 },
                 unlocked() { return player.tptc_h.challenges[11] }, 
@@ -769,7 +775,7 @@ addLayer("tptc_t", {
             },
 			15: {
 				title: "Time Upgrade 15",
-                description: "Time Capsules are 1.5x stronger.",
+                description: "Gain Free Extra Time Capsules based on Time Capsules and Extra Time Capsules.",
                 cost: new Decimal(1e6),
                 unlocked() { return hasUpgrade("tm",35); }, // The upgrade is only visible when this is true
             },

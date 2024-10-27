@@ -1375,7 +1375,7 @@ addLayer("milestone_sp", {
 			title: "Super-Prestige Upgrade 25",
             description: "2nd milestone is better.",
             cost: new Decimal("1e600"),
-            unlocked() { return player.tm.buyables[8].gte(16)}, // The upgrade is only visible when this is true
+            unlocked() { return player.milestone_m.points.gte(57)}, // The upgrade is only visible when this is true
         },
 
 	},
