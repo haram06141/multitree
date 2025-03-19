@@ -1,10 +1,10 @@
 let modInfo = {
-	name: "The Multitree",
-	id: "multitree",
-	author: "loader3229",
+	name: "The Study tree",
+	id: "studytree",
+	author: "haram0614",
 	pointsName: "points",
-	discordName: "loader3229's Discord Server",
-	discordLink: "https://discord.gg/jztUReQ2vT",
+	discordName: "",
+	discordLink: "",
 	initialStartPoints: new Decimal (0), // Used for hard resets and new players
 	offlineLimit: 24,  // In hours
 }
